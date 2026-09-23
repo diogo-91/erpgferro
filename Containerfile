@@ -29,6 +29,19 @@ RUN python3 -c "import json;[print(a['url'], a['branch']) for a in json.load(ope
   done < /tmp/apps.txt && \
   ls apps
 
+# Marca: troca so os textos visiveis (NAO o app_name/modulo tecnico "erpnext")
+RUN cd apps/erpnext/erpnext && \
+  sed -i 's/^app_title = "ERPNext"/app_title = "ERP GFerro"/' hooks.py && \
+  sed -i 's/"label": "ERPNext"/"label": "ERP GFerro"/' desktop_icon/erpnext.json && \
+  sed -i 's/^product_name = "ERPNext"/product_name = "ERP GFerro"/' startup/__init__.py && \
+  sed -i 's/"System Settings", "app_name", "ERPNext"/"System Settings", "app_name", "ERP GFerro"/' setup/install.py && \
+  sed -i 's#>ERPNext</a>#>ERP GFerro</a>#' setup/install.py && \
+  grep -q 'app_title = "ERP GFerro"' hooks.py && \
+  grep -q '"label": "ERP GFerro"' desktop_icon/erpnext.json && \
+  grep -q 'product_name = "ERP GFerro"' startup/__init__.py && \
+  grep -q '"app_name", "ERP GFerro"' setup/install.py && \
+  grep -n "GFerro" hooks.py desktop_icon/erpnext.json startup/__init__.py setup/install.py
+
 RUN bench build && \
   echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr

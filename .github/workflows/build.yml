@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [apps.json, .github/workflows/build.yml]
+    paths: [apps.json, Containerfile, .github/workflows/build.yml]
 
 permissions:
   contents: read
