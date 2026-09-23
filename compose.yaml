@@ -11,8 +11,8 @@ x-image: &image
 x-backend: &backend
   <<: *image
   volumes:
-    - sites:/home/frappe/frappe-bench/sites
-    - logs:/home/frappe/frappe-bench/logs
+    - sites2:/home/frappe/frappe-bench/sites
+    - logs2:/home/frappe/frappe-bench/logs
   depends_on:
     configurator:
       condition: service_completed_successfully
@@ -35,7 +35,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MARIADB_AUTO_UPGRADE: 1
     volumes:
-      - db-data:/var/lib/mysql
+      - db-data2:/var/lib/mysql
 
   redis-cache:
     image: redis:8.6-alpine
@@ -45,7 +45,7 @@ services:
     image: redis:8.6-alpine
     restart: unless-stopped
     volumes:
-      - redis-queue-data:/data
+      - redis-queue-data2:/data
 
   configurator:
     <<: *image
@@ -62,8 +62,8 @@ services:
         bench set-config -gp socketio_port 9000;
         bench set-config -g chromium_path /usr/bin/chromium-headless-shell;
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites2:/home/frappe/frappe-bench/sites
+      - logs2:/home/frappe/frappe-bench/logs
     depends_on:
       db:
         condition: service_healthy
@@ -102,8 +102,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites2:/home/frappe/frappe-bench/sites
+      - logs2:/home/frappe/frappe-bench/logs
     depends_on:
       configurator:
         condition: service_completed_successfully
@@ -129,8 +129,8 @@ services:
       PROXY_READ_TIMEOUT: 120
       CLIENT_MAX_BODY_SIZE: 50m
     volumes:
-      - sites:/home/frappe/frappe-bench/sites
-      - logs:/home/frappe/frappe-bench/logs
+      - sites2:/home/frappe/frappe-bench/sites
+      - logs2:/home/frappe/frappe-bench/logs
     depends_on:
       - backend
       - websocket
@@ -152,7 +152,7 @@ services:
     command: bench schedule
 
 volumes:
-  db-data:
-  redis-queue-data:
-  sites:
-  logs:
+  db-data2:
+  redis-queue-data2:
+  sites2:
+  logs2:
