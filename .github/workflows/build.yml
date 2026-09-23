@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [apps.json, Containerfile, .github/workflows/build.yml]
+    paths: [apps.json, Containerfile, i18n/**, .github/workflows/build.yml]
 
 permissions:
   contents: read
@@ -48,6 +48,7 @@ jobs:
         run: |
           cp mine/Containerfile builder/Containerfile.erpgferro
           cp mine/apps.json builder/apps.json
+          cp -r mine/i18n builder/i18n
 
       - name: Show apps.json
         run: |

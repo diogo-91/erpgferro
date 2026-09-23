@@ -42,6 +42,11 @@ RUN cd apps/erpnext/erpnext && \
   grep -q '"app_name", "ERP GFerro"' setup/install.py && \
   grep -n "GFerro" hooks.py desktop_icon/erpnext.json startup/__init__.py setup/install.py
 
+# Traducoes pt-BR: preenche as frases ainda sem traducao (o bench build compila os .po)
+COPY --chown=frappe:frappe i18n /tmp/i18n
+RUN ./env/bin/pip install --quiet polib && \
+  ./env/bin/python /tmp/i18n/apply_translations.py /tmp/i18n/translations.json apps
+
 RUN bench build && \
   echo "{}" > sites/common_site_config.json && \
   find apps -mindepth 1 -path "*/.git" | xargs rm -fr
