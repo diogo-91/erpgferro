@@ -38,6 +38,35 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Show apps.json
+        run: |
+          echo "--- apps.json ---"
+          cat mine/apps.json
+          python3 -c "import json;print('apps:',len(json.load(open('mine/apps.json'))))"
+
+      - name: Build (local test)
+        uses: docker/build-push-action@v6
+        with:
+          context: builder
+          file: builder/images/layered/Containerfile
+          build-args: |
+            FRAPPE_PATH=https://github.com/frappe/frappe
+            FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }}
+          secrets: |
+            id=apps_json,src=mine/apps.json
+          platforms: linux/amd64
+          load: true
+          tags: local/erpgferro:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify apps in image
+        run: |
+          docker run --rm --entrypoint bash local/erpgferro:test -c "ls apps; cat sites/apps.txt 2>/dev/null; ./env/bin/pip list 2>/dev/null | grep -iE 'frappe|erpnext|payments|crm|helpdesk'"
+          for a in frappe erpnext payments crm helpdesk; do
+            docker run --rm --entrypoint bash local/erpgferro:test -c "test -d apps/$a" || { echo "FALTA o app $a"; exit 1; }
+          done
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
