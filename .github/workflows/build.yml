@@ -10,6 +10,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: build-image
+  cancel-in-progress: true
+
 env:
   FRAPPE_BRANCH: version-16
   IMAGE: ghcr.io/diogo-91/erpgferro
