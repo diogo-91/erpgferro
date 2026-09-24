@@ -5,7 +5,7 @@
   (se usar outro nome, ajuste BG_URL logo abaixo)
 */
 (function () {
-  var BG_URL = "/files/gferro-login-bg.webp";
+  var BG_URL = "/files/ChatGPT Image 24 de set. de 2026, 09_03_41.png";
 
   var css = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -113,7 +113,7 @@ body[data-path="login"] .for-login .btn-login-with-email-link { display: none !i
   function build() {
     if (document.body.getAttribute("data-path") !== "login" || document.querySelector(".gf-hero")) return;
 
-    document.body.style.setProperty("--gf-bg-img", "url('" + BG_URL + "')");
+    document.body.style.setProperty("--gf-bg-img", "url('" + encodeURI(BG_URL) + "')");
 
     var hero = document.createElement("div");
     hero.className = "gf-hero";
