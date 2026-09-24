@@ -1,10 +1,14 @@
 /*
   Personalizacao da tela de login - Grupo Gferro
   Onde colar: Site > Personalizar > Script de website (Website Script)
-  Foto de fundo: envie como arquivo PUBLICO e ajuste BG_URL mais abaixo
+  Foto de fundo: envie "gferro-login-bg.webp" em File como arquivo PUBLICO
+  (se usar outro nome, ajuste BG_URL logo abaixo)
 */
 (function () {
-  var css = `@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  var BG_URL = "/files/gferro-login-bg.webp";
+
+  var css = `
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 :root {
   --gf-yellow: #F5C518;
@@ -16,8 +20,8 @@
 /* ---------- Só na tela de login ---------- */
 body[data-path="login"] {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(120deg, #f4f4f4 0%, #ffffff 55%, #ececec 100%);
   min-height: 100vh;
+  background: #1a1a1a var(--gf-bg-img, none) center center / cover no-repeat fixed;
 }
 
 /* esconde o topo e o rodapé padrão (o rodapé vai para dentro do cartão) */
@@ -26,47 +30,33 @@ body[data-path="login"] .page-breadcrumbs,
 body[data-path="login"] .page-header-wrapper,
 body[data-path="login"] .web-footer { display: none !important; }
 
-/* painel esquerdo (montado pelo script abaixo) */
+/* texto de boas-vindas sobre a parte escura da imagem (esquerda) */
 .gf-hero {
-  position: fixed; inset: 0 auto 0 0; width: 58%;
-  background:
-    linear-gradient(100deg, rgba(10,10,10,.92) 0%, rgba(10,10,10,.78) 48%, rgba(10,10,10,.25) 100%),
-    var(--gf-bg, none),
-    linear-gradient(135deg, #1b1b1b, #2b2410);
-  background-size: cover; background-position: center;
-  clip-path: polygon(0 0, 100% 0, 84% 100%, 0 100%);
-  z-index: 0;
-  display: flex; flex-direction: column; justify-content: center;
-  padding: 0 9% 0 6%;
-  color: #fff;
+  position: fixed; left: 6%; top: 50%; transform: translateY(-8%);
+  width: 34%; max-width: 520px; z-index: 1; color: #fff;
+  text-shadow: 0 2px 18px rgba(0,0,0,.45);
 }
-.gf-hero::after { /* faixa amarela na diagonal */
-  content: ""; position: absolute; top: 0; right: -1px; bottom: 0; width: 46px;
-  background: linear-gradient(100deg, transparent 0 40%, rgba(245,197,24,.9) 40% 62%, transparent 62%);
-  transform: skewX(-9deg); opacity: .9; pointer-events: none;
-}
-.gf-hero .gf-hero-logo { position: absolute; top: 48px; left: 6%; height: 74px; border-radius: 4px; }
 .gf-hero h2 {
-  font-size: clamp(34px, 3.6vw, 60px); line-height: 1.08; font-weight: 500;
-  margin: 0 0 26px; letter-spacing: -.01em; color: #fff;
+  font-size: clamp(32px, 3.4vw, 58px); line-height: 1.08; font-weight: 500;
+  margin: 0 0 24px; letter-spacing: -.01em; color: #fff;
 }
 .gf-hero h2 span { color: var(--gf-yellow); font-weight: 700; }
-.gf-hero .gf-bar { width: 52px; height: 4px; background: var(--gf-yellow); border-radius: 2px; margin-bottom: 22px; }
-.gf-hero p { font-size: clamp(15px, 1.25vw, 20px); color: rgba(255,255,255,.78); max-width: 420px; margin: 0; line-height: 1.55; }
+.gf-hero .gf-bar { width: 52px; height: 4px; background: var(--gf-yellow); border-radius: 2px; margin-bottom: 20px; }
+.gf-hero p { font-size: clamp(15px, 1.2vw, 19px); color: rgba(255,255,255,.85); margin: 0; line-height: 1.55; }
 
 /* cartão de login à direita */
 body[data-path="login"] #page-login,
 body[data-path="login"] #page-login .page-content-wrapper { min-height: 100vh; }
 body[data-path="login"] #page-login main.container {
-  max-width: none; width: 100%; margin: 0; padding: 0;
+  max-width: none; width: 100%; margin: 0; padding: 0 6vw 0 0;
   min-height: 100vh; display: flex; align-items: center; justify-content: flex-end;
-  padding-right: 6vw;
 }
 body[data-path="login"] #page-login .page_content { position: relative; z-index: 2; width: 100%; max-width: 460px; }
 body[data-path="login"] .login-content.page-card {
-  background: #fff; border: 0; border-radius: 26px;
+  background: rgba(255,255,255,.96); border: 0; border-radius: 26px;
   padding: 40px 42px 26px; max-width: 460px; width: 100%; margin: 0;
-  box-shadow: 0 30px 70px rgba(0,0,0,.16), 0 6px 18px rgba(0,0,0,.06);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 30px 70px rgba(0,0,0,.28), 0 6px 18px rgba(0,0,0,.1);
 }
 body[data-path="login"] .page-card-head { text-align: left; margin-bottom: 22px; }
 body[data-path="login"] .page-card-head .app-logo { height: 58px; width: auto; border-radius: 4px; margin-bottom: 20px; }
@@ -101,34 +91,33 @@ body[data-path="login"] .for-login .btn-login-with-email-link { display: none !i
 
 /* rodapé dentro do cartão */
 .gf-card-foot { margin-top: 22px; padding-top: 16px; border-top: 1px solid #ececec;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--gf-muted); font-size: 12.5px; }
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; color: var(--gf-muted); font-size: 12.5px; }
 .gf-card-foot img { height: 30px; border-radius: 3px; }
 .gf-card-foot .gf-addr { line-height: 1.4; margin-top: 8px; font-size: 12px; }
 
-/* celular e telas estreitas: só o cartão, centralizado */
+/* telas estreitas / celular: só o cartão, centralizado sobre a imagem */
 @media (max-width: 991px) {
   .gf-hero { display: none; }
   body[data-path="login"] #page-login main.container { justify-content: center; padding: 20px 14px; }
   body[data-path="login"] .login-content.page-card { padding: 30px 24px 22px; }
-}`;
-  var st = document.createElement("style");
-  st.id = "gf-login-style";
-  st.textContent = css;
-  if (!document.getElementById("gf-login-style")) document.head.appendChild(st);
-})();
-(function () {
-  // >>> Ajuste aqui o caminho da foto de fundo (envie como arquivo PUBLICO) <<<
-  var BG_URL = "/files/gferro-login-bg.jpg";
+}
+`;
+
+  if (!document.getElementById("gf-login-style")) {
+    var st = document.createElement("style");
+    st.id = "gf-login-style";
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
 
   function build() {
     if (document.body.getAttribute("data-path") !== "login" || document.querySelector(".gf-hero")) return;
 
-    var logo = document.querySelector(".for-login .app-logo");
+    document.body.style.setProperty("--gf-bg-img", "url('" + BG_URL + "')");
+
     var hero = document.createElement("div");
     hero.className = "gf-hero";
-    hero.style.setProperty("--gf-bg", "url('" + BG_URL + "')");
     hero.innerHTML =
-      (logo ? '<img class="gf-hero-logo" src="' + logo.getAttribute("src") + '" alt="">' : "") +
       '<h2>Construindo soluções para o <span>seu projeto.</span></h2>' +
       '<div class="gf-bar"></div>' +
       '<p>Qualidade, confiança e variedade para a sua obra.</p>';
