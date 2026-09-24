@@ -68,7 +68,7 @@ body[data-path="login"] .login-content.page-card {
   box-shadow: 0 30px 70px rgba(0,0,0,.28), 0 6px 18px rgba(0,0,0,.1);
 }
 body[data-path="login"] .page-card-head { text-align: left; margin-bottom: clamp(10px, 2.4vh, 22px); }
-body[data-path="login"] .page-card-head .app-logo { height: clamp(38px, 6.4vh, 58px); width: auto; border-radius: 4px; margin-bottom: clamp(8px, 2vh, 20px); }
+body[data-path="login"] .page-card-head .app-logo { display: none !important; } /* logo fica so no banner */
 body[data-path="login"] .page-card-head h4 { font-size: clamp(26px, 4.6vh, 36px); font-weight: 800; color: var(--gf-text); letter-spacing: -.02em; margin: 0 0 4px; }
 body[data-path="login"] .page-card-subtitle { color: var(--gf-muted); font-size: clamp(13px, 2vh, 16px); margin: 0; }
 
@@ -102,9 +102,9 @@ body[data-path="login"] .for-login .btn-login-with-email-link { display: none !i
 /* rodapé dentro do cartão */
 .gf-card-foot { margin-top: clamp(12px, 2.4vh, 22px); padding-top: clamp(8px, 1.8vh, 16px); border-top: 1px solid #ececec;
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; color: var(--gf-muted); font-size: 12.5px; }
-.gf-card-foot img { height: 28px; border-radius: 3px; display: block; }
-.gf-card-foot .gf-copy { white-space: nowrap; }
-.gf-card-foot .gf-addr { flex-basis: 100%; line-height: 1.4; font-size: 12px; }
+.gf-card-foot { flex-direction: column; align-items: flex-start; gap: 3px; }
+.gf-card-foot .gf-copy { font-weight: 600; }
+.gf-card-foot .gf-addr { line-height: 1.4; font-size: 12px; }
 
 /* telas baixas (notebooks, janelas pequenas): enxuga o cartão */
 @media (max-height: 700px) {
@@ -113,7 +113,6 @@ body[data-path="login"] .for-login .btn-login-with-email-link { display: none !i
 }
 @media (max-height: 560px) {
   .gf-card-foot { display: none; }
-  body[data-path="login"] .page-card-head .app-logo { display: none; }
 }
 
 /* telas medias: cartao um pouco menor para nao encostar no texto */
@@ -167,14 +166,12 @@ body[data-path="login"] .for-login .btn-login-with-email-link { display: none !i
 
     // rodapé (logo + copyright + endereço) dentro do cartão de login
     var card = document.querySelector(".for-login .login-content");
-    var flogo = document.querySelector(".footer-logo");
     var info = document.querySelector(".footer-info .footer-col-left");
     if (card && !card.querySelector(".gf-card-foot")) {
       var lines = info ? info.innerText.split("\n").map(function (s) { return s.trim(); }).filter(Boolean) : [];
       var foot = document.createElement("div");
       foot.className = "gf-card-foot";
       foot.innerHTML =
-        (flogo ? '<img src="' + flogo.getAttribute("src") + '" alt="">' : "<span></span>") +
         '<div class="gf-copy">' + (lines[0] || "") + '</div>' +
         '<div class="gf-addr">' + (lines[1] || "") + '</div>';
       card.appendChild(foot);
