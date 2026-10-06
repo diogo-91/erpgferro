@@ -1,9 +1,9 @@
 # Compose para o Easypanel (servico "Docker Compose").
-# Variaveis a definir no Easypanel: DB_PASSWORD, ADMIN_PASSWORD
-# Dominio: apontar erp.gferro.com.br para o servico "frontend", porta 8080.
+# Variaveis a definir no Easypanel: SITE_NAME (dominio, ex.: erp.suaempresa.com.br), DB_PASSWORD, ADMIN_PASSWORD
+# Dominio: apontar o dominio de SITE_NAME para o servico "frontend", porta 8080.
 
 x-image: &image
-  image: ghcr.io/diogo-91/erpgferro:latest
+  image: ghcr.io/diogo-91/erpsorocaba:latest
   pull_policy: always
   restart: unless-stopped
   platform: linux/amd64
@@ -93,10 +93,10 @@ services:
             exit 1
           fi
         done;
-        if [ -d "sites/erp.gferro.com.br" ]; then
+        if [ -d "sites/${SITE_NAME:?defina SITE_NAME}" ]; then
           echo "Site ja existe, nada a fazer";
         else
-          bench new-site erp.gferro.com.br             --mariadb-user-host-login-scope='%'             --admin-password="$$ADMIN_PASSWORD"             --db-root-username=root             --db-root-password="$$DB_PASSWORD"             --install-app erpnext             --install-app payments             --install-app crm             --install-app helpdesk             --set-default;
+          bench new-site ${SITE_NAME:?defina SITE_NAME}             --mariadb-user-host-login-scope='%'             --admin-password="$$ADMIN_PASSWORD"             --db-root-username=root             --db-root-password="$$DB_PASSWORD"             --install-app erpnext             --install-app payments             --install-app crm             --install-app helpdesk             --set-default;
         fi;
     environment:
       DB_PASSWORD: ${DB_PASSWORD}
@@ -122,7 +122,7 @@ services:
       BACKEND: backend:8000
       SOCKETIO: websocket:9000
       NGINX_LISTEN_PORT: 8080
-      FRAPPE_SITE_NAME_HEADER: erp.gferro.com.br
+      FRAPPE_SITE_NAME_HEADER: ${SITE_NAME:?defina SITE_NAME}
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"

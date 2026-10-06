@@ -16,7 +16,7 @@ concurrency:
 
 env:
   FRAPPE_BRANCH: version-16
-  IMAGE: ghcr.io/diogo-91/erpgferro
+  IMAGE: ghcr.io/diogo-91/erpsorocaba
 
 jobs:
   build:
@@ -50,7 +50,7 @@ jobs:
 
       - name: Prepare build context
         run: |
-          cp mine/Containerfile builder/Containerfile.erpgferro
+          cp mine/Containerfile builder/Containerfile.erpsorocaba
           cp mine/apps.json builder/apps.json
           cp -r mine/i18n builder/i18n
 
@@ -62,7 +62,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: builder
-          file: builder/Containerfile.erpgferro
+          file: builder/Containerfile.erpsorocaba
           build-args: |
             FRAPPE_PATH=https://github.com/frappe/frappe
             FRAPPE_BRANCH=${{ env.FRAPPE_BRANCH }}
