@@ -31,16 +31,16 @@ RUN python3 -c "import json;[print(a['url'], a['branch']) for a in json.load(ope
 
 # Marca: troca so os textos visiveis (NAO o app_name/modulo tecnico "erpnext")
 RUN cd apps/erpnext/erpnext && \
-  sed -i 's/^app_title = "ERPNext"/app_title = "ERP Sorocaba Motores"/' hooks.py && \
-  sed -i 's/"label": "ERPNext"/"label": "ERP Sorocaba Motores"/' desktop_icon/erpnext.json && \
-  sed -i 's/^product_name = "ERPNext"/product_name = "ERP Sorocaba Motores"/' startup/__init__.py && \
-  sed -i 's/"System Settings", "app_name", "ERPNext"/"System Settings", "app_name", "ERP Sorocaba Motores"/' setup/install.py && \
-  sed -i 's#>ERPNext</a>#>ERP Sorocaba Motores</a>#' setup/install.py && \
-  grep -q 'app_title = "ERP Sorocaba Motores"' hooks.py && \
-  grep -q '"label": "ERP Sorocaba Motores"' desktop_icon/erpnext.json && \
-  grep -q 'product_name = "ERP Sorocaba Motores"' startup/__init__.py && \
-  grep -q '"app_name", "ERP Sorocaba Motores"' setup/install.py && \
-  grep -n "Sorocaba" hooks.py desktop_icon/erpnext.json startup/__init__.py setup/install.py
+  sed -i 's/^app_title = "ERPNext"/app_title = "ERP GFerro"/' hooks.py && \
+  sed -i 's/"label": "ERPNext"/"label": "ERP GFerro"/' desktop_icon/erpnext.json && \
+  sed -i 's/^product_name = "ERPNext"/product_name = "ERP GFerro"/' startup/__init__.py && \
+  sed -i 's/"System Settings", "app_name", "ERPNext"/"System Settings", "app_name", "ERP GFerro"/' setup/install.py && \
+  sed -i 's#>ERPNext</a>#>ERP GFerro</a>#' setup/install.py && \
+  grep -q 'app_title = "ERP GFerro"' hooks.py && \
+  grep -q '"label": "ERP GFerro"' desktop_icon/erpnext.json && \
+  grep -q 'product_name = "ERP GFerro"' startup/__init__.py && \
+  grep -q '"app_name", "ERP GFerro"' setup/install.py && \
+  grep -n "GFerro" hooks.py desktop_icon/erpnext.json startup/__init__.py setup/install.py
 
 # Traducoes pt-BR: preenche as frases ainda sem traducao (o bench build compila os .po)
 COPY --chown=frappe:frappe i18n /tmp/i18n

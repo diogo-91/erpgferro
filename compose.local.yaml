@@ -1,7 +1,0 @@
-# Override para rodar na maquina local (Docker Desktop), sem proxy do Easypanel.
-# Uso: docker compose -f compose.yaml -f compose.local.yaml up -d
-# Acesso: http://localhost:8080  (usuario Administrator, senha = ADMIN_PASSWORD do .env)
-services:
-  frontend:
-    ports:
-      - "8080:8080"
