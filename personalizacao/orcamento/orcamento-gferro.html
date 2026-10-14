@@ -1,0 +1,200 @@
+{#- Formato de impressao: Orçamento Gferro (DocType Quotation) - claro, compacto (1 pagina quando couber) -#}
+{%- set empresa = frappe.get_doc("Company", doc.company) -%}
+{%- set cliente_doc = frappe.db.get_value("Customer", doc.party_name, ["tax_id", "customer_name"], as_dict=True) if doc.quotation_to == "Customer" else None -%}
+{%- set vendedor = doc.get("vendedor") or frappe.db.get_value("User", doc.owner, "full_name") or doc.owner -%}
+{%- set cnpj = empresa.tax_id or "60.365.461/0001-90" -%}
+{%- set end = frappe.db.get_value("Address", doc.customer_address, ["address_line1", "address_line2", "city", "state", "pincode"], as_dict=True) if doc.customer_address else None -%}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  .gf { --y: #F5C518; --k: #141414; --line: #e4e4e0; --mut: #77776f;
+        font-family: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif; color: #222; font-size: 10.5px; line-height: 1.4; }
+  .gf * { box-sizing: border-box; }
+
+  .gf-head { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 10px; border-bottom: 3px solid var(--y); }
+  .gf-head img { height: 54px; width: auto; display: block; }
+  .gf-head .gf-id { text-align: right; }
+  .gf-head .gf-id small { display: block; font-size: 8.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--mut); font-weight: 700; }
+  .gf-head .gf-id b { display: block; font-size: 21px; font-weight: 800; color: var(--k); letter-spacing: -.01em; line-height: 1.15; }
+  .gf-head .gf-id span { color: var(--mut); font-size: 10px; }
+
+  .gf-cols { display: flex; gap: 30px; margin-top: 12px; }
+  .gf-col { flex: 1; }
+  .gf-lab { font-size: 8.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--mut); font-weight: 700; padding-bottom: 3px; margin-bottom: 5px; border-bottom: 1px solid var(--line); }
+  .gf-col .gf-nome { font-size: 13px; font-weight: 800; color: var(--k); margin-bottom: 2px; }
+  .gf-col p { margin: 0; color: #3b3b37; }
+  .gf-col p span { color: var(--mut); display: inline-block; min-width: 56px; }
+
+  .gf-resumo { display: flex; margin-top: 10px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .gf-resumo div { flex: 1; padding: 5px 0 5px 10px; border-left: 1px solid var(--line); }
+  .gf-resumo div:first-child { padding-left: 0; border-left: 0; }
+  .gf-resumo small { display: block; font-size: 8px; letter-spacing: .16em; text-transform: uppercase; color: var(--mut); font-weight: 700; }
+  .gf-resumo b { font-size: 11px; color: var(--k); font-weight: 700; }
+
+  table.gf-itens { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  table.gf-itens th { text-align: left; font-size: 8.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--mut); font-weight: 700; padding: 0 6px 5px; border-bottom: 1.5px solid var(--k); }
+  table.gf-itens td { padding: 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.gf-itens tr { page-break-inside: avoid; }
+  table.gf-itens .n, table.gf-itens th.n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  table.gf-itens .idx { width: 24px; color: var(--mut); }
+  table.gf-itens .nome { font-weight: 700; color: var(--k); }
+  table.gf-itens .cod { color: var(--mut); font-size: 9px; }
+  table.gf-itens .desc { display: block; color: var(--mut); font-size: 9.5px; }
+  table.gf-itens td.sub { font-weight: 800; color: var(--k); }
+
+  .gf-bottom { display: flex; gap: 24px; margin-top: 12px; align-items: flex-start; page-break-inside: avoid; }
+  .gf-pay { flex: 1; }
+  .gf-tot { width: 260px; }
+  .gf-tot .gf-r { display: flex; justify-content: space-between; padding: 4px 0; color: #3b3b37; border-bottom: 1px solid var(--line); }
+  .gf-tot .big { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0 5px; border-bottom: 3px solid var(--y); }
+  .gf-tot .big span { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--mut); font-weight: 700; }
+  .gf-tot .big b { font-size: 19px; font-weight: 800; color: var(--k); letter-spacing: -.01em; }
+  table.gf-parc { border-collapse: collapse; width: 100%; }
+  table.gf-parc th { text-align: left; font-size: 8.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--mut); font-weight: 700; padding: 0 6px 4px 0; border-bottom: 1.5px solid var(--k); }
+  table.gf-parc td { padding: 5px 6px 5px 0; border-bottom: 1px solid var(--line); }
+  table.gf-parc td.v { white-space: nowrap; }
+
+  .gf-obs-wrap { margin-top: 12px; page-break-inside: avoid; }
+  .gf-obs, .gf-obs-terms ul, .gf-obs-terms ol { columns: 2; column-gap: 24px; font-size: 9px; line-height: 1.35; color: #3b3b37; margin: 0; padding-left: 14px; }
+  .gf-obs li, .gf-obs-terms li { margin-bottom: 2px; break-inside: avoid; }
+  .gf-obs li::marker, .gf-obs-terms li::marker { color: #b8920a; font-weight: 700; }
+  .gf-obs-terms p { margin: 0 0 2px; font-size: 9px; }
+  .gf-pix { margin-top: 8px; border-left: 4px solid var(--y); padding: 4px 10px; font-weight: 600; font-size: 9.5px; background: #fffdf2; }
+
+  .gf-foot { margin-top: 10px; padding-top: 7px; border-top: 1px solid var(--line); font-size: 8.5px; color: var(--mut); page-break-inside: avoid; }
+  .gf-foot .gf-fc { color: #3b3b37; font-size: 9px; margin-bottom: 3px; }
+  .gf-foot .gf-fc b { color: var(--k); }
+  .gf-foot .gf-lojas { display: flex; flex-wrap: wrap; gap: 1px 16px; }
+  .gf-foot .gf-lojas b { color: var(--k); font-weight: 700; }
+</style>
+
+<div class="gf">
+  <div class="gf-head">
+    <img src="/files/gferro-logo.webp" alt="Grupo Gferro">
+    <div class="gf-id">
+      <small>Proposta comercial</small>
+      <b>{{ doc.name }}</b>
+      <span>{{ frappe.utils.formatdate(doc.transaction_date) }}</span>
+    </div>
+  </div>
+
+  <div class="gf-cols">
+    <div class="gf-col">
+      <div class="gf-lab">Cliente</div>
+      <div class="gf-nome">{{ doc.customer_name or doc.party_name }}</div>
+      {% if cliente_doc and cliente_doc.tax_id %}<p><span>CNPJ/CPF</span>{{ cliente_doc.tax_id }}</p>{% endif %}
+      {% if doc.contact_mobile or doc.contact_phone %}<p><span>Telefone</span>{{ doc.contact_mobile or doc.contact_phone }}</p>{% endif %}
+      {% if doc.contact_email %}<p><span>E-mail</span>{{ doc.contact_email }}</p>{% endif %}
+      {% if end %}<p><span>Endereço</span>{{ [end.address_line1, end.address_line2, end.city, end.state, end.pincode] | select | join(", ") }}</p>
+      {% elif doc.address_display %}<p><span>Endereço</span>{{ doc.address_display | replace("<br>", ", ") | striptags }}</p>{% endif %}
+    </div>
+    <div class="gf-col">
+      <div class="gf-lab">Fornecedor</div>
+      <div class="gf-nome">{{ empresa.company_name }}</div>
+      <p><span>CNPJ</span>{{ cnpj }}</p>
+      {% if empresa.phone_no %}<p><span>Telefone</span>{{ empresa.phone_no }}</p>{% endif %}
+      {% if empresa.email %}<p><span>E-mail</span>{{ empresa.email }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="gf-resumo">
+    <div><small>Emissão</small><b>{{ frappe.utils.formatdate(doc.transaction_date) }}</b></div>
+    <div><small>Validade</small><b>{{ frappe.utils.formatdate(doc.valid_till) if doc.valid_till else "—" }}</b></div>
+    <div><small>Vendedor</small><b>{{ vendedor }}</b></div>
+    <div><small>Pagamento</small><b>{% if doc.payment_terms_template %}{{ doc.payment_terms_template }}{% elif doc.payment_schedule %}{{ doc.payment_schedule|length }} parcela{{ "s" if doc.payment_schedule|length > 1 else "" }}{% else %}À vista{% endif %}</b></div>
+    {% if doc.incoterm %}<div><small>Frete</small><b>{{ doc.incoterm }}{% if doc.named_place %} · {{ doc.named_place }}{% endif %}</b></div>{% endif %}
+  </div>
+
+  <table class="gf-itens">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Produto</th>
+        <th class="n">Medida</th>
+        <th class="n">Qtde</th>
+        <th>Un.</th>
+        <th class="n">Preço un.</th>
+        <th class="n">Subtotal</th>
+        <th class="n">Prazo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in doc.items %}
+      <tr>
+        <td class="idx">{{ "%02d"|format(loop.index) }}</td>
+        <td>
+          <span class="nome">{{ row.item_name }}</span> <span class="cod">· Cód. {{ row.item_code }}</span>
+          {% if row.description and row.description != row.item_name %}<span class="desc">{{ row.description }}</span>{% endif %}
+        </td>
+        <td class="n">{% if row.get("medida") %}{{ "%.2f"|format(row.medida)|replace(".", ",") }} m{% else %}—{% endif %}</td>
+        <td class="n">{% if row.get("qtd_pecas") %}{{ "%g"|format(row.qtd_pecas)|replace(".", ",") }}{% else %}{{ row.get_formatted("qty", doc) }}{% endif %}</td>
+        <td>{{ row.uom }}</td>
+        <td class="n">{{ row.get_formatted("rate", doc) }}</td>
+        <td class="n sub">{{ row.get_formatted("amount", doc) }}</td>
+        <td class="n">{% if row.get("prazo_dias") %}{{ row.prazo_dias | int }} dia(s){% elif row.delivery_date %}{{ frappe.utils.date_diff(row.delivery_date, doc.transaction_date) }} dia(s){% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="gf-bottom">
+    <div class="gf-pay">
+      {% if doc.payment_schedule %}
+      <div class="gf-lab">Condições de pagamento</div>
+      <table class="gf-parc">
+        <thead><tr><th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Observação</th></tr></thead>
+        <tbody>
+          {% for p in doc.payment_schedule %}
+          <tr>
+            <td>{{ p.payment_term or ("Parcela " ~ loop.index) }}{% if p.invoice_portion and doc.payment_schedule|length > 1 %} <span style="color:#77776f">({{ "%g"|format(p.invoice_portion) }}%)</span>{% endif %}</td>
+            <td>{% if p.payment_term and "entrega" in p.payment_term|lower %}Na entrega{% else %}{{ frappe.utils.formatdate(p.due_date) }}{% endif %}</td>
+            <td class="v"><b>{{ p.get_formatted("payment_amount", doc) }}</b></td>
+            <td>{{ p.description or "" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+    </div>
+    <div class="gf-tot">
+      <div class="gf-r"><span>Total das mercadorias</span><span>{{ doc.get_formatted("total") }}</span></div>
+      {% for t in doc.taxes %}
+      <div class="gf-r"><span>{{ t.description | striptags }}</span><span>{{ t.get_formatted("tax_amount", doc) }}</span></div>
+      {% endfor %}
+      {% if doc.discount_amount %}<div class="gf-r"><span>Desconto</span><span>- {{ doc.get_formatted("discount_amount") }}</span></div>{% endif %}
+      <div class="big"><span>Total</span><b>{{ doc.get_formatted("grand_total") }}</b></div>
+    </div>
+  </div>
+
+  <div class="gf-obs-wrap">
+    <div class="gf-lab">Observações e condições comerciais</div>
+    {% if doc.terms %}
+      <div class="gf-obs-terms">{{ doc.terms }}</div>
+    {% else %}
+    <ol class="gf-obs">
+      <li>Posição de pedidos: contatar o SAC (15) 99850-7812 — somente WhatsApp, não recebemos ligação.</li>
+      <li>O descarregamento só é feito mediante o pagamento do valor devido, salvo acordo entre cliente e empresa, com o aval da diretoria.</li>
+      <li>A descarga é feita somente ao lado do nosso caminhão.</li>
+      <li>A taxa da maquininha do cartão de crédito é repassada ao cliente.</li>
+      <li>Não aceitamos alteração nem devolução de dinheiro após o início da produção.</li>
+      <li>Conferir o pedido na entrega (itens, medidas, quantidades, valores, condições de pagamento, endereço e prazo de entrega).</li>
+      <li>O recebimento e a conferência devem ser feitos pelo próprio cliente ou por profissional da obra por ele autorizado, no momento do descarregamento.</li>
+      <li>O cliente é responsável pelas medidas especificadas no pedido.</li>
+      <li>É necessário quitar 100% do pedido para descarregar o material.</li>
+      <li>Entregas de acordo com a logística de formação de carga.</li>
+      <li>Em razão de logística e pintura poderá haver atraso, sem que isso implique responsabilidade civil por parte da GFERRO.</li>
+    </ol>
+    {% endif %}
+    <div class="gf-pix">Recebimentos somente em conta jurídica. Chave PIX autorizada: CNPJ {{ cnpj }}.</div>
+  </div>
+
+  <div class="gf-foot">
+    <div class="gf-fc"><b>{{ empresa.company_name }}</b> · CNPJ {{ cnpj }}{% if empresa.phone_no %} · {{ empresa.phone_no }}{% endif %}{% if empresa.email %} · {{ empresa.email }}{% endif %}</div>
+    <div class="gf-lojas">
+      <span><b>Loja 1</b> Rua Professor Toledo, 125 – Sorocaba/SP</span>
+      <span><b>Loja 2</b> Av. Pereira da Silva, 273 – Sorocaba/SP</span>
+      <span><b>Loja 3</b> Av. Itavuvú, 5040 – Galpão 1 – Sorocaba/SP</span>
+      <span><b>Loja 4</b> Av. Gisele Constantino, 122 – Votorantim/SP</span>
+      <span><b>Loja 5</b> Av. Firmo Vieira de Camargo, 979 – Tatuí/SP</span>
+    </div>
+  </div>
+</div>

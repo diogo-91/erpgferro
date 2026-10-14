@@ -22,10 +22,10 @@ dados = json.load(open("/tmp/produtos.json", encoding="utf-8"))
 produtos = dados["produtos"] if isinstance(dados, dict) else dados
 
 UDM = {
-    "METRO QUADRADO": "Square Meter",
+    "METRO QUADRADO": "M²",
     "UNIDADE": "Unit",
     "QUILOGRAMA": "Kg",
-    "METRO": "Meter",
+    "METRO": "M",
     "LITRO": "Litre",
     "CAIXA": "Box",
     "BARRA": "Barra",
