@@ -42,6 +42,13 @@ RUN cd apps/erpnext/erpnext && \
   grep -q '"app_name", "ERP GFerro"' setup/install.py && \
   grep -n "GFerro" hooks.py desktop_icon/erpnext.json startup/__init__.py setup/install.py
 
+# Desk GFerro: barra lateral unica, logo e abrir na tela de menu (app_include_css/js do erpnext)
+COPY --chown=frappe:frappe personalizacao/desk /tmp/desk
+RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
+  cp /tmp/desk/gferro-desk.css /tmp/desk/gferro-desk.js /tmp/desk/gferro-logo.webp apps/erpnext/erpnext/public/gferro/ && \
+  python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
+  grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py
+
 # Traducoes pt-BR: preenche as frases ainda sem traducao (o bench build compila os .po)
 COPY --chown=frappe:frappe i18n /tmp/i18n
 RUN ./env/bin/pip install --quiet polib && \

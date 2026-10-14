@@ -1,0 +1,73 @@
+/* ERP GFerro - barra lateral unica (preta, fontes brancas, ativo amarelo) */
+:root {
+  --gf-yellow: #F5C518;
+  --gf-side-bg: #0f0f0f;
+  --gf-side-hover: rgba(255,255,255,.08);
+  --gf-side-line: rgba(255,255,255,.10);
+}
+
+/* some o trilho de icones: o menu fica numa barra unica */
+.dock { display: none !important; }
+
+.body-sidebar {
+  background: var(--gf-side-bg) !important;
+  border-right: 1px solid var(--gf-side-line) !important;
+  --ink-gray-8: #fff; --ink-gray-7: #fff; --ink-gray-6: rgba(255,255,255,.75);
+  --text-muted: rgba(255,255,255,.75);
+  color: #fff;
+}
+.body-sidebar .sidebar-header,
+.body-sidebar .body-sidebar-top,
+.body-sidebar .body-sidebar-cards,
+.body-sidebar .body-sidebar-bottom { display: none !important; }
+
+/* marca */
+.gf-brand { display: block; padding: 18px 16px 14px; border-bottom: 1px solid var(--gf-side-line); }
+.gf-brand img { display: block; width: 100%; max-width: 180px; height: auto; filter: invert(1); mix-blend-mode: screen; }
+
+/* pesquisa/notificacao nativas */
+.body-sidebar .standard-items-band { padding-top: 8px; }
+.body-sidebar .standard-items-band .standard-sidebar-item,
+.body-sidebar .standard-items-band .item-anchor,
+.body-sidebar .standard-items-band .sidebar-item-label,
+.body-sidebar .standard-items-band svg { color: #fff !important; }
+.body-sidebar .standard-items-band .standard-sidebar-item:hover { background: var(--gf-side-hover) !important; border-radius: 8px; }
+
+/* menu */
+.gf-nav { flex: 1 1 0; overflow-y: auto; padding: 6px 8px 12px; scrollbar-width: thin; scrollbar-color: #333 transparent; }
+.gf-nav a, .gf-nav button { color: #fff; text-decoration: none; }
+.gf-mod { margin-bottom: 2px; }
+.gf-mod-head, .gf-sec-head {
+  display: flex; align-items: center; gap: 10px; width: 100%; height: 34px; padding: 0 10px;
+  background: none; border: 0; border-radius: 8px; cursor: pointer; text-align: left;
+  font: inherit; font-size: 14px; font-weight: 600; color: #fff;
+}
+.gf-mod-head:hover, .gf-sec-head:hover, .gf-link:hover { background: var(--gf-side-hover); }
+.gf-mod-head svg { width: 18px; height: 18px; flex: 0 0 18px; stroke: currentColor; }
+.gf-link .gf-label, .gf-mod-head .gf-label, .gf-sec-head .gf-label { text-align: left; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gf-chev { width: 14px; height: 14px; transition: transform .15s; opacity: .7; }
+.gf-open > .gf-mod-head .gf-chev, .gf-open > .gf-sec-head .gf-chev { transform: rotate(90deg); }
+.gf-mod.gf-has-active > .gf-mod-head { color: var(--gf-yellow); }
+
+.gf-children { display: none; padding: 2px 0 6px 12px; margin-left: 17px; border-left: 1px solid var(--gf-side-line); }
+.gf-open > .gf-children { display: block; }
+.gf-link {
+  display: flex; align-items: center; justify-content: flex-start; text-align: left; gap: 10px; width: 100%; box-sizing: border-box; height: 32px; padding: 0 10px; border-radius: 8px;
+  font-size: 13.5px; font-weight: 400; color: rgba(255,255,255,.92); position: relative;
+}
+.gf-link svg { width: 15px; height: 15px; flex: 0 0 15px; stroke: currentColor; opacity: .85; }
+.gf-link .gf-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gf-link.gf-active { color: var(--gf-yellow); font-weight: 600; background: rgba(245,197,24,.12); }
+.gf-link.gf-active::before { content: ""; position: absolute; left: -13px; top: 6px; bottom: 6px; width: 3px; border-radius: 2px; background: var(--gf-yellow); }
+.gf-sec-head { height: 30px; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: rgba(255,255,255,.65); text-transform: uppercase; }
+.gf-sec-head svg { width: 14px; height: 14px; flex: 0 0 14px; stroke: currentColor; }
+.gf-sec .gf-children { margin-left: 10px; }
+
+/* rodape: usuario */
+.gf-foot { border-top: 1px solid var(--gf-side-line); padding: 8px; display: flex; align-items: center; gap: 8px; }
+.gf-foot .gf-user { flex: 1; min-width: 0; font-size: 13px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gf-foot .gf-user small { display: block; color: rgba(255,255,255,.6); font-size: 11.5px; }
+.gf-foot a { color: #fff; display: inline-flex; align-items: center; height: 30px; padding: 0 10px; border-radius: 8px; font-size: 12.5px; font-weight: 600; background: var(--gf-side-hover); }
+.gf-foot a:hover { background: var(--gf-yellow); color: #0f0f0f; }
+.gf-foot a.gf-home { background: var(--gf-yellow); color: #0f0f0f; }
+.gf-foot a.gf-home:hover { background: #ffd43b; }
