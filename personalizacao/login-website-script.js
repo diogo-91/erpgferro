@@ -61,47 +61,52 @@ body[data-path="login"] .for-login > div { min-height: 0 !important; height: aut
 
 /* cartão (medidas escalam com a altura da tela) */
 body[data-path="login"] .login-content.page-card {
-  background: rgba(255,255,255,.96); border: 0; border-radius: 26px;
+  background: rgba(10,10,10,.28); border: 1px solid rgba(255,255,255,.22); border-radius: 26px;
   padding: clamp(20px, 4.4vh, 40px) clamp(22px, 3vw, 42px) clamp(14px, 2.6vh, 26px);
   max-width: 460px; width: 100%; margin: 0; min-height: 0 !important; height: auto !important;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 30px 70px rgba(0,0,0,.28), 0 6px 18px rgba(0,0,0,.1);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 30px 70px rgba(0,0,0,.35);
 }
 body[data-path="login"] .page-card-head { text-align: left; margin-bottom: clamp(10px, 2.4vh, 22px); }
 body[data-path="login"] .page-card-head .app-logo { display: none !important; } /* logo fica so no banner */
-body[data-path="login"] .page-card-head h4 { font-size: clamp(26px, 4.6vh, 36px); font-weight: 800; color: var(--gf-text); letter-spacing: -.02em; margin: 0 0 4px; }
-body[data-path="login"] .page-card-subtitle { color: var(--gf-muted); font-size: clamp(13px, 2vh, 16px); margin: 0; }
+body[data-path="login"] .page-card-head h4 { font-size: clamp(26px, 4.6vh, 36px); font-weight: 800; color: #fff !important; letter-spacing: -.02em; margin: 0 0 4px; }
+body[data-path="login"] .page-card-subtitle { color: rgba(255,255,255,.78) !important; font-size: clamp(13px, 2vh, 16px); margin: 0; }
 
 body[data-path="login"] .form-group { margin-bottom: clamp(8px, 1.8vh, 16px); }
-body[data-path="login"] .form-label { color: var(--gf-muted); font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+body[data-path="login"] .form-label { color: rgba(255,255,255,.85) !important; font-size: 14px; font-weight: 500; margin-bottom: 4px; }
 body[data-path="login"] .form-control {
-  height: clamp(42px, 6vh, 50px); border-radius: 12px; border: 1px solid #e3e6ee; background: #f3f5fb;
-  font-size: 15px; transition: box-shadow .15s, border-color .15s, background .15s;
+  height: clamp(42px, 6vh, 50px); border-radius: 12px; border: 1px solid rgba(255,255,255,.28) !important; background: rgba(255,255,255,.12) !important;
+  color: #fff !important; -webkit-text-fill-color: #fff; font-size: 15px; transition: box-shadow .15s, border-color .15s, background .15s;
 }
+body[data-path="login"] input:-webkit-autofill { -webkit-text-fill-color: #fff; transition: background-color 9999s; }
+body[data-path="login"] .form-control::placeholder { color: rgba(255,255,255,.55); }
 body[data-path="login"] .form-control:focus {
-  background: #fff; border-color: var(--gf-yellow); box-shadow: 0 0 0 4px rgba(245,197,24,.28);
+  color: #fff !important; background: rgba(255,255,255,.18) !important; border-color: var(--gf-yellow); box-shadow: 0 0 0 4px rgba(245,197,24,.28);
 }
 body[data-path="login"] .forgot-password-message { text-align: right; margin: 6px 0 0; }
 body[data-path="login"] .forgot-password-message a {
-  color: var(--gf-text); font-weight: 600; text-decoration: none;
+  color: #fff !important; font-weight: 600; text-decoration: none;
   border-bottom: 2px solid var(--gf-yellow); padding-bottom: 1px;
 }
 
 /* botão principal */
-body[data-path="login"] .btn-login {
-  height: clamp(44px, 6.4vh, 52px); border-radius: 12px; background: var(--gf-black); border: 0; color: #fff;
+body[data-path="login"] .btn-login,
+body[data-path="login"] .for-login .es-button {
+  height: clamp(44px, 6.4vh, 52px); border-radius: 12px; background: var(--gf-yellow) !important; border: 0 !important; color: var(--gf-black) !important;
   font-size: 16px; font-weight: 700; letter-spacing: .01em;
   box-shadow: 0 8px 20px rgba(0,0,0,.22); transition: transform .12s, box-shadow .12s, background .12s;
 }
-body[data-path="login"] .btn-login:hover { background: #000; transform: translateY(-1px); box-shadow: 0 12px 26px rgba(0,0,0,.28); }
-body[data-path="login"] .btn-login::after { content: "  →"; color: var(--gf-yellow); }
+body[data-path="login"] .btn-login:hover,
+body[data-path="login"] .for-login .es-button:hover { background: #ffd43b !important; transform: translateY(-1px); box-shadow: 0 12px 26px rgba(0,0,0,.28); }
+body[data-path="login"] .btn-login::after,
+body[data-path="login"] .for-login .es-button::after { content: "  →"; color: var(--gf-black); }
 
 /* remove o botão "Entrar com link de e-mail" */
 body[data-path="login"] .for-login .btn-login-with-email-link { display: none !important; }
 
 /* rodapé dentro do cartão */
-.gf-card-foot { margin-top: clamp(12px, 2.4vh, 22px); padding-top: clamp(8px, 1.8vh, 16px); border-top: 1px solid #ececec;
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; color: var(--gf-muted); font-size: 12.5px; }
+.gf-card-foot { margin-top: clamp(12px, 2.4vh, 22px); padding-top: clamp(8px, 1.8vh, 16px); border-top: 1px solid rgba(255,255,255,.2);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; color: rgba(255,255,255,.75); font-size: 12.5px; }
 .gf-card-foot { flex-direction: column; align-items: flex-start; gap: 3px; }
 .gf-card-foot .gf-copy { font-weight: 600; }
 .gf-card-foot .gf-addr { line-height: 1.4; font-size: 12px; }
