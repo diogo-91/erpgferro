@@ -20,8 +20,8 @@
 body[data-path="login"] {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
-  /* imagem menor (82% da largura), ancorada à esquerda; o fundo escuro completa o resto */
-  background: #0b0b0b var(--gf-bg-img, none) left center / 82% auto no-repeat fixed;
+  /* imagem em tela cheia, ancorada no topo-esquerda */
+  background: #0b0b0b var(--gf-bg-img, none) left top / cover no-repeat fixed;
 }
 
 /* esconde o topo e o rodapé padrão (o rodapé vai para dentro do cartão) */
