@@ -1,0 +1,6 @@
+# Override para rodar localmente: docker compose -f compose.yaml -f compose.local.yaml up -d
+# Acesse em http://localhost:8080 (o nginx ja forca o site erp.gferro.com.br via FRAPPE_SITE_NAME_HEADER).
+services:
+  frontend:
+    ports:
+      - "8080:8080"

@@ -4,7 +4,7 @@
   Foto de fundo: arquivo PUBLICO enviado em File (ajuste BG_URL se o nome mudar)
 */
 (function () {
-  var BG_URL = "/files/ChatGPT Image 24 de set. de 2026, 09_03_41.png";
+  var BG_URL = "/files/gferro-login-bg.webp";
 
   var css = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -32,7 +32,7 @@ body[data-path="login"] .web-footer { display: none !important; }
 
 /* texto de boas-vindas sobre a parte escura da imagem (esquerda) */
 .gf-hero {
-  position: fixed; left: 5vw; top: 50%; transform: translateY(-2%);
+  position: fixed; left: 5vw; top: 64%; transform: none;
   width: 34vw; max-width: 520px; z-index: 1; color: #fff;
   text-shadow: 0 2px 18px rgba(0,0,0,.5);
 }
