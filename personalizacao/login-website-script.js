@@ -20,8 +20,8 @@
 body[data-path="login"] {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
-  /* ancora no topo-esquerda: o logo da imagem nunca é cortado, só o rodapé da foto */
-  background: #1a1a1a var(--gf-bg-img, none) left top / cover no-repeat fixed;
+  /* imagem menor (82% da largura), ancorada à esquerda; o fundo escuro completa o resto */
+  background: #0b0b0b var(--gf-bg-img, none) left center / 82% auto no-repeat fixed;
 }
 
 /* esconde o topo e o rodapé padrão (o rodapé vai para dentro do cartão) */
@@ -156,13 +156,6 @@ body[data-path="login"] .for-login .btn-login-with-email-link { display: none !i
 
     document.body.style.setProperty("--gf-bg-img", "url('" + encodeURI(BG_URL) + "')");
 
-    var hero = document.createElement("div");
-    hero.className = "gf-hero";
-    hero.innerHTML =
-      '<h2>Construindo soluções para o <span>seu projeto.</span></h2>' +
-      '<div class="gf-bar"></div>' +
-      '<p>Qualidade, confiança e variedade para a sua obra.</p>';
-    document.body.appendChild(hero);
 
     // rodapé (logo + copyright + endereço) dentro do cartão de login
     var card = document.querySelector(".for-login .login-content");
