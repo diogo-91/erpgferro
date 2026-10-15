@@ -8,6 +8,24 @@
   var LOGO = "/assets/erpnext/gferro/gferro-logo.webp";
   var ORDER = ["Setup", "Accounts", "Selling", "Buying", "Stock", "Manufacturing", "Projects", "Assets", "Quality"];
   var STORE = "gf-sidebar-open";
+  var KANBAN_ORCAMENTO = "/desk/quotation/view/kanban/Or%C3%A7amentos";
+
+  // qualquer atalho para a lista de Orcamentos (menu, painel, link) cai no quadro Kanban;
+  // quem escolhe "Lista" na troca de visualizacao continua na lista
+  function irParaKanban() {
+    try {
+      var r = frappe.get_route();
+      if (r && r[0] === "List" && r[1] === "Quotation" && !/\/view\//.test(location.pathname)) {
+        frappe.set_route("List", "Quotation", "Kanban", "Orçamentos");
+      }
+    } catch (e) {}
+  }
+  function iniciarRedirecionamento() {
+    try { frappe.router.on("change", function () { setTimeout(irParaKanban, 0); }); } catch (e) {}
+    setTimeout(irParaKanban, 800);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", iniciarRedirecionamento);
+  else iniciarRedirecionamento();
 
   // rotulos que o Frappe deixa em ingles
   var PT = {
@@ -45,6 +63,8 @@
 
   function linkHtml(it) {
     var href = route(it);
+    // "Orcamento" no menu abre sempre o quadro Kanban
+    if (it.link_type === "DocType" && it.link_to === "Quotation") href = KANBAN_ORCAMENTO;
     if (!href) return "";
     return '<a class="gf-link" href="' + esc(href) + '" data-href="' + esc(href) + '">' + icon(it.icon) +
       '<span class="gf-label">' + esc(tr(it.label)) + "</span></a>";
@@ -229,6 +249,69 @@
     mo.observe(document.body, { childList: true, subtree: true });
     ensureKpis();
   }
+
+  /* botao PDF da impressao: baixa o arquivo direto, em vez de abrir uma aba do navegador.
+     O Frappe abre o PDF com window.open(); aqui a chamada vira um download. */
+  (function () {
+    var abrirOriginal = window.open;
+    function baixarPdf(url) {
+      var nome = "documento.pdf";
+      try {
+        var p = new URL(url, location.origin).searchParams;
+        nome = String(p.get("name") || p.get("docname") || "documento").replace(/[\\\/\s]+/g, "-") + ".pdf";
+      } catch (e) {}
+      fetch(url, { credentials: "same-origin" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("falha " + r.status);
+          return r.blob();
+        })
+        .then(function (blob) {
+          var a = document.createElement("a");
+          var obj = URL.createObjectURL(blob);
+          a.href = obj; a.download = nome;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(obj); }, 4000);
+        })
+        .catch(function () { abrirOriginal.call(window, url, "_blank"); });
+    }
+    window.open = function (url) {
+      try {
+        if (url && /\/api\/method\/frappe\.utils\.(print_format|print_format_generator)\.download_pdf/.test(String(url))) {
+          baixarPdf(String(url));
+          return { closed: false, focus: function () {}, close: function () {} };
+        }
+      } catch (e) {}
+      return abrirOriginal.apply(window, arguments);
+    };
+  })();
+
+  /* a tela de impressao do ERPNext abre "Inserir Detalhes da Empresa" quando falta logo/site/endereco.
+     O modelo Gferro ja traz esses dados, entao a consulta e respondida como "nada faltando". */
+  try {
+    var chamar = frappe.call;
+    frappe.call = function (opts) {
+      if (opts && opts.method === "erpnext.controllers.accounts_controller.get_missing_company_details") {
+        if (typeof opts.callback === "function") { try { opts.callback({ message: null }); } catch (e) {} }
+        return Promise.resolve({ message: null });
+      }
+      return chamar.apply(this, arguments);
+    };
+    for (var k in chamar) { if (Object.prototype.hasOwnProperty.call(chamar, k)) frappe.call[k] = chamar[k]; }
+  } catch (e) {}
+
+  /* clicar em qualquer parte do cartao do Kanban abre o documento */
+  document.addEventListener("click", function (e) {
+    var card = e.target.closest && e.target.closest(".kn-card");
+    if (!card) return;
+    // links, botoes, campos e o titulo (que ja abre sozinho) mantem o comportamento proprio
+    if (e.target.closest("a, button, input, select, textarea, .kn-card-title, .dropdown-menu, [role=button]")) return;
+    var name = card.getAttribute("data-name");
+    var route = frappe.get_route ? frappe.get_route() : [];
+    var doctype = (window.cur_list && cur_list.doctype) || (route[0] === "List" ? route[1] : null);
+    if (!name || !doctype) return;
+    e.preventDefault();
+    frappe.set_route("Form", doctype, name);
+  });
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", kpiStart); else kpiStart();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();

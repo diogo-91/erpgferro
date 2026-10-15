@@ -288,3 +288,11 @@ body .page-container { background: #f2f2ee; }
 .gf-kpis + .kanban-v2-container { padding-top: 18px !important; }
 @media (max-width: 1280px) { .gf-kpis { grid-template-columns: repeat(3, minmax(150px, 1fr)); } }
 @media (max-width: 700px) { .gf-kpis { grid-template-columns: repeat(2, 1fr); padding: 14px 12px 0; } }
+
+.kn-card { cursor: pointer !important; }
+
+/* tela de impressao: so a visualizacao do orcamento (sem o painel de opcoes a esquerda) */
+#page-print .print-preview-sidebar, .print-preview-sidebar { display: none !important; }
+#page-print .layout-main-section-wrapper, #page-print .layout-main-section { width: 100% !important; max-width: 100% !important; flex: 1 1 100%; padding-left: 0; }
+#page-print .layout-main.layout-two-column { display: block; }
+#page-print .print-preview-wrapper { margin: 0 auto; }
