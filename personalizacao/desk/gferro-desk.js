@@ -148,5 +148,88 @@
     try { frappe.router.on("change", function () { setTimeout(markActive, 50); }); } catch (e) {}
   }
 
+  /* ---------- KPIs acima do quadro Kanban de orcamentos ---------- */
+  var ABERTAS = ["Rascunho", "Enviado ao cliente", "Em negociação"];
+  var GANHAS = ["Aprovado", "Pedido gerado"];
+  var kpiBusy = false, kpiTimer = null;
+
+  function brl(v) {
+    try { return format_currency(v, "BRL"); } catch (e) { return "R$ " + (v || 0).toFixed(2); }
+  }
+  function isQuotationKanban() {
+    return /\/quotation\/view\/kanban/i.test(location.pathname);
+  }
+  function kpiCard(cor, rotulo, valor, detalhe) {
+    return '<div class="gf-kpi gf-kpi-' + cor + '"><span class="gf-kpi-l">' + esc(rotulo) + '</span>' +
+      '<b class="gf-kpi-v">' + esc(valor) + '</b><span class="gf-kpi-d">' + esc(detalhe) + "</span></div>";
+  }
+  function renderKpis(rows) {
+    var host = document.querySelector(".gf-kpis");
+    if (!host) return;
+    var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    var em7 = new Date(hoje.getTime() + 7 * 86400000);
+    var mes = hoje.getFullYear() + "-" + ("0" + (hoje.getMonth() + 1)).slice(-2);
+    var t = rows.length, soma = 0, abN = 0, abV = 0, ganN = 0, ganV = 0, perN = 0, venc = 0, mesN = 0;
+    rows.forEach(function (r) {
+      var v = flt(r.grand_total), e = r.etapa || "Rascunho";
+      soma += v;
+      if ((r.transaction_date || "").indexOf(mes) === 0) mesN++;
+      if (ABERTAS.indexOf(e) > -1) {
+        abN++; abV += v;
+        if (r.valid_till) {
+          var d = new Date(r.valid_till + "T00:00:00");
+          if (d >= hoje && d <= em7) venc++;
+        }
+      } else if (GANHAS.indexOf(e) > -1) { ganN++; ganV += v; }
+      else if (e === "Perdido") { perN++; }
+    });
+    var decididos = ganN + perN;
+    var conv = decididos ? Math.round(ganN * 100 / decididos) + "%" : "—";
+    host.innerHTML =
+      kpiCard("cinza", "Orçamentos", String(t), mesN + " neste mês") +
+      kpiCard("amarelo", "Em aberto", brl(abV), abN + " orçamento(s)") +
+      kpiCard("verde", "Aprovados", brl(ganV), ganN + " orçamento(s)") +
+      kpiCard("azul", "Conversão", conv, decididos ? ganN + " de " + decididos + " decididos" : "sem decididos") +
+      kpiCard("roxo", "Ticket médio", brl(t ? soma / t : 0), "valor médio por orçamento") +
+      kpiCard(venc ? "vermelho" : "cinza", "Vencendo em 7 dias", String(venc), venc ? "peça retorno ao cliente" : "nenhum a vencer");
+  }
+  function loadKpis() {
+    if (kpiBusy || !isQuotationKanban() || !window.frappe || !frappe.call) return;
+    kpiBusy = true;
+    frappe.call({
+      method: "frappe.client.get_list",
+      args: { doctype: "Quotation", fields: ["name", "etapa", "grand_total", "valid_till", "transaction_date"],
+              filters: [["docstatus", "<", 2]], limit_page_length: 0 },
+      callback: function (r) { kpiBusy = false; renderKpis((r && r.message) || []); },
+      error: function () { kpiBusy = false; }
+    });
+  }
+  function ensureKpis() {
+    if (!isQuotationKanban()) return;
+    var board = document.querySelector(".kanban-v2-container");
+    if (!board || board.previousElementSibling && board.previousElementSibling.classList.contains("gf-kpis")) return;
+    if (document.querySelector(".gf-kpis")) return;
+    var host = document.createElement("div");
+    host.className = "gf-kpis";
+    board.parentNode.insertBefore(host, board);
+    loadKpis();
+  }
+  function kpiStart() {
+    var mo = new MutationObserver(function (records) {
+      // ignora as mudancas feitas pelos proprios KPIs (evita laco infinito)
+      var fora = records.some(function (r) { return !(r.target.closest && r.target.closest(".gf-kpis")); });
+      if (!fora) return;
+      ensureKpis();
+      // o quadro mudou (cartao movido, filtro): atualiza os numeros sem sobrecarregar
+      if (document.querySelector(".gf-kpis")) {
+        clearTimeout(kpiTimer);
+        kpiTimer = setTimeout(loadKpis, 700);
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+    ensureKpis();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", kpiStart); else kpiStart();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
 })();

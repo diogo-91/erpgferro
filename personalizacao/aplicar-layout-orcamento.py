@@ -35,7 +35,7 @@ for nome, tipo, rotulo in novos:
 
 # 2) ordem dos campos
 principal = [
-    "customer_section", "naming_series", "transaction_date", "column_break_7", "valid_till", "vendedor",
+    "customer_section", "naming_series", "transaction_date", "column_break_7", "valid_till", "vendedor", "etapa",
     "column_break1", "order_type", "company", "amended_from", "has_unit_price_items",
     "gf_cliente_section", "quotation_to", "party_name", "customer_name", "gf_cliente_col2", "customer_address",
     "address_display", "gf_cliente_col3", "contact_person", "contact_mobile", "contact_display", "contact_email",
