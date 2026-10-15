@@ -1,0 +1,155 @@
+/* Painel de Vendas - Grupo Gferro */
+#page-painel-vendas .page-head { display: none; }
+.gf-painel .layout-main-section, .gf-painel .page-body, .gf-painel .page-content { background: #f4f4f1; }
+.gfp { --y: #FFC800; --y2: #FFD84D; padding: 8px 4px 40px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #141414; }
+.gfp svg { width: 18px; height: 18px; flex: 0 0 auto; }
+
+/* topo com decoracao amarela */
+.gfp-hero {
+  position: relative; overflow: hidden; border-radius: 22px; padding: 24px 28px 22px;
+  background: linear-gradient(115deg, #fff 0%, #fff 48%, #FFF7DC 72%, #FFEFB8 100%);
+  box-shadow: 0 2px 10px rgba(20,20,20,.06);
+}
+.gfp-hero::before {
+  content: ""; position: absolute; right: -60px; top: -80px; width: 360px; height: 360px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, rgba(255,200,0,.34), rgba(255,200,0,0) 70%);
+}
+.gfp-hero::after {
+  content: ""; position: absolute; right: 26px; bottom: 0; width: 280px; height: 150px; opacity: .9;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 150'><g fill='%23FFD84D' opacity='.75'><rect x='20' y='112' width='34' height='38' rx='4'/><rect x='66' y='92' width='34' height='58' rx='4'/><rect x='112' y='68' width='34' height='82' rx='4'/><rect x='158' y='44' width='34' height='106' rx='4'/><rect x='204' y='16' width='34' height='134' rx='4'/></g><path d='M10 70 C60 66 130 56 215 6' fill='none' stroke='%23FFC800' stroke-width='4' stroke-linecap='round'/><path d='M200 4 L222 2 L214 22' fill='none' stroke='%23FFC800' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/></svg>") no-repeat right bottom / contain;
+  pointer-events: none;
+}
+.gfp-top { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.gfp-crumb { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #4b5260; }
+.gfp-crumb i { font-style: normal; margin: 0 6px; color: #8a8f98; }
+.gfp-crumb b { color: #E0A800; font-weight: 800; }
+.gfp h1 { margin: 10px 0 8px; font-size: 36px; font-weight: 800; letter-spacing: -.015em; line-height: 1.1; }
+.gfp p { margin: 0; color: #4b5260; font-size: 15px; }
+
+.gfp-btns { display: flex; gap: 14px; }
+.gfp-btn { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--y); background: linear-gradient(180deg, #FFD43B, #FFC400); color: #141414;
+  font-weight: 800; font-size: 14.5px; padding: 12px 22px; border-radius: 16px; cursor: pointer;
+  box-shadow: 0 6px 16px rgba(255,196,0,.35); }
+.gfp-btn:hover { filter: brightness(.97); }
+.gfp-btn-claro { background: #fff; border-color: #F6D966; box-shadow: 0 4px 12px rgba(20,20,20,.07); }
+.gfp-btn-borda { background: #fff; border-color: #e3e5e9; font-weight: 700; box-shadow: 0 3px 10px rgba(20,20,20,.06); padding: 11px 18px; }
+
+.gfp-lojas { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
+.gfp-loja { display: inline-flex; align-items: center; gap: 12px; border: 1px solid #ebe6d6; background: rgba(255,255,255,.92); color: #141414;
+  font-weight: 600; font-size: 15px; padding: 14px 24px; border-radius: 16px; cursor: pointer; box-shadow: 0 3px 10px rgba(20,20,20,.05); }
+.gfp-loja svg { width: 22px; height: 22px; }
+.gfp-loja.on { background: linear-gradient(180deg, #FFD43B, #FFC400); border-color: var(--y); font-weight: 800; box-shadow: 0 6px 16px rgba(255,196,0,.4); }
+
+/* filtros */
+.gfp-filtros { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 16px 0; padding: 14px 18px;
+  background: #fff; border-radius: 20px; box-shadow: 0 2px 10px rgba(20,20,20,.06); }
+.gfp-seg { display: inline-flex; align-items: center; border: 1px solid #e3e5e9; border-radius: 999px; padding: 4px; background: #fff; box-shadow: 0 2px 8px rgba(20,20,20,.05); }
+.gfp-seg button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 9px 18px; border-radius: 999px; font-weight: 600; font-size: 14.5px; color: #4b5260; cursor: pointer; }
+.gfp-seg button svg { width: 15px; height: 15px; }
+.gfp-seg button.on { background: linear-gradient(180deg, #FFD43B, #FFC400); color: #141414; font-weight: 800; box-shadow: 0 3px 8px rgba(255,196,0,.4); }
+.gfp-mes { border: 1px solid #e3e5e9; border-radius: 14px; padding: 0 16px; font-weight: 700; font-size: 15px; background: #fff; min-width: 240px; height: 48px; box-shadow: 0 2px 8px rgba(20,20,20,.05); }
+.gfp-datas { display: inline-flex; align-items: center; gap: 14px; border: 1px solid #e3e5e9; border-radius: 14px; padding: 0 16px; background: #fff; height: 48px; box-shadow: 0 2px 8px rgba(20,20,20,.05); }
+.gfp-cal { color: #E0A800; display: inline-flex; }
+.gfp-datas label { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #4b5260; margin: 0; }
+.gfp-datas input { border: 0; background: transparent; font-size: 14.5px; font-weight: 600; color: #141414; }
+.gfp-atual { margin-left: auto; color: #6b7280; font-size: 12.5px; }
+
+/* indicadores */
+.gfp-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.gfp-k {
+  --bd: #d9dde3; --tint: #f3f4f6; --ico: #6b7280; --txt: #4b5260; --wave: #d1d5db; --val: #141414;
+  position: relative; overflow: hidden; border: 1px solid var(--bd); border-radius: 20px; padding: 18px 18px 14px; min-height: 200px;
+  background: linear-gradient(180deg, #fff 0%, var(--tint) 100%); display: flex; flex-direction: column; gap: 14px;
+  box-shadow: 0 2px 8px rgba(20,20,20,.04);
+}
+.gfp-kh { display: flex; align-items: center; gap: 12px; min-height: 46px; }
+.gfp-ico { width: 46px; height: 46px; border-radius: 14px; background: var(--ico); color: #fff; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 46px; box-shadow: 0 6px 14px color-mix(in srgb, var(--ico) 35%, transparent); }
+.gfp-ico svg { width: 24px; height: 24px; }
+.gfp-kl { font-size: 15px; font-weight: 500; line-height: 1.25; color: var(--txt); }
+.gfp-kv { font-size: 30px; font-weight: 800; letter-spacing: -.01em; line-height: 1.1; color: var(--val); position: relative; z-index: 1; }
+.gfp-kf { display: flex; align-items: center; justify-content: space-between; margin-top: auto; position: relative; z-index: 1; min-height: 34px; }
+.gfp-badge { border-radius: 999px; padding: 6px 16px; font-size: 15px; font-weight: 800; background: #C6F3EA; color: #0F766E; }
+.gfp-trend { width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--ico) 14%, #fff); color: var(--ico); }
+.gfp-trend svg { width: 17px; height: 17px; }
+.gfp-onda { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 56px; opacity: .5; }
+.gfp-onda path { fill: var(--wave); }
+
+.gfp-verde { --bd: #bdeccd; --tint: #e9fbf0; --ico: #17B26A; --txt: #1b6b45; --wave: #a7f0c4; --val: #14231a; }
+.gfp-roxo { --bd: #d9cffb; --tint: #f1edff; --ico: #7C5CFA; --txt: #5b3fd6; --wave: #cdbfff; --val: #1d1450; }
+.gfp-amarelo { --bd: #f6e0a8; --tint: #fff6e0; --ico: #F6A21E; --txt: #a96b0b; --wave: #fbd89a; --val: #2b1b05; }
+.gfp-rosa { --bd: #fcc9d3; --tint: #ffeef1; --ico: #F43F5E; --txt: #c01f3d; --wave: #fbb4c2; --val: #4a0d1b; }
+.gfp-agua { --bd: #b6ece3; --tint: #e8fbf8; --ico: #14B8A6; --txt: #0f766e; --wave: #a5ece0; --val: #0f2f2a; }
+.gfp-laranja { --bd: #fcd5b8; --tint: #fff1e6; --ico: #F97316; --txt: #c2580a; --wave: #fcc9a1; --val: #3b1706; }
+.gfp-ambar { --bd: #f8e08b; --tint: #fff9db; --ico: #F5B800; --txt: #9a6b00; --wave: #fbe38a; --val: #2f2200; }
+.gfp-azul { --bd: #bfdcfb; --tint: #eaf4ff; --ico: #2F80ED; --txt: #1f5fb8; --wave: #b5d6fb; --val: #0d2442; }
+
+.gfp-vazio { margin-top: 18px; padding: 22px; text-align: center; color: #6b7280; border: 1px dashed #d9dbe0; border-radius: 14px; background: #fff; }
+.gfp-rank { width: 100%; border-collapse: collapse; }
+.gfp-rank th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #6b7280; padding: 8px; border-bottom: 2px solid #141414; }
+.gfp-rank td { padding: 9px 8px; border-bottom: 1px solid #ececec; }
+
+/* telas largas: os 8 indicadores em uma linha */
+@media (min-width: 1500px) {
+  .gfp-kpis { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 12px; }
+  .gfp-kv { font-size: 24px; }
+  .gfp-kl { font-size: 13.5px; }
+  .gfp-k { padding: 16px 14px 12px; }
+  .gfp-ico { width: 42px; height: 42px; flex-basis: 42px; }
+}
+@media (min-width: 1100px) and (max-width: 1499px) {
+  .gfp-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 700px) {
+  .gfp h1 { font-size: 26px; }
+  .gfp-atual { margin-left: 0; width: 100%; }
+  .gfp-hero::after { display: none; }
+}
+@media print {
+  .body-sidebar-container, .dock, .navbar, .gfp-btns, .gfp-filtros .gfp-btn { display: none !important; }
+  .gfp { padding: 0; }
+}
+
+/* ---- versao compacta: cabe bem em telas de notebook (~1100 a 1400 px) ---- */
+.gfp { padding: 4px 2px 28px; }
+.gfp svg { width: 16px; height: 16px; }
+.gfp-hero { padding: 16px 20px 14px; border-radius: 16px; }
+.gfp-hero::before { width: 260px; height: 260px; right: -50px; top: -70px; }
+.gfp-hero::after { width: 200px; height: 108px; right: 14px; }
+.gfp-crumb { font-size: 10.5px; }
+.gfp h1 { font-size: clamp(22px, 2.1vw, 28px); margin: 6px 0 4px; }
+.gfp p { font-size: 12.5px; }
+.gfp-btns { gap: 10px; }
+.gfp-btn { font-size: 12.5px; padding: 8px 15px; border-radius: 12px; gap: 8px; box-shadow: 0 4px 12px rgba(255,196,0,.3); }
+.gfp-btn-borda { padding: 7px 13px; }
+.gfp-lojas { margin-top: 14px; gap: 8px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+.gfp-loja { font-size: 12.5px; padding: 8px 14px; border-radius: 12px; gap: 8px; white-space: nowrap; flex: 0 0 auto; }
+.gfp-loja svg { width: 17px; height: 17px; }
+.gfp-filtros { padding: 8px 12px; gap: 8px 10px; margin: 10px 0; border-radius: 14px; }
+.gfp-seg { padding: 3px; }
+.gfp-seg button { font-size: 12.5px; padding: 6px 12px; }
+.gfp-seg button svg { width: 13px; height: 13px; }
+.gfp-mes { height: 38px; min-width: 150px; font-size: 12.5px; border-radius: 11px; padding: 0 10px; }
+.gfp-datas { height: 38px; gap: 8px; padding: 0 10px; border-radius: 11px; }
+.gfp-datas label { font-size: 12px; gap: 5px; }
+.gfp-datas input { font-size: 12px; width: 108px; }
+.gfp-atual { font-size: 11px; }
+.gfp-kpis { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.gfp-k { padding: 12px 12px 10px; min-height: 134px; gap: 8px; border-radius: 14px; }
+.gfp-kh { gap: 9px; min-height: 38px; }
+.gfp-ico { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 10px; }
+.gfp-ico svg { width: 19px; height: 19px; }
+.gfp-kl { font-size: 12px; }
+.gfp-kv { font-size: 20px; }
+.gfp-kf { min-height: 26px; }
+.gfp-badge { padding: 3px 11px; font-size: 12px; }
+.gfp-trend { width: 26px; height: 26px; }
+.gfp-trend svg { width: 14px; height: 14px; }
+.gfp-onda { height: 38px; }
+@media (min-width: 1500px) {
+  .gfp-kpis { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .gfp-kv { font-size: 20px; }
+}
+@media (min-width: 1000px) and (max-width: 1499px) {
+  .gfp-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

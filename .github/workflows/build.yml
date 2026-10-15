@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [apps.json, Containerfile, i18n/**, personalizacao/desk/**, .github/workflows/build.yml]
+    paths: [apps.json, Containerfile, i18n/**, personalizacao/desk/**, personalizacao/painel/**, .github/workflows/build.yml]
 
 permissions:
   contents: read

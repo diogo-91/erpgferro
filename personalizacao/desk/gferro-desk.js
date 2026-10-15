@@ -68,6 +68,8 @@
     // "Orcamento" no menu abre sempre o quadro Kanban
     if (it.link_type === "DocType" && it.link_to === "Quotation") href = KANBAN_ORCAMENTO;
     if (it.link_type === "DocType" && it.link_to === "Sales Order") href = KANBAN_PEDIDO;
+    // "Painel" de Vendas abre o Painel de Vendas Gferro (pagina propria)
+    if (it.link_type === "Dashboard" && it.link_to === "Selling") href = "/desk/painel-vendas";
     if (!href) return "";
     return '<a class="gf-link" href="' + esc(href) + '" data-href="' + esc(href) + '">' + icon(it.icon) +
       '<span class="gf-label">' + esc(tr(it.label)) + "</span></a>";
