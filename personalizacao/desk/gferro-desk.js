@@ -9,14 +9,16 @@
   var ORDER = ["Setup", "Accounts", "Selling", "Buying", "Stock", "Manufacturing", "Projects", "Assets", "Quality"];
   var STORE = "gf-sidebar-open";
   var KANBAN_ORCAMENTO = "/desk/quotation/view/kanban/Or%C3%A7amentos";
+  var KANBAN_PEDIDO = "/desk/sales-order/view/kanban/Pedidos";
 
   // qualquer atalho para a lista de Orcamentos (menu, painel, link) cai no quadro Kanban;
   // quem escolhe "Lista" na troca de visualizacao continua na lista
   function irParaKanban() {
     try {
       var r = frappe.get_route();
-      if (r && r[0] === "List" && r[1] === "Quotation" && !/\/view\//.test(location.pathname)) {
-        frappe.set_route("List", "Quotation", "Kanban", "Orçamentos");
+      if (r && r[0] === "List" && !/\/view\//.test(location.pathname)) {
+        if (r[1] === "Quotation") frappe.set_route("List", "Quotation", "Kanban", "Orçamentos");
+        else if (r[1] === "Sales Order") frappe.set_route("List", "Sales Order", "Kanban", "Pedidos");
       }
     } catch (e) {}
   }
@@ -65,6 +67,7 @@
     var href = route(it);
     // "Orcamento" no menu abre sempre o quadro Kanban
     if (it.link_type === "DocType" && it.link_to === "Quotation") href = KANBAN_ORCAMENTO;
+    if (it.link_type === "DocType" && it.link_to === "Sales Order") href = KANBAN_PEDIDO;
     if (!href) return "";
     return '<a class="gf-link" href="' + esc(href) + '" data-href="' + esc(href) + '">' + icon(it.icon) +
       '<span class="gf-label">' + esc(tr(it.label)) + "</span></a>";
@@ -177,13 +180,45 @@
     try { return format_currency(v, "BRL"); } catch (e) { return "R$ " + (v || 0).toFixed(2); }
   }
   function isQuotationKanban() {
-    return /\/quotation\/view\/kanban/i.test(location.pathname);
+    return /\/(quotation|sales-order)\/view\/kanban/i.test(location.pathname);
   }
   function kpiCard(cor, rotulo, valor, detalhe) {
     return '<div class="gf-kpi gf-kpi-' + cor + '"><span class="gf-kpi-l">' + esc(rotulo) + '</span>' +
       '<b class="gf-kpi-v">' + esc(valor) + '</b><span class="gf-kpi-d">' + esc(detalhe) + "</span></div>";
   }
+  function renderKpisPedido(rows) {
+    var host = document.querySelector(".gf-kpis");
+    if (!host) return;
+    var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    var em7 = new Date(hoje.getTime() + 7 * 86400000);
+    var mes = hoje.getFullYear() + "-" + ("0" + (hoje.getMonth() + 1)).slice(-2);
+    var t = rows.length, and = 0, andV = 0, pagN = 0, pagV = 0, prodN = 0, prodV = 0, entN = 0, entV = 0;
+    var prox = 0, atras = 0, mesN = 0;
+    rows.forEach(function (r) {
+      var v = flt(r.grand_total), e = r.etapa_pedido || "Novo pedido";
+      if ((r.transaction_date || "").indexOf(mes) === 0) mesN++;
+      if (e === "Entregue") { entN++; entV += v; return; }
+      if (e === "Cancelado") { return; }
+      and++; andV += v;
+      if (e === "Aguardando pagamento") { pagN++; pagV += v; }
+      if (e === "Em produção") { prodN++; prodV += v; }
+      if (r.delivery_date) {
+        var d = new Date(r.delivery_date + "T00:00:00");
+        if (d < hoje) atras++; else if (d <= em7) prox++;
+      }
+    });
+    host.innerHTML =
+      kpiCard("cinza", "Pedidos", String(t), mesN + " neste mês") +
+      kpiCard("amarelo", "Em andamento", brl(andV), and + " pedido(s)") +
+      kpiCard("laranja", "Aguardando pagamento", brl(pagV), pagN + " pedido(s)") +
+      kpiCard("azul", "Em produção", String(prodN), prodN ? brl(prodV) : "nenhum em produção") +
+      kpiCard("verde", "Entregues", brl(entV), entN + " pedido(s)") +
+      kpiCard(atras ? "vermelho" : (prox ? "amarelo" : "cinza"), "Entregas",
+              atras ? atras + " atrasada(s)" : prox + " em 7 dias",
+              atras ? "verifique os prazos" : (prox ? "preparar carga" : "nenhuma próxima"));
+  }
   function renderKpis(rows) {
+    if (/\/sales-order\//i.test(location.pathname)) { return renderKpisPedido(rows); }
     var host = document.querySelector(".gf-kpis");
     if (!host) return;
     var hoje = new Date(); hoje.setHours(0, 0, 0, 0);
@@ -218,8 +253,11 @@
     kpiBusy = true;
     frappe.call({
       method: "frappe.client.get_list",
-      args: { doctype: "Quotation", fields: ["name", "etapa", "grand_total", "valid_till", "transaction_date"],
-              filters: [["docstatus", "<", 2]], limit_page_length: 0 },
+      args: /\/sales-order\//i.test(location.pathname)
+        ? { doctype: "Sales Order", fields: ["name", "etapa_pedido", "grand_total", "delivery_date", "transaction_date"],
+            filters: [["docstatus", "<", 2]], limit_page_length: 0 }
+        : { doctype: "Quotation", fields: ["name", "etapa", "grand_total", "valid_till", "transaction_date"],
+            filters: [["docstatus", "<", 2]], limit_page_length: 0 },
       callback: function (r) { kpiBusy = false; renderKpis((r && r.message) || []); },
       error: function () { kpiBusy = false; }
     });

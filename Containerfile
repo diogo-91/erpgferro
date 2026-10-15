@@ -46,8 +46,10 @@ RUN cd apps/erpnext/erpnext && \
 COPY --chown=frappe:frappe personalizacao/desk /tmp/desk
 RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
   cp /tmp/desk/gferro-desk.css /tmp/desk/gferro-desk.js /tmp/desk/gferro-logo.webp apps/erpnext/erpnext/public/gferro/ && \
+  cp /tmp/desk/gferro_utils.py apps/erpnext/erpnext/gferro_utils.py && \
   python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
-  grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py
+  grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py && \
+  grep -q gf_qr apps/erpnext/erpnext/hooks.py && ./env/bin/python -c "import pyqrcode"
 
 # Traducoes pt-BR: preenche as frases ainda sem traducao (o bench build compila os .po)
 COPY --chown=frappe:frappe i18n /tmp/i18n

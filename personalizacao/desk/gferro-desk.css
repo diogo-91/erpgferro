@@ -296,3 +296,5 @@ body .page-container { background: #f2f2ee; }
 #page-print .layout-main-section-wrapper, #page-print .layout-main-section { width: 100% !important; max-width: 100% !important; flex: 1 1 100%; padding-left: 0; }
 #page-print .layout-main.layout-two-column { display: block; }
 #page-print .print-preview-wrapper { margin: 0 auto; }
+
+.gf-kpi-laranja::before { background: #f59e0b; }
