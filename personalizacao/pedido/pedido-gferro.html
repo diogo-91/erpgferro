@@ -11,9 +11,11 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
   @page { size: A4; margin: 0; }
+  /* o gerador de PDF le as margens daqui: folha A4 de borda a borda */
+  .print-format { margin-top: 0mm; margin-bottom: 0mm; margin-left: 0mm; margin-right: 0mm; padding: 0; }
   .gp { --y: #F5C518; --k: #141414; --line: #dedbd0; --mut: #6f6f68; --soft: #FFF8DB; --logo: url(__LOGO__);
-        font-family: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif; color: #1c1c1c; font-size: 9.5px; line-height: 1.38;
-        width: 100%; background: #fff; zoom: .95; }
+        font-family: "Plus Jakarta Sans", "Segoe UI", Arial, sans-serif; color: #1c1c1c; font-size: 10.2px; line-height: 1.4;
+        width: 100%; background: #fff; min-height: 296mm; display: flex; flex-direction: column; }
   .gp * { box-sizing: border-box; }
   .gp svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
   .gp-logo { background: var(--logo) center / contain no-repeat; }
@@ -27,7 +29,7 @@
   .gp-banner .gp-slogan { margin-left: 20px; font-size: 11px; font-weight: 800; letter-spacing: .04em; line-height: 1.25; color: #fff; text-transform: uppercase; }
   .gp-banner .gp-slogan span { color: var(--y); display: block; }
 
-  .gp-body { padding: 0 22px 0; }
+  .gp-body { padding: 0 22px 0; flex: 1; }
 
   /* titulo */
   .gp-titulo { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 8px; }
@@ -82,7 +84,7 @@
   table.gp-itens td.sub { font-weight: 800; }
 
   /* pagamento e totais */
-  .gp-bottom { display: flex; gap: 12px; margin-top: 9px; align-items: stretch; page-break-inside: avoid; }
+  .gp-bottom { display: flex; gap: 12px; margin-top: 12px; align-items: stretch; page-break-inside: avoid; }
   .gp-pay { flex: 1; background: var(--soft); border-radius: 10px; padding: 7px 10px 8px; }
   .gp-sec { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 7px; }
   table.gp-parc { width: 100%; border-collapse: collapse; background: #fff; }
@@ -100,10 +102,10 @@
   .gp-tot .big svg { color: var(--y); }
 
   /* condicoes comerciais */
-  .gp-cond { margin-top: 9px; page-break-inside: avoid; }
+  .gp-cond { margin-top: 14px; page-break-inside: avoid; }
   .gp-cond .gp-sec { border-bottom: 1px solid #f1dd8a; padding-bottom: 5px; margin-bottom: 7px; }
   .gp-cond ol { list-style: none; counter-reset: n; margin: 0; padding: 0; columns: 2; column-gap: 26px; }
-  .gp-cond li { counter-increment: n; position: relative; padding-left: 24px; margin-bottom: 2px; break-inside: avoid; font-size: 8.8px; line-height: 1.3; }
+  .gp-cond li { counter-increment: n; position: relative; padding-left: 24px; margin-bottom: 2px; break-inside: avoid; font-size: 9.6px; line-height: 1.32; }
   .gp-cond li::before { content: counter(n); position: absolute; left: 0; top: 1px; width: 17px; height: 17px; border-radius: 50%; background: var(--y); color: var(--k); font-weight: 800; font-size: 8.5px; display: flex; align-items: center; justify-content: center; }
   .gp-terms ul, .gp-terms ol { columns: 2; column-gap: 26px; margin: 0; padding-left: 16px; font-size: 9.2px; }
   .gp-terms li { margin-bottom: 3px; break-inside: avoid; }
@@ -115,23 +117,23 @@
   .gp-aviso .ic { width: 26px; height: 26px; border-radius: 50%; background: var(--y); display: flex; align-items: center; justify-content: center; flex: 0 0 26px; }
   .gp-aviso .ic svg { width: 15px; height: 15px; color: var(--k); }
   .gp-aviso b { display: block; font-size: 9px; text-transform: uppercase; margin-bottom: 1px; }
-  .gp-aviso p { margin: 0; font-size: 7.6px; line-height: 1.28; color: #33332f; }
+  .gp-aviso p { margin: 0; font-size: 8.2px; line-height: 1.3; color: #33332f; }
   .gp-ciencia { margin-top: 5px; background: #fbefb0; border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-size: 9px; }
   .gp-ciencia .ic { width: 20px; height: 20px; border-radius: 50%; background: var(--y); display: flex; align-items: center; justify-content: center; flex: 0 0 20px; }
   .gp-ciencia .ic svg { width: 12px; height: 12px; }
 
   /* assinaturas */
-  .gp-ass { display: flex; gap: 28px; margin: 16px 0 6px; }
+  .gp-ass { display: flex; gap: 28px; margin: 26px 0 12px; }
   .gp-ass div { flex: 1; border-top: 1px solid #444; padding-top: 4px; font-size: 9px; color: #333; }
 
   /* rodape */
-  .gp-foot { background: var(--k); color: #fff; padding: 8px 22px 9px; margin-top: 6px; page-break-inside: avoid; }
+  .gp-foot { background: var(--k); color: #fff; padding: 10px 22px 11px; margin-top: auto; page-break-inside: avoid; }
   .gp-foot .top { display: flex; align-items: center; gap: 20px; padding-bottom: 6px; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,.18); }
   .gp-foot .gp-logo { width: 96px; height: 32px; }
   .gp-foot .top span { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; }
   .gp-foot .top svg { color: var(--y); width: 13px; height: 13px; }
   .gp-lojas { display: flex; gap: 10px; }
-  .gp-lojas div { flex: 1; display: flex; gap: 6px; font-size: 8px; line-height: 1.3; color: rgba(255,255,255,.82); }
+  .gp-lojas div { flex: 1; display: flex; gap: 6px; font-size: 8.6px; line-height: 1.3; color: rgba(255,255,255,.82); }
   .gp-lojas svg { color: var(--y); width: 13px; height: 13px; margin-top: 1px; }
   .gp-lojas b { color: #fff; display: block; font-size: 8.5px; }
 </style>
