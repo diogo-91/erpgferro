@@ -178,3 +178,13 @@ body .page-container { background: #f2f2ee; }
 }
 .form-layout .grid-heading-row { background: #141414 !important; border-bottom: 0; }
 .form-layout .grid-heading-row svg { stroke: #fff; }
+
+/* margens ao redor do formulario: nao fica grudado nas bordas da tela */
+.page-container:has(.form-layout) .page-body { padding: 24px 32px 56px; box-sizing: border-box; }
+.page-container:has(.form-layout) .page-body > .row,
+.page-container:has(.form-layout) .page-body .layout-main { margin-left: 0; margin-right: 0; }
+.page-container:has(.form-layout) .layout-main-section-wrapper { padding-right: 18px; }
+.page-container:has(.form-layout) .layout-side-section { padding-top: 6px; }
+@media (max-width: 767px) {
+  .page-container:has(.form-layout) .page-body { padding: 14px 12px 40px; }
+}
