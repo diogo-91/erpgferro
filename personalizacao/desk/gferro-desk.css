@@ -83,3 +83,98 @@
 .form-layout .form-section.card-section { padding-top: 18px; padding-bottom: 14px; }
 .form-tabs-list .nav-link.active, .form-tabs .nav-link.active { color: #141414; border-bottom: 2px solid var(--gf-yellow); font-weight: 600; }
 .form-layout .control-label { font-weight: 500; }
+
+/* formularios: aparencia de sistema de gestao (campos em caixas com borda, rotulos em destaque, abas sublinhadas) */
+.form-layout { --gf-border: #c9ccd1; }
+.form-layout .frappe-control { margin-bottom: 14px; }
+.form-layout .control-label, .form-layout .form-label, .form-layout label.control-label {
+  font-size: 12.5px; font-weight: 600; color: #3d4350; margin-bottom: 5px; letter-spacing: 0;
+}
+.form-layout .reqd .control-label::after, .form-layout .control-label.reqd::after { color: #d93025; }
+
+.form-layout .form-control,
+.form-layout .control-input .input-with-feedback,
+.form-layout .awesomplete input,
+.form-layout select.form-control {
+  background: #fff !important; border: 1px solid var(--gf-border) !important; border-radius: 4px !important;
+  height: 34px; box-shadow: none !important; font-size: 13px; color: #1c1c1c;
+}
+.form-layout textarea.form-control { height: auto; }
+.form-layout .form-control:focus, .form-layout .control-input .input-with-feedback:focus {
+  border-color: #141414 !important; box-shadow: 0 0 0 3px rgba(245,197,24,.35) !important;
+}
+.form-layout .control-value, .form-layout .like-disabled-input {
+  background: #f6f7f8; border: 1px solid #e3e5e8; border-radius: 4px; padding: 6px 10px; min-height: 34px; font-size: 13px;
+}
+.form-layout .form-control[disabled], .form-layout .form-control[readonly] { background: #f6f7f8 !important; }
+
+/* secoes */
+.form-layout .form-section.card-section { border-bottom: 1px solid #e6e8eb; margin: 0; padding: 18px 22px 8px; }
+.form-layout .form-section .section-head { margin-bottom: 14px; }
+
+/* abas */
+.form-tabs-list { border-bottom: 1px solid #d5d8dc; margin-bottom: 0; }
+.form-tabs-list .nav-link { color: #5b616b; font-size: 13.5px; padding: 10px 16px; border: 0; border-bottom: 3px solid transparent; }
+.form-tabs-list .nav-link.active { color: #141414; font-weight: 700; border-bottom-color: var(--gf-yellow); background: none; }
+
+/* tabela de itens */
+.form-layout .form-grid { border: 1px solid #d5d8dc; border-radius: 6px; overflow: hidden; }
+.form-layout .grid-heading-row { background: #f1f2f4; }
+.form-layout .grid-heading-row .static-area, .form-layout .grid-heading-row .col { font-weight: 600; color: #3d4350; font-size: 12px; }
+.form-layout .grid-row .col { font-size: 13px; }
+
+/* titulo da pagina */
+.page-head .title-text, .page-head h3.ellipsis { font-size: 22px; font-weight: 800; color: #141414; letter-spacing: -.01em; }
+.page-head { border-bottom: 1px solid #e6e8eb; }
+
+/* cores nos formularios (paleta Gferro: preto, amarelo e cinza quente) */
+.page-container[id^="page-"] .page-body, .form-layout { background: transparent; }
+body .page-container { background: #f2f2ee; }
+.page-head { background: #fff; border-bottom: 3px solid var(--gf-yellow) !important; }
+
+.form-layout .form-page, .form-layout > .form-tabs-list { background: transparent; }
+.form-layout .form-section.card-section {
+  background: #fff; border: 1px solid #e0e0da; border-radius: 12px; margin: 14px 0; padding: 0 22px 10px;
+  box-shadow: 0 1px 2px rgba(20,20,20,.05);
+}
+.form-layout .form-section .section-head {
+  background: #FFF4C2; border-radius: 10px 10px 0 0; margin: 0 -22px 16px; padding: 9px 22px;
+  border-bottom: 1px solid #f0dc8a;
+}
+.form-layout .form-section .section-head::before { background: #141414; }
+.form-tabs-list { background: #fff; border-radius: 12px 12px 0 0; padding: 0 8px; border: 1px solid #e0e0da; border-bottom: 0; }
+.form-tabs-list .nav-link:hover { color: #141414; background: #fff9dd; border-radius: 8px 8px 0 0; }
+
+/* botao principal amarelo */
+.page-actions .btn-primary, .page-actions .primary-action, button.primary-action {
+  background: var(--gf-yellow) !important; color: #141414 !important; border: 0 !important; font-weight: 700;
+}
+.page-actions .btn-primary:hover, button.primary-action:hover { background: #ffd43b !important; }
+
+/* totais em destaque */
+.form-layout [data-fieldname="grand_total"] .control-value,
+.form-layout [data-fieldname="grand_total"] .like-disabled-input {
+  background: #141414; color: var(--gf-yellow); font-weight: 800; font-size: 16px; border-color: #141414;
+}
+.form-layout [data-fieldname="total"] .control-value,
+.form-layout [data-fieldname="total"] .like-disabled-input,
+.form-layout [data-fieldname="rounded_total"] .control-value,
+.form-layout [data-fieldname="rounded_total"] .like-disabled-input {
+  background: #FFF4C2; border-color: #f0dc8a; font-weight: 700;
+}
+.form-layout [data-fieldname="frete_valor"] input,
+.form-layout [data-fieldname="seguro_valor"] input,
+.form-layout [data-fieldname="outros_valor"] input { border-color: #d9b830 !important; background: #fffdf2 !important; }
+
+/* tabela de itens */
+.form-layout .grid-heading-row { background: #141414 !important; }
+.form-layout .grid-heading-row .static-area, .form-layout .grid-heading-row .col, .form-layout .grid-heading-row .grid-static-col { color: #fff !important; }
+.form-layout .grid-row:nth-child(even) { background: #fafaf7; }
+.form-layout .form-grid { border-color: #141414; }
+.form-layout .grid-heading-row, .form-layout .grid-heading-row *,
+.form-layout .grid-heading-row .static-area, .form-layout .grid-heading-row .grid-static-col,
+.form-layout .grid-heading-row .data-row, .form-layout .grid-heading-row .col-xs-1, .form-layout .grid-heading-row .row-index {
+  color: #fff !important; background-color: transparent;
+}
+.form-layout .grid-heading-row { background: #141414 !important; border-bottom: 0; }
+.form-layout .grid-heading-row svg { stroke: #fff; }
