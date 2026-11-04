@@ -46,11 +46,14 @@ RUN cd apps/erpnext/erpnext && \
 COPY --chown=frappe:frappe personalizacao/desk /tmp/desk
 COPY --chown=frappe:frappe personalizacao/painel /tmp/painel
 RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
-  cp /tmp/desk/gferro-desk.css /tmp/desk/gferro-desk.js /tmp/desk/gferro-logo.webp apps/erpnext/erpnext/public/gferro/ && \
+  cp /tmp/desk/gferro-desk.css /tmp/desk/gferro-desk.js /tmp/desk/*.webp apps/erpnext/erpnext/public/gferro/ && \
   cp /tmp/desk/gferro_utils.py apps/erpnext/erpnext/gferro_utils.py && \
   mkdir -p apps/erpnext/erpnext/selling/page/painel_vendas && touch apps/erpnext/erpnext/selling/page/painel_vendas/__init__.py && \
   cp /tmp/painel/painel-vendas.js apps/erpnext/erpnext/selling/page/painel_vendas/painel_vendas.js && \
   cp /tmp/painel/painel-vendas.css apps/erpnext/erpnext/selling/page/painel_vendas/painel_vendas.css && \
+  mkdir -p apps/erpnext/erpnext/selling/page/ranking_vendedores && touch apps/erpnext/erpnext/selling/page/ranking_vendedores/__init__.py && \
+  cp /tmp/painel/ranking-vendedores.js apps/erpnext/erpnext/selling/page/ranking_vendedores/ranking_vendedores.js && \
+  cp /tmp/painel/ranking-vendedores.css apps/erpnext/erpnext/selling/page/ranking_vendedores/ranking_vendedores.css && \
   python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
   grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py && \
   grep -q gf_qr apps/erpnext/erpnext/hooks.py && ./env/bin/python -c "import pyqrcode"

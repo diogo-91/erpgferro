@@ -24,7 +24,11 @@ var GFP_ICONES = {
   ampulheta: '<path d="M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9"/>',
   caixa: '<path d="M12 3l8 4v10l-8 4-8-4V7zM4 7l8 4 8-4M12 11v10"/>',
   caminhao: '<path d="M2 6h11v10H2zM13 9h4l4 4v3h-8zM6 18.5v.01M17 18.5v.01"/><circle cx="6" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',
-  tendencia: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>'
+  tendencia: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',
+  grafico: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  alvo: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+  parafuso: '<path d="M12 3l8 4v10l-8 4-8-4V7zM12 8v8M9 10h6"/>',
+  etiqueta: '<path d="M3 12V4h8l10 10-8 8zM7.5 8.5v.01"/>'
 };
 
 function GfPainelVendas(page, wrapper) {
@@ -85,7 +89,7 @@ GfPainelVendas.prototype.montar = function () {
     '<span class="gfp-atual"></span>' +
     '<button class="gfp-btn gfp-btn-borda" data-acao="atualizar">' + this.icone("atualizar") + "Atualizar dados</button>" +
     '<button class="gfp-btn gfp-btn-borda" data-acao="pdf">' + this.icone("pdf") + "Baixar PDF</button></section>" +
-    '<div class="gfp-kpis"></div>' +
+    '<div class="gfp-kpis"></div><div class="gfp-prod"></div><div class="gfp-extra"></div>' +
     '<div class="gfp-vazio" hidden>Nenhum pedido liberado neste período.</div>' +
     "</div>";
   $(this.page.body).html(html);
@@ -96,7 +100,12 @@ GfPainelVendas.prototype.montar = function () {
     if (a === "atualizar") self.carregar();
     else if (a === "pdf") window.print();
     else if (a === "gestao") frappe.set_route("List", "Sales Order", "Kanban", "Pedidos");
-    else if (a === "ranking") self.ranking();
+    else if (a === "ranking") {
+      // abre a pagina Ranking de Vendedores levando a unidade e o periodo escolhidos
+      var iv = self.intervalo();
+      frappe.route_options = { loja: self.estado.loja || "", de: iv[0], ate: iv[1] };
+      frappe.set_route("ranking-vendedores");
+    }
   });
   this.$.on("click", ".gfp-seg button", function () {
     self.estado.periodo = $(this).data("p");
@@ -125,7 +134,7 @@ GfPainelVendas.prototype.montar = function () {
   });
   this.$.on("click", ".gfp-loja", function () {
     var v = $(this).data("loja");
-    self.estado.loja = self.estado.loja === v ? null : v;
+    self.estado.loja = (v && self.estado.loja !== v) ? v : null;
     self.desenharLojas();
     self.carregar();
   });
@@ -135,7 +144,7 @@ GfPainelVendas.prototype.carregarLojas = function () {
   var self = this;
   return frappe.call({
     method: "frappe.client.get_list",
-    args: { doctype: "Branch", fields: ["name", "gerente"], limit_page_length: 50, order_by: "name asc" }
+    args: { doctype: "Branch", fields: ["name", "gerente", "meta_mensal"], limit_page_length: 50, order_by: "name asc" }
   }).then(function (r) {
     self.lojas = (r && r.message) || [];
     self.desenharLojas();
@@ -145,7 +154,9 @@ GfPainelVendas.prototype.carregarLojas = function () {
 GfPainelVendas.prototype.desenharLojas = function () {
   var self = this, $l = this.$.find(".gfp-lojas");
   if (!this.ehGestor || !this.lojas.length) { $l.hide(); return; }
-  $l.show().html(this.lojas.map(function (l) {
+  var todas = '<button class="gfp-loja gfp-todas' + (!self.estado.loja ? " on" : "") + '" data-loja="">' +
+    this.icone("predio") + "Visão geral</button>";
+  $l.show().html(todas + this.lojas.map(function (l) {
     var nome = l.name.replace(/^Loja\s*/, "Unidade ") + (l.gerente ? " — " + l.gerente : "");
     return '<button class="gfp-loja' + (self.estado.loja === l.name ? " on" : "") + '" data-loja="' + self.esc(l.name) + '">' +
       self.icone("loja") + self.esc(nome) + "</button>";
@@ -184,10 +195,10 @@ GfPainelVendas.prototype.carregar = function () {
     var linhas = ((r && r.message) || []).filter(function (x) { return x.etapa_pedido !== "Cancelado"; });
     self.linhas = linhas;
     var nomes = linhas.map(function (x) { return x.name; });
-    if (!nomes.length) { self.parafusos = 0; return self.desenhar(); }
+    if (!nomes.length) { self.parafusos = 0; self.itens = []; return self.desenhar(); }
     return frappe.call({
       method: "frappe.client.get_list",
-      args: { doctype: "Sales Order Item", parent: "Sales Order", fields: ["parent", "item_name", "amount"],
+      args: { doctype: "Sales Order Item", parent: "Sales Order", fields: ["parent", "item_name", "qty", "uom", "amount"],
               filters: [["parent", "in", nomes]], limit_page_length: 0 }
     }).then(function (ri) {
       var tot = 0;
@@ -195,8 +206,9 @@ GfPainelVendas.prototype.carregar = function () {
         if (/parafuso/i.test(it.item_name || "")) tot += flt(it.amount);
       });
       self.parafusos = tot;
+      self.itens = (ri && ri.message) || [];
       self.desenhar();
-    }).catch(function () { self.parafusos = 0; self.desenhar(); });
+    }).catch(function () { self.parafusos = 0; self.itens = []; self.desenhar(); });
   });
 };
 
@@ -238,6 +250,10 @@ GfPainelVendas.prototype.desenhar = function () {
     cartao("ambar", "caixa", "Total em<br>Parafusos", this.rs(this.parafusos || 0)) +
     cartao("azul", "caminhao", "Total Fretes e<br>Outros", this.rs(fretes))
   );
+  this.metaCartao();
+  this.aplicarModo();
+  this.produtos();
+  this.extras();
   this.$.find(".gfp-vazio").prop("hidden", n > 0);
   var agora = new Date();
   this.$.find(".gfp-atual").text("Atualizado em " + agora.toLocaleDateString("pt-BR") + ", " + agora.toLocaleTimeString("pt-BR"));
@@ -260,4 +276,167 @@ GfPainelVendas.prototype.ranking = function () {
   var d = new frappe.ui.Dialog({ title: "Ranking de Vendedores", size: "large" });
   d.$body.html('<table class="gfp-rank"><thead><tr><th>#</th><th>Vendedor</th><th>Pedidos</th><th>Total</th><th>Ticket médio</th><th>% do total</th></tr></thead><tbody>' + corpo + "</tbody></table>");
   d.show();
+};
+
+/* Visao geral: comparativo por unidade. Unidade aberta (ou gerente/vendedor): ranking de vendedores. */
+GfPainelVendas.prototype.extras = function () {
+  this.$.find(".gfp").toggleClass("vend-primeiro", !!(this.estado.loja || !this.ehGestor));
+  if (this.estado.loja || !this.ehGestor) { return this.tabelaVendedores(); }
+  var self = this, L = this.linhas, $x = this.$.find(".gfp-extra");
+  var porLoja = !this.estado.loja && this.ehGestor;
+  var grupos = {}, geral = 0;
+  var nomeLoja = function (n) {
+    var l = (self.lojas || []).filter(function (z) { return z.name === n; })[0];
+    return n.replace(/^Loja\s*/, "Unidade ") + (l && l.gerente ? " — " + l.gerente : "");
+  };
+  L.forEach(function (x) {
+    var chave = porLoja ? (x.loja || "Sem loja") : (x.vendedor || x.owner || "—");
+    var g = grupos[chave] = grupos[chave] || { n: 0, t: 0, r: 0 };
+    g.n += 1; g.t += flt(x.grand_total); g.r += flt(x.advance_paid);
+    geral += flt(x.grand_total);
+  });
+  if (porLoja) {
+    (this.lojas || []).forEach(function (l) { grupos[l.name] = grupos[l.name] || { n: 0, t: 0, r: 0 }; });
+  }
+  var chaves = Object.keys(grupos).sort(function (a, b) { return grupos[b].t - grupos[a].t || (a < b ? -1 : 1); });
+  if (!chaves.length) { $x.html(""); return; }
+
+  var titulo, subtitulo;
+  if (porLoja) { titulo = "Resultado por unidade"; subtitulo = "Clique em uma unidade para ver os resultados individuais."; }
+  else if (this.estado.loja) { titulo = nomeLoja(this.estado.loja) + " — vendedores"; subtitulo = "Resultados individuais da unidade no período."; }
+  else { titulo = "Vendedores"; subtitulo = "Resultados no período."; }
+
+  var linhas = chaves.map(function (k, i) {
+    var g = grupos[k], falta = Math.max(g.t - g.r, 0);
+    var nome = porLoja ? (k === "Sem loja" ? k : nomeLoja(k)) : k;
+    return '<tr' + (porLoja && k !== "Sem loja" ? ' class="gfp-linha" data-loja="' + self.esc(k) + '"' : "") + ">" +
+      "<td>" + (i + 1) + "º</td><td><b>" + self.esc(nome) + "</b></td><td>" + g.n + "</td><td>" + self.rs(g.t) + "</td><td>" +
+      self.rs(g.n ? g.t / g.n : 0) + "</td><td>" + self.rs(g.r) + "</td><td>" + self.rs(falta) + "</td><td>" +
+      '<span class="gfp-part"><i style="width:' + (geral ? Math.round(g.t * 100 / geral) : 0) + '%"></i></span> ' +
+      (geral ? (g.t * 100 / geral).toFixed(1).replace(".", ",") : "0") + "%</td></tr>";
+  }).join("");
+  $x.html(
+    '<div class="gfp-tabela"><div class="gfp-th"><h3>' + this.esc(titulo) + "</h3><span>" + this.esc(subtitulo) + "</span></div>" +
+    '<table><thead><tr><th>#</th><th>' + (porLoja ? "Unidade" : "Vendedor") + "</th><th>Pedidos</th><th>Total de vendas</th>" +
+    "<th>Ticket médio</th><th>Recebido</th><th>Falta receber</th><th>Participação</th></tr></thead><tbody>" + linhas + "</tbody></table></div>"
+  );
+  $x.find(".gfp-linha").off("click").on("click", function () {
+    self.estado.loja = $(this).data("loja");
+    self.desenharLojas();
+    self.carregar();
+  });
+};
+
+/* Vendas por Produto / Preco Medio de Venda (itens dos pedidos do periodo) */
+GfPainelVendas.prototype.produtos = function () {
+  var self = this, por = {};
+  (this.itens || []).forEach(function (it) {
+    var k = it.item_name || "—";
+    var g = por[k] = por[k] || { q: 0, v: 0, u: it.uom || "" };
+    g.q += flt(it.qty); g.v += flt(it.amount);
+  });
+  var lista = Object.keys(por).map(function (k) { return { nome: k, q: por[k].q, v: por[k].v, u: por[k].u, m: por[k].q ? por[k].v / por[k].q : 0 }; })
+    .sort(function (a, b) { return b.v - a.v; });
+  var $p = this.$.find(".gfp-prod");
+  if (!lista.length) { $p.html(""); return; }
+  var maxV = Math.max.apply(null, lista.map(function (x) { return x.v; })) || 1;
+  var maxM = Math.max.apply(null, lista.map(function (x) { return x.m; })) || 1;
+  var dec = function (n) { return n.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 }); };
+  var moeda = function (n) { return "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var lado = function (titulo, icone, cls, fn) {
+    return '<div class="gfp-pn"><div class="gfp-pnh"><h3>' + self.icone(icone) + titulo + "</h3><span>" + lista.length +
+      ' produtos</span></div><div class="gfp-lista">' + lista.map(fn).join("") + "</div></div>";
+  };
+  $p.html(
+    lado("Vendas por Produto", "grafico", "vendas", function (x) {
+      return '<div class="gfp-it"><div class="gfp-itt"><span class="gfp-nm" title="' + self.esc(x.nome) + '">' + self.esc(x.nome) +
+        "</span><em>" + dec(x.q) + " " + self.esc(x.u) + '</em></div><div class="gfp-bar"><i class="gfp-b-amarela" style="width:' +
+        Math.max(Math.round(x.v * 100 / maxV), 2) + '%"></i></div><b class="gfp-v-verde">' + self.rs(x.v) + "</b></div>";
+    }) +
+    lado("Preço Médio de Venda", "etiqueta", "preco", function (x) {
+      return '<div class="gfp-it"><div class="gfp-itt"><span class="gfp-nm" title="' + self.esc(x.nome) + '">' + self.esc(x.nome) +
+        "</span><em>" + dec(x.q) + " " + self.esc(x.u) + '</em></div><div class="gfp-bar"><i class="gfp-b-azul" style="width:' +
+        Math.max(Math.round(x.m * 100 / maxM), 2) + '%"></i></div><b class="gfp-v-azul">' + moeda(x.m) + "/" + self.esc(x.u) + "</b></div>";
+    })
+  );
+};
+
+/* ---- visao individual da unidade ---- */
+GfPainelVendas.prototype.nomeUnidade = function (n) {
+  var l = (this.lojas || []).filter(function (z) { return z.name === n; })[0];
+  return n.replace(/^Loja\s*/, "Unidade ") + (l && l.gerente ? " — " + l.gerente : "");
+};
+
+/* 9o indicador: meta mensal da unidade com barra de progresso */
+GfPainelVendas.prototype.metaCartao = function () {
+  var $k = this.$.find(".gfp-kpis"), self = this;
+  $k.attr("data-n", this.estado.loja ? 9 : 8);
+  if (!this.estado.loja) return;
+  var l = (this.lojas || []).filter(function (z) { return z.name === self.estado.loja; })[0];
+  var meta = flt(l && l.meta_mensal), total = 0;
+  this.linhas.forEach(function (x) { total += flt(x.grand_total); });
+  var pct = meta ? total * 100 / meta : 0;
+  var corpo = meta
+    ? '<div class="gfp-kv">' + this.rs(meta) + '</div><div class="gfp-prog"><i style="width:' + Math.min(pct, 100).toFixed(1) +
+      '%"></i></div><div class="gfp-kd">' + pct.toFixed(1).replace(".", ",") + "% atingido</div>"
+    : '<div class="gfp-kv">—</div><div class="gfp-kd">Defina a meta no cadastro da loja</div>';
+  $k.append('<div class="gfp-k gfp-meta"><div class="gfp-kh"><span class="gfp-ico">' + this.icone("alvo") +
+    '</span><span class="gfp-kl">Meta Mensal</span></div>' + corpo + "</div>");
+};
+
+/* cabecalho: titulo da unidade e botao de voltar */
+GfPainelVendas.prototype.aplicarModo = function () {
+  var self = this, $r = this.$.find(".gfp"), loja = this.estado.loja;
+  $r.toggleClass("modo-loja", !!loja);
+  var $h1 = this.$.find(".gfp h1"), $p = this.$.find(".gfp-tit p");
+  if (!this.padraoTitulo) { this.padraoTitulo = $h1.text(); this.padraoSub = $p.text(); }
+  if (loja) {
+    $h1.html(this.icone("loja") + this.esc(this.nomeUnidade(loja)));
+    $p.text("Vendas do período — só os pedidos dos vendedores desta unidade.");
+    if (!this.$.find(".gfp-voltar").length) {
+      $('<button class="gfp-voltar" type="button">← Visão geral</button>')
+        .insertBefore(this.$.find(".gfp-tit .gfp-crumb"))
+        .on("click", function () { self.estado.loja = null; self.desenharLojas(); self.carregar(); });
+    }
+  } else {
+    $h1.text(this.padraoTitulo); $p.text(this.padraoSub);
+    this.$.find(".gfp-voltar").remove();
+  }
+};
+
+/* tabela "Vendedores da Unidade" */
+GfPainelVendas.prototype.tabelaVendedores = function () {
+  var self = this, $x = this.$.find(".gfp-extra"), por = {}, donoPedido = {};
+  this.linhas.forEach(function (x) {
+    var v = x.vendedor || x.owner || "—";
+    donoPedido[x.name] = v;
+    var g = por[v] = por[v] || { n: 0, t: 0, r: 0, fr: 0, pFrete: 0, pPar: {}, qPar: 0, vPar: 0 };
+    g.n += 1; g.t += flt(x.grand_total); g.r += flt(x.advance_paid);
+    g.fr += flt(x.total_taxes_and_charges);
+    if (flt(x.total_taxes_and_charges) > 0) g.pFrete += 1;
+  });
+  (this.itens || []).forEach(function (it) {
+    if (!/parafuso/i.test(it.item_name || "")) return;
+    var v = donoPedido[it.parent]; if (!v || !por[v]) return;
+    por[v].pPar[it.parent] = true; por[v].qPar += flt(it.qty); por[v].vPar += flt(it.amount);
+  });
+  var nomes = Object.keys(por).sort(function (a, b) { return por[b].t - por[a].t; });
+  if (!nomes.length) { $x.html(""); return; }
+  var m2 = function (n) { return "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+  var q3 = function (n) { return n.toLocaleString("pt-BR", { maximumFractionDigits: 3 }); };
+  var titulo = this.estado.loja ? "Vendedores da " + this.nomeUnidade(this.estado.loja) : "Meus resultados";
+  var corpo = nomes.map(function (nome, i) {
+    var g = por[nome], medalha = i < 3 ? " m" + (i + 1) : "";
+    return '<tr><td><span class="gfp-pos' + medalha + '">' + (i + 1) + "</span></td><td>" + self.esc(nome) + "</td>" +
+      '<td class="c-verde">' + m2(g.t) + '</td><td class="c-magenta">' + m2(g.n ? g.t / g.n : 0) + '</td><td class="c-violeta">' + g.n + "</td>" +
+      '<td class="c-teal">' + m2(g.r) + '</td><td class="c-laranja">' + Object.keys(g.pPar).length + '</td><td class="c-laranja">' + q3(g.qPar) + "</td>" +
+      '<td class="c-vermelho">' + m2(g.vPar) + '</td><td class="c-azul">' + g.pFrete + '</td><td class="c-ciano">' + m2(g.fr) + "</td></tr>";
+  }).join("");
+  var th = function (ic, t) { return "<th>" + (ic ? self.icone(ic) : "") + t + "</th>"; };
+  $x.html('<div class="gfp-vend"><div class="gfp-vh"><div><small>Desempenho da unidade</small><h3>' + this.esc(titulo) + "</h3></div>" +
+    '<span class="gfp-pilula">' + nomes.length + " vendedor" + (nomes.length > 1 ? "es" : "") + "</span></div>" +
+    '<div class="gfp-vt"><table><thead><tr><th>#</th><th>Vendedor</th>' + th("carteira", "Total vendido") + th("percentual", "Ticket médio") +
+    th("caixa", "Pedidos") + th("ticket", "Total recebível") + th("parafuso", "Ped.<br>parafusos") + th("parafuso", "Parafusos") +
+    th("parafuso", "Valor parafusos") + th("caminhao", "Ped.<br>frete/outros") + th("caminhao", "Fretes") + "</tr></thead><tbody>" + corpo +
+    "</tbody></table></div></div>");
 };

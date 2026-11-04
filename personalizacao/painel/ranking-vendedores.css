@@ -1,0 +1,126 @@
+/* Ranking de Vendedores - Grupo Gferro (layout do modelo aprovado) */
+#page-ranking-vendedores .page-head { display: none; }
+.gf-ranking .layout-main-section, .gf-ranking .page-body, .gf-ranking .page-content {
+  background: linear-gradient(180deg, #e6efff 0%, #f1f6ff 30%, #fbfdff 100%);
+}
+.rk { padding: 26px 32px 56px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #0B1B3A; position: relative; }
+.rk svg { width: 17px; height: 17px; flex: 0 0 auto; }
+
+/* ---------- topo ---------- */
+.rk-head { position: relative; min-height: 134px; padding-right: 360px; }
+.rk-crumb { font-size: 13px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #4b5563; }
+.rk-crumb i { font-style: normal; margin: 0 8px; color: #6b7280; }
+.rk-crumb b { color: #1546C4; font-weight: 800; }
+.rk h1 { margin: 12px 0 8px; font-size: 50px; font-weight: 800; letter-spacing: -.025em; line-height: 1.02; color: #0A1A33; }
+.rk h1 span { color: #1546C4; }
+.rk-tit p { margin: 0; font-size: 18px; color: #4b5563; }
+
+/* arte do trofeu (349 x 160), colada no canto superior direito; o botao real fica sobre o desenhado */
+.rk-art { position: absolute; right: -32px; top: -26px; width: 349px; height: 160px;
+  background: url("/assets/erpnext/gferro/rk-trofeu.webp") no-repeat right top / 349px 160px; }
+.rk-atualizar { position: absolute; left: 63px; top: 70px; width: 245px; height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  border: 0; border-radius: 12px; cursor: pointer; color: #fff; font-weight: 800; font-size: 17px;
+  background: linear-gradient(180deg, #1D5BE6 0%, #0B3FB6 100%); box-shadow: 0 8px 18px rgba(14,60,170,.38); }
+.rk-atualizar svg { width: 22px; height: 22px; }
+
+.rk-ctrl { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.rk-ctrl-top { position: absolute; top: 42px; right: 287px; flex-wrap: nowrap; }
+.rk-mes { height: 50px; width: 170px; border: 1px solid #e1e7f2; border-radius: 12px; padding: 0 14px; font-weight: 700; font-size: 15px; background: #fff; color: #0B1B3A; box-shadow: 0 3px 10px rgba(20,60,150,.08); }
+.rk-datas { display: inline-flex; align-items: center; gap: 10px; height: 50px; padding: 0 16px; border-radius: 12px; background: #fff; border: 1px solid #e1e7f2; box-shadow: 0 3px 10px rgba(20,60,150,.08); }
+.rk-datas > span { color: #E0A800; display: inline-flex; }
+.rk-datas svg { width: 20px; height: 20px; }
+.rk-datas label { display: inline-flex; align-items: center; gap: 8px; margin: 0 10px 0 0; font-size: 14.5px; color: #4b5563; }
+.rk-datas input { border: 0; background: transparent; font-size: 14.5px; font-weight: 600; color: #0B1B3A; width: 126px; }
+
+/* ---------- podio (imagens do modelo; so os textos sao dinamicos) ---------- */
+.rk-podio { display: grid; grid-template-columns: 570fr 560fr 580fr; gap: 6px; align-items: end; margin-top: 22px; }
+.rk-card { position: relative; container-type: inline-size; background-repeat: no-repeat; background-size: 100% 100%; filter: drop-shadow(0 8px 14px rgba(20,40,90,.10)); }
+.rk-p2 { background-image: url("/assets/erpnext/gferro/rk-card-prata.webp"); aspect-ratio: 570 / 135; }
+.rk-p1 { background-image: url("/assets/erpnext/gferro/rk-card-ouro.webp"); aspect-ratio: 560 / 152; }
+.rk-p3 { background-image: url("/assets/erpnext/gferro/rk-card-bronze.webp"); aspect-ratio: 580 / 135; }
+.rk-card span { position: absolute; transform: translateY(-50%); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rk-nome { font-size: 3.2cqw; font-weight: 800; color: #0A1A33; }
+.rk-rot { font-size: 2.55cqw; color: #4b5563; }
+.rk-val { font-size: 5.4cqw; font-weight: 800; color: #0E7A3B; letter-spacing: -.01em; }
+.rk-p2 span { left: 42.1%; right: 4%; }
+.rk-p2 .rk-nome { top: 27%; } .rk-p2 .rk-rot { top: 48%; } .rk-p2 .rk-val { top: 70%; }
+.rk-p1 span { left: 36.3%; right: 12%; }
+.rk-p1 .rk-nome { top: 27.6%; font-size: 3.4cqw; } .rk-p1 .rk-rot { top: 48.7%; } .rk-p1 .rk-val { top: 71%; font-size: 5.9cqw; }
+.rk-p3 span { left: 33.3%; right: 4%; }
+.rk-p3 .rk-nome { top: 27%; } .rk-p3 .rk-rot { top: 48%; } .rk-p3 .rk-val { top: 70%; }
+.rk-vazio { grid-column: 1 / -1; text-align: center; padding: 28px; color: #4b5563; background: #fff; border-radius: 18px; border: 1px dashed #cdd6e6; }
+
+/* ---------- painel da tabela ---------- */
+.rk-painel { margin-top: 14px; background: #fff; border-radius: 24px; padding: 18px 18px 22px; box-shadow: 0 8px 28px rgba(20,40,90,.07); }
+.rk-barra { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.rk-busca { flex: 0 1 490px; display: flex; align-items: center; gap: 12px; height: 46px; border: 1px solid #dfe5f0; border-radius: 12px; padding: 0 16px; margin: 0; color: #6b7a96; background: #fff; box-shadow: 0 2px 6px rgba(20,60,150,.05); }
+.rk-busca svg { width: 20px; height: 20px; }
+.rk-busca input { border: 0; outline: 0; width: 100%; font-size: 15px; background: transparent; }
+.rk-ctrl-tab .rk-mes { height: 44px; width: 150px; box-shadow: none; }
+.rk-ctrl-tab .rk-datas { height: 44px; box-shadow: none; }
+.rk-ctrl-tab .rk-datas input { width: 112px; font-size: 13.5px; }
+.rk-tab { overflow-x: auto; border-radius: 12px; }
+.rk-tab table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 1050px; }
+.rk-tab th { text-align: left; background: #eceff4; color: #1f2a44; font-size: 11.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; padding: 14px 12px; white-space: nowrap; vertical-align: bottom; }
+.rk-tab th svg { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; color: #4b5563; }
+.rk-tab td { padding: 13px 12px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; border-bottom: 1px solid #edf0f5; }
+.rk-tab tbody tr.top1 td { background: #FFF8DC; }
+.rk-tab td:nth-child(2) { font-weight: 500; color: #0B1B3A; }
+.rk-nada { text-align: center; color: #6b7a96; padding: 22px; }
+.rk-pos { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #F1F5F9; font-size: 14px; font-weight: 800; color: #1f2a44; }
+.rk-pos.m1 { background: #FFC107; color: #141414; }
+.rk-pos.m2 { background: #D5D9E0; color: #1f2937; }
+.rk-pos.m3 { background: #B45309; color: #fff; }
+.c-verde { color: #12873A; } .c-magenta { color: #A21CAF; } .c-violeta { color: #5B21B6; } .c-teal { color: #0F766E; }
+.c-laranja { color: #EA580C; } .c-vermelho { color: #DC2626; } .c-azul { color: #1D4ED8; } .c-ciano { color: #0E7490; }
+
+/* ---------- telas mais estreitas: controles descem para baixo do titulo ---------- */
+@media (max-width: 1500px) {
+  .rk-head { padding-right: 0; min-height: 0; }
+  .rk-tit { padding-right: 330px; }
+  .rk-ctrl-top { position: static; margin-top: 18px; flex-wrap: wrap; }
+  .rk-mes { width: 170px; }
+}
+@media (max-width: 1100px) {
+  .rk h1 { font-size: 38px; }
+  .rk-tit p { font-size: 15px; }
+  .rk-podio { grid-template-columns: 1fr; gap: 14px; }
+}
+@media (max-width: 760px) {
+  .rk { padding: 16px 12px 40px; }
+  .rk-art { position: static; width: auto; height: auto; background: none; margin-top: 14px; }
+  .rk-atualizar { position: static; width: 100%; }
+  .rk-tit { padding-right: 0; }
+}
+@media print { .body-sidebar-container, .rk-ctrl, .rk-busca, .rk-art { display: none !important; } }
+
+/* ---- ajustes: arte do topo limpa (sem controles desenhados), cartoes sem dados e controles em linha ---- */
+.rk-head { padding-right: 0; min-height: 0; }
+.rk-tit { padding-right: 0; }
+.rk-art { position: absolute; right: -32px; top: -26px; width: 349px; height: 70px; pointer-events: none;
+  background: url("/assets/erpnext/gferro/rk-trofeu.webp") no-repeat right top / 349px 160px;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%), linear-gradient(to right, transparent 0, #000 35%);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(to bottom, #000 40%, transparent 100%), linear-gradient(to right, transparent 0, #000 35%); mask-composite: intersect; }
+.rk-ctrl-top { position: static; margin-top: 20px; flex-wrap: wrap; right: auto; top: auto; }
+.rk-atualizar { position: static; width: 220px; height: 50px; left: auto; top: auto; }
+.rk-livre { filter: grayscale(.2) drop-shadow(0 8px 14px rgba(20,40,90,.08)); }
+.rk-livre .rk-nome, .rk-livre .rk-val { color: #8b95a8; }
+.rk-nome { font-size: clamp(12px, 3.2cqw, 20px); }
+.rk-rot { font-size: clamp(10px, 2.55cqw, 15px); }
+.rk-val { font-size: clamp(17px, 5.4cqw, 32px); }
+.rk-p1 .rk-nome { font-size: clamp(12px, 3.4cqw, 21px); }
+.rk-p1 .rk-val { font-size: clamp(18px, 5.9cqw, 35px); }
+@media (min-width: 1900px) {
+  .rk-ctrl-top { position: absolute; top: 66px; right: 0; margin-top: 0; flex-wrap: nowrap; }
+}
+@media (max-width: 760px) { .rk-art { display: none; } .rk-atualizar { width: 100%; } }
+
+/* sem troféu; título menor */
+.rk-art { display: none !important; }
+.rk h1 { font-size: clamp(24px, 2.1vw, 30px); margin: 8px 0 4px; letter-spacing: -.015em; }
+.rk-tit p { font-size: 14px; }
+.rk-crumb { font-size: 11.5px; }
+
+/* botao Atualizar dados menor */
+.rk-atualizar { width: auto; height: 38px; padding: 0 16px; gap: 8px; font-size: 13px; border-radius: 10px; box-shadow: 0 5px 12px rgba(14,60,170,.28); }
+.rk-atualizar svg { width: 16px; height: 16px; }

@@ -153,3 +153,105 @@
 @media (min-width: 1000px) and (max-width: 1499px) {
   .gfp-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* margens: o painel nao fica colado nas bordas da tela */
+.gfp { padding: 28px 32px 56px; }
+@media (max-width: 700px) { .gfp { padding: 14px 12px 36px; } }
+
+/* comparativo por unidade / ranking de vendedores */
+.gfp-extra { margin-top: 14px; }
+.gfp-tabela { background: #fff; border-radius: 16px; box-shadow: 0 2px 10px rgba(20,20,20,.06); padding: 14px 16px 8px; overflow-x: auto; }
+.gfp-th { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.gfp-th h3 { margin: 0; font-size: 15px; font-weight: 800; }
+.gfp-th span { color: #6b7280; font-size: 12px; }
+.gfp-tabela table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.gfp-tabela th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: #6b7280; padding: 8px 8px; border-bottom: 2px solid #141414; white-space: nowrap; }
+.gfp-tabela td { padding: 10px 8px; border-bottom: 1px solid #eee; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gfp-tabela tbody tr:last-child td { border-bottom: 0; }
+.gfp-linha { cursor: pointer; }
+.gfp-linha:hover td { background: #FFF9E0; }
+.gfp-part { display: inline-block; width: 70px; height: 8px; border-radius: 99px; background: #eee; vertical-align: middle; overflow: hidden; margin-right: 6px; }
+.gfp-part i { display: block; height: 100%; background: #FFC800; border-radius: 99px; }
+.gfp-todas.on { background: #141414; color: #FFC800; border-color: #141414; box-shadow: none; }
+
+/* ---- indicadores compactos: os 8 lado a lado, alinhados ---- */
+.gfp-kpis { grid-template-columns: repeat(8, minmax(0, 1fr)) !important; gap: 8px; align-items: stretch; }
+.gfp-k { min-height: 0; padding: 10px 10px 10px; gap: 6px; border-radius: 12px; }
+.gfp-kh { min-height: 0; gap: 6px; align-items: flex-start; }
+.gfp-ico { width: 16px; height: 16px; flex: 0 0 16px; border-radius: 0; background: transparent; color: var(--ico); box-shadow: none; margin-top: 1px; }
+.gfp-ico svg { width: 15px; height: 15px; }
+.gfp-kl { font-size: 11.5px; line-height: 1.2; }
+.gfp-kv { font-size: 17px; white-space: nowrap; }
+.gfp-kf { min-height: 0; justify-content: flex-start; margin-top: 0; }
+.gfp-badge { font-size: 11px; padding: 2px 9px; }
+.gfp-trend, .gfp-onda { display: none; }
+@media (max-width: 1000px) { .gfp-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; } }
+@media (max-width: 560px) { .gfp-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+
+/* ---- Vendas por Produto / Preco Medio de Venda ---- */
+.gfp-prod { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+.gfp-pn { background: #fff; border: 1px solid #e6e8ec; border-radius: 16px; padding: 14px 16px 6px; }
+.gfp-pnh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.gfp-pnh h3 { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; }
+.gfp-pnh h3 svg { color: #E08A00; }
+.gfp-pn:nth-child(2) .gfp-pnh h3 svg { color: #1E88E5; }
+.gfp-pnh span { font-size: 11.5px; color: #6b7280; }
+.gfp-lista { max-height: 430px; overflow-y: auto; padding-right: 8px; scrollbar-width: thin; scrollbar-color: #9aa0a6 transparent; }
+.gfp-it { padding: 7px 0 9px; display: grid; grid-template-columns: 1fr auto; column-gap: 12px; row-gap: 5px; align-items: center; }
+.gfp-itt { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; color: #1c1c1c; }
+.gfp-nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gfp-itt em { font-style: normal; color: #6b7280; white-space: nowrap; font-size: 12px; }
+.gfp-bar { height: 8px; border-radius: 99px; background: #f1f1ef; overflow: hidden; }
+.gfp-bar i { display: block; height: 100%; border-radius: 99px; }
+.gfp-b-amarela { background: linear-gradient(90deg, #C98F00, #FFC800); }
+.gfp-b-azul { background: linear-gradient(90deg, #1E88E5, #4FC3F7); }
+.gfp-it b { font-size: 12.5px; font-weight: 800; white-space: nowrap; justify-self: end; }
+.gfp-v-verde { color: #16A34A; }
+.gfp-v-azul { color: #1E88E5; }
+@media (max-width: 900px) { .gfp-prod { grid-template-columns: 1fr; } }
+
+/* ---- visao individual da unidade ---- */
+.gfp-kpis[data-n="9"] { grid-template-columns: repeat(9, minmax(0, 1fr)) !important; }
+@media (max-width: 1100px) { .gfp-kpis[data-n="9"] { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; } }
+.gfp.modo-loja .gfp-hero { background: none; box-shadow: none; padding: 0; border-radius: 0; overflow: visible; }
+.gfp.modo-loja .gfp-hero::before, .gfp.modo-loja .gfp-hero::after { display: none; }
+.gfp.modo-loja .gfp-crumb, .gfp.modo-loja .gfp-lojas { display: none; }
+.gfp.modo-loja h1 { display: flex; align-items: center; gap: 10px; font-size: 26px; margin: 0 0 4px; }
+.gfp.modo-loja h1 svg { width: 28px; height: 28px; color: #E0A800; }
+.gfp.modo-loja .gfp-filtros { background: none; box-shadow: none; padding: 0; margin: 14px 0; }
+.gfp-voltar { border: 0; background: #FFF3BF; color: #141414; font-weight: 800; font-size: 12px; border-radius: 99px; padding: 5px 12px; margin-bottom: 8px; cursor: pointer; }
+.gfp-voltar:hover { background: #FFE680; }
+.gfp-meta { --bd: #f6dc7a; --tint: #fffbe6; --ico: #E0A800; --txt: #8a6500; --val: #2b2100; }
+.gfp-prog { height: 7px; border-radius: 99px; background: #f1ecd0; overflow: hidden; }
+.gfp-prog i { display: block; height: 100%; background: linear-gradient(90deg, #E0A800, #FFC800); border-radius: 99px; }
+.gfp-kd { font-size: 11.5px; color: #4b5260; }
+
+.gfp-vend { background: #fff; border: 1px solid #e6e8ec; border-radius: 22px; padding: 18px 20px 20px; box-shadow: 0 2px 10px rgba(20,20,20,.04); }
+.gfp-vh { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid #eceef1; margin-bottom: 14px; }
+.gfp-vh small { font-size: 10.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #C98F00; }
+.gfp-vh h3 { margin: 4px 0 0; font-size: 22px; font-weight: 800; }
+.gfp-pilula { background: #f1f2f4; color: #4b5260; border-radius: 99px; padding: 6px 14px; font-size: 12px; font-weight: 700; }
+.gfp-vt { overflow-x: auto; border: 1px solid #eceef1; border-radius: 14px; scrollbar-width: thin; scrollbar-color: #8a8f98 #f1f2f4; }
+.gfp-vt table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1050px; }
+.gfp-vt th { text-align: left; font-size: 10.5px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #374151; padding: 12px 12px; background: #f8f9fa; border-bottom: 1px solid #eceef1; white-space: nowrap; vertical-align: bottom; }
+.gfp-vt th svg { width: 13px; height: 13px; margin-right: 5px; vertical-align: -2px; color: #6b7280; }
+.gfp-vt td { padding: 13px 12px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gfp-vt tbody tr:nth-child(odd) td { background: #FFFCEB; }
+.gfp-vt tbody tr:nth-child(even) td { background: #fafafa; }
+.gfp-vt td:nth-child(2) { font-weight: 600; color: #141414; }
+.gfp-pos { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-size: 12.5px; font-weight: 800; color: #4b5260; }
+.gfp-pos.m1 { background: #FFC800; color: #141414; }
+.gfp-pos.m2 { background: #D1D5DB; color: #1f2937; }
+.gfp-pos.m3 { background: #B45309; color: #fff; }
+.c-verde { color: #16A34A; } .c-magenta { color: #C026D3; } .c-violeta { color: #6D28D9; } .c-teal { color: #0F766E; }
+.c-laranja { color: #EA580C; } .c-vermelho { color: #DC2626; } .c-azul { color: #2563EB; } .c-ciano { color: #0E7490; }
+
+/* na visao da unidade: vendedores logo abaixo dos indicadores, produtos depois */
+.gfp.vend-primeiro { display: flex; flex-direction: column; }
+.gfp.vend-primeiro > * { order: 0; }
+.gfp.vend-primeiro > .gfp-hero { order: 1; }
+.gfp.vend-primeiro > .gfp-filtros { order: 2; }
+.gfp.vend-primeiro > .gfp-kpis { order: 3; }
+.gfp.vend-primeiro > .gfp-extra { order: 4; margin-top: 14px; }
+.gfp.vend-primeiro > .gfp-prod { order: 5; }
+.gfp.vend-primeiro > .gfp-vazio { order: 6; }
