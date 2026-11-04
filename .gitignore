@@ -1,2 +1,5 @@
 .env
 *.sql.gz
+
+# dados exportados do Nomus (dados do negocio, nao versionar)
+personalizacao/nomus-dados/
