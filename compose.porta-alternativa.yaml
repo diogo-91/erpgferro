@@ -1,0 +1,7 @@
+# Uso local quando a 8080 esta ocupada por outro projeto (ex.: sorocaba-motores-erp):
+# docker compose -f compose.yaml -f compose.local.yaml -f compose.porta-alternativa.yaml up -d
+# Acesse em http://localhost:8081
+services:
+  frontend:
+    ports: !override
+      - "8081:8080"
