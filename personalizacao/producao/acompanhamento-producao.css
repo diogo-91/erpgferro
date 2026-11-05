@@ -1,0 +1,50 @@
+/* Acompanhamento da Produção - Grupo Gferro */
+#page-acompanhamento-producao .page-head { display: none; }
+.gf-prod .layout-main-section, .gf-prod .page-body, .gf-prod .page-content { background: #f4f4f1; }
+.gfk { --y: #FFC800; padding: 10px 4px 40px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #141414; }
+
+.gfk-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
+.gfk-titulo h1 { margin: 0 0 4px; font-size: 26px; font-weight: 800; letter-spacing: .01em; }
+.gfk-titulo p { margin: 0; color: #5b616e; font-size: 13.5px; }
+
+.gfk-kpis { display: flex; gap: 10px; flex-wrap: wrap; }
+.gfk-kpi { min-width: 132px; padding: 10px 16px; border-radius: 14px; border: 1px solid #e3e5e9; background: #fff; text-align: center; }
+.gfk-kpi b { display: block; font-size: 28px; font-weight: 800; line-height: 1.1; }
+.gfk-kpi span { display: block; margin-top: 2px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; color: #4b5260; }
+.gfk-verde { background: #e4f8e8; border-color: #9ee2ac; } .gfk-verde b { color: #1f7a35; }
+.gfk-amarelo { background: #fff6cf; border-color: #f2dc7a; } .gfk-amarelo b { color: #1f2430; }
+.gfk-vermelho { background: #fde4e4; border-color: #f2a6a6; } .gfk-vermelho b { color: #b3261e; }
+
+.gfk-barra { display: flex; align-items: center; gap: 12px; margin: 18px 0 16px; flex-wrap: wrap; }
+.gfk-busca, .gfk-filtro { height: 42px; border: 1px solid #dcdfe4; border-radius: 12px; background: #fff; padding: 0 14px; font-size: 14px; min-width: 230px; }
+.gfk-filtro { min-width: 170px; }
+.gfk-btn { height: 42px; border: 1px solid #dcdfe4; border-radius: 12px; background: #fff; padding: 0 18px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.gfk-btn:hover { background: #fafafa; }
+.gfk-auto { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 14px; border-radius: 999px; border: 1px solid #e3e5e9; background: #fff; font-size: 12px; color: #4b5260; }
+.gfk-auto i { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; display: inline-block; }
+.gfk-msg { font-size: 12px; color: #8a8f98; }
+
+.gfk-quadro { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 14px; align-items: flex-start; }
+.gfk-col { flex: 0 0 268px; background: #ececea; border-radius: 16px; overflow: hidden; }
+.gfk-col-cab { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1a1a; }
+.gfk-col-cab span { color: var(--y); font-weight: 800; font-size: 14px; letter-spacing: .02em; }
+.gfk-col-cab b { min-width: 26px; height: 26px; padding: 0 6px; border-radius: 999px; background: var(--y); color: #141414; display: inline-flex; align-items: center; justify-content: center; font-size: 12.5px; }
+.gfk-col-corpo { padding: 12px; display: flex; flex-direction: column; gap: 12px; max-height: 68vh; overflow-y: auto; min-height: 120px; }
+.gfk-vazio { text-align: center; color: #9aa0a8; padding: 36px 0; font-size: 18px; }
+
+.gfk-card { background: #fff; border-radius: 14px; padding: 12px 14px; cursor: pointer; box-shadow: 0 1px 4px rgba(20,20,20,.08); border: 1px solid #ecebe6; }
+.gfk-card:hover { box-shadow: 0 4px 14px rgba(20,20,20,.14); }
+.gfk-os { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: ui-monospace, Consolas, monospace; font-size: 12px; font-weight: 700; }
+.gfk-pd { font-style: normal; background: #1a1a1a; color: var(--y); border-radius: 999px; padding: 2px 9px; font-size: 11px; white-space: nowrap; }
+.gfk-prod { margin-top: 8px; font-size: 12.5px; font-weight: 600; line-height: 1.3; text-transform: uppercase; }
+.gfk-op { margin-top: 6px; font-size: 12.5px; color: #8a8f98; }
+.gfk-etapa { margin-top: 6px; font-size: 11.5px; color: #5b616e; }
+.gfk-prog { height: 4px; border-radius: 4px; background: #e5e7eb; margin: 5px 0 10px; overflow: hidden; }
+.gfk-prog i { display: block; height: 100%; background: var(--y); }
+.gfk-oper { font-size: 12.5px; font-weight: 600; margin-bottom: 8px; }
+.gfk-rodape { display: flex; justify-content: space-between; align-items: center; }
+.gfk-st { font-size: 10.5px; font-weight: 800; letter-spacing: .04em; border-radius: 8px; padding: 5px 10px; }
+.gfk-st-aguard { background: #e5e7eb; color: #4b5260; }
+.gfk-st-prod { background: var(--y); color: #141414; }
+.gfk-st-pausada { background: #fde4e4; color: #b3261e; }
+.gfk-tempo { font-size: 12px; color: #5b616e; font-variant-numeric: tabular-nums; }

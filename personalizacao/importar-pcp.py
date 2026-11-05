@@ -96,17 +96,18 @@ print("workstation types:", frappe.db.count("Workstation Type"), "| workstations
 # ---------- 3) roteiros (Routing) e BOMs ----------
 def linhas_operacao(codigo):
     linhas = []
-    for o in dados["roteiros"][codigo]["operacoes"]:
+    for pos, o in enumerate(dados["roteiros"][codigo]["operacoes"], 1):
         maquina = (o["maquinas"] or [o["centro"]])[0]
         if not frappe.db.exists("Workstation", maquina):
             maquina = o["centro"]
-        extra = []
+        # o ERPNext exige sequence_id consecutivo (1, 2, 3...); a etapa original do Nomus vai na descricao
+        extra = ["Etapa Nomus: %s" % o["seq"]]
         if o["setup_min"]:
             extra.append("Setup: %g min" % o["setup_min"])
         if len(o["maquinas"]) > 1:
             extra.append("Outras maquinas: " + ", ".join(o["maquinas"][1:]))
         linhas.append({
-            "operation": o["operacao"], "sequence_id": o["seq"], "workstation_type": o["centro"], "workstation": maquina,
+            "operation": o["operacao"], "sequence_id": pos, "workstation_type": o["centro"], "workstation": maquina,
             "time_in_mins": o["min"], "fixed_time": 0 if o["por_unidade"] else 1, "description": " | ".join(extra),
         })
     return linhas

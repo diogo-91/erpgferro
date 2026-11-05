@@ -86,6 +86,11 @@
       if (!h) return;
       if (cur) cur.html += h; else top += h;
     });
+    // Producao: Kanban de acompanhamento das OS (pagina propria) no topo do modulo
+    if (mod === "Manufacturing") {
+      top = '<a class="gf-link" href="/desk/acompanhamento-producao" data-href="/desk/acompanhamento-producao">' + icon("layout-grid") +
+        '<span class="gf-label">Acompanhamento da Produção</span></a>' + top;
+    }
     var secs = sections.filter(function (s) { return s.html; }).map(function (s) {
       var k = mod + "/" + s.label;
       return '<div class="gf-sec' + (opened()[k] ? " gf-open" : "") + '" data-k="' + esc(k) + '">' +

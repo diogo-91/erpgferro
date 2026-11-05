@@ -45,6 +45,7 @@ RUN cd apps/erpnext/erpnext && \
 # Desk GFerro: barra lateral unica, logo e abrir na tela de menu (app_include_css/js do erpnext)
 COPY --chown=frappe:frappe personalizacao/desk /tmp/desk
 COPY --chown=frappe:frappe personalizacao/painel /tmp/painel
+COPY --chown=frappe:frappe personalizacao/producao /tmp/producao
 RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
   cp /tmp/desk/gferro-desk.css /tmp/desk/gferro-desk.js /tmp/desk/*.webp apps/erpnext/erpnext/public/gferro/ && \
   cp /tmp/desk/gferro_utils.py apps/erpnext/erpnext/gferro_utils.py && \
@@ -54,6 +55,9 @@ RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
   mkdir -p apps/erpnext/erpnext/selling/page/ranking_vendedores && touch apps/erpnext/erpnext/selling/page/ranking_vendedores/__init__.py && \
   cp /tmp/painel/ranking-vendedores.js apps/erpnext/erpnext/selling/page/ranking_vendedores/ranking_vendedores.js && \
   cp /tmp/painel/ranking-vendedores.css apps/erpnext/erpnext/selling/page/ranking_vendedores/ranking_vendedores.css && \
+  mkdir -p apps/erpnext/erpnext/manufacturing/page/acompanhamento_producao && touch apps/erpnext/erpnext/manufacturing/page/acompanhamento_producao/__init__.py && \
+  cp /tmp/producao/acompanhamento-producao.js apps/erpnext/erpnext/manufacturing/page/acompanhamento_producao/acompanhamento_producao.js && \
+  cp /tmp/producao/acompanhamento-producao.css apps/erpnext/erpnext/manufacturing/page/acompanhamento_producao/acompanhamento_producao.css && \
   python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
   grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py && \
   grep -q gf_qr apps/erpnext/erpnext/hooks.py && ./env/bin/python -c "import pyqrcode"
