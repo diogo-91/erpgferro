@@ -1,6 +1,6 @@
 """Troca o vocabulario de producao das traducoes pt-BR para o padrao do Nomus (o da fabrica).
 
-  Ordem de Trabalho (Work Order)           -> Ordem de Producao
+  Ordem de Trabalho (Work Order)           -> Ordem de Servico (OS)
   Cartao de Trabalho (Job Card)            -> Apontamento
   Tipo de Estacao de Trabalho (Wk. Type)   -> Centro de Trabalho
   Estacao de Trabalho (Workstation)        -> Recurso   (maquina/equipamento do centro)
@@ -46,20 +46,24 @@ TROCAS = [  # (padrao, substituicao) - do mais especifico para o mais geral
     (r"Esta[çc][ãa]o de Trabalho", "Recurso"),
     (r"esta[çc][õo]es de trabalho", "recursos"),
     (r"esta[çc][ãa]o de trabalho", "recurso"),
-    (r"Ordens de Trabalho", "Ordens de Produção"),
-    (r"Ordem de Trabalho", "Ordem de Produção"),
-    (r"ordens de trabalho", "ordens de produção"),
-    (r"ordem de trabalho", "ordem de produção"),
+    (r"Ordens de Trabalho", "Ordens de Serviço"),
+    (r"Ordem de Trabalho", "Ordem de Serviço"),
+    (r"ordens de trabalho", "ordens de serviço"),
+    (r"ordem de trabalho", "ordem de serviço"),
     (r"Cart[õo]es de Trabalho", "Apontamentos"),
     (r"Cart[ãa]o de Trabalho", "Apontamento"),
     (r"cart[õo]es de trabalho", "apontamentos"),
     (r"cart[ãa]o de trabalho", "apontamento"),
     (r"Posto de Trabalho", "Recurso"),
+    (r"Ordens de Produção", "Ordens de Serviço"),
+    (r"Ordem de Produção", "Ordem de Serviço"),
+    (r"ordens de produção", "ordens de serviço"),
+    (r"ordem de produção", "ordem de serviço"),
     # variantes com "trabalho" em minuscula (ex.: "Cartões de trabalho")
     (r"Cart[õo]es de trabalho", "Apontamentos"),
     (r"Cart[ãa]o de trabalho", "Apontamento"),
-    (r"Ordens de trabalho", "Ordens de produção"),
-    (r"Ordem de trabalho", "Ordem de produção"),
+    (r"Ordens de trabalho", "Ordens de serviço"),
+    (r"Ordem de trabalho", "Ordem de serviço"),
     (r"Esta[çc][õo]es de trabalho", "Recursos"),
     (r"Esta[çc][ãa]o de trabalho", "Recurso"),
 ]

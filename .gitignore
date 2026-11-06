@@ -3,3 +3,6 @@
 
 # dados exportados do Nomus (dados do negocio, nao versionar)
 personalizacao/nomus-dados/
+
+# pacote de validacao para o cliente (dados do negocio)
+entrega/

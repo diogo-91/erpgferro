@@ -58,13 +58,16 @@ RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
   mkdir -p apps/erpnext/erpnext/manufacturing/page/acompanhamento_producao && touch apps/erpnext/erpnext/manufacturing/page/acompanhamento_producao/__init__.py && \
   cp /tmp/producao/acompanhamento-producao.js apps/erpnext/erpnext/manufacturing/page/acompanhamento_producao/acompanhamento_producao.js && \
   cp /tmp/producao/acompanhamento-producao.css apps/erpnext/erpnext/manufacturing/page/acompanhamento_producao/acompanhamento_producao.css && \
+  mkdir -p apps/erpnext/erpnext/manufacturing/page/apontamento_producao && touch apps/erpnext/erpnext/manufacturing/page/apontamento_producao/__init__.py && \
+  cp /tmp/producao/apontamento-producao.js apps/erpnext/erpnext/manufacturing/page/apontamento_producao/apontamento_producao.js && \
+  cp /tmp/producao/apontamento-producao.css apps/erpnext/erpnext/manufacturing/page/apontamento_producao/apontamento_producao.css && \
   python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
   grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py && \
   grep -q gf_qr apps/erpnext/erpnext/hooks.py && ./env/bin/python -c "import pyqrcode"
 
 # Traducoes pt-BR: preenche as frases ainda sem traducao (o bench build compila os .po)
 COPY --chown=frappe:frappe i18n /tmp/i18n
-RUN ./env/bin/pip install --quiet polib && \
+RUN ./env/bin/pip install --quiet polib python-barcode && \
   ./env/bin/python /tmp/i18n/apply_translations.py /tmp/i18n/translations.json apps && \
   ./env/bin/python /tmp/i18n/glossario_nomus.py apps
 

@@ -24,9 +24,9 @@ _gf_js = "/assets/erpnext/gferro/gferro-desk.js?v=%s"
 app_include_css = ([app_include_css] if isinstance(app_include_css, str) else list(app_include_css)) + [_gf_css]
 app_include_js = ([app_include_js] if isinstance(app_include_js, str) else list(app_include_js)) + [_gf_js]
 
-# funcoes Jinja dos modelos de impressao (QR code, link do WhatsApp)
+# funcoes Jinja dos modelos de impressao (QR code, codigo de barras, link do WhatsApp)
 jinja = dict(jinja)
-jinja["methods"] = list(jinja.get("methods", [])) + ["erpnext.gferro_utils.gf_qr", "erpnext.gferro_utils.gf_whatsapp"]
+jinja["methods"] = list(jinja.get("methods", [])) + ["erpnext.gferro_utils.gf_qr", "erpnext.gferro_utils.gf_whatsapp", "erpnext.gferro_utils.gf_barcode"]
 ''' % (versao, versao)
 open(path, "w", encoding="utf-8").write(src)
 print("hooks.py atualizado, versao", versao)

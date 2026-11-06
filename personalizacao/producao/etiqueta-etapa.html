@@ -1,0 +1,24 @@
+<style>
+@page { size: 100mm 60mm; margin: 0; }
+.print-format { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+.gfe { width: 100mm; height: 60mm; box-sizing: border-box; padding: 3.5mm 4mm; overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif; color: #000; }
+.gfe-topo { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 0.4mm solid #000; padding-bottom: 1.2mm; }
+.gfe-tipo { font-size: 9pt; font-weight: 700; letter-spacing: .04em; }
+.gfe-marca { font-size: 8pt; font-weight: 700; }
+.gfe-cb { display: block; margin: 2.2mm auto 0; height: 17mm; max-width: 92mm; }
+.gfe-cod { text-align: center; font-family: "Courier New", monospace; font-size: 11pt; font-weight: 700; letter-spacing: .08em; margin-top: .6mm; }
+.gfe-op { text-align: center; font-size: 13pt; font-weight: 700; margin-top: 1.4mm; line-height: 1.1; }
+.gfe-prod { font-size: 8.5pt; font-weight: 700; margin-top: 1.6mm; line-height: 1.2; text-transform: uppercase; max-height: 10mm; overflow: hidden; }
+.gfe-linha { font-size: 8pt; margin-top: 1mm; }
+</style>
+{%- set ordem = frappe.db.get_value("Work Order", doc.work_order, ["item_name", "production_item", "stock_uom"], as_dict=True) or {} -%}
+<div class="gfe">
+  <div class="gfe-topo"><span class="gfe-tipo">ETAPA {{ doc.sequence_id or "" }} — APONTAMENTO</span><span class="gfe-marca">GFERRO</span></div>
+  <img class="gfe-cb" src="{{ gf_barcode(doc.name) }}" alt="">
+  <div class="gfe-cod">{{ doc.name }}</div>
+  <div class="gfe-op">{{ doc.operation }}</div>
+  <div class="gfe-prod">{{ ordem.item_name or ordem.production_item }}</div>
+  <div class="gfe-linha">OS: <b>{{ doc.work_order }}</b> &nbsp;·&nbsp; Qtd.: <b>{{ doc.for_quantity }} {{ ordem.stock_uom or "" }}</b>
+    {%- if doc.workstation %} &nbsp;·&nbsp; Recurso: <b>{{ doc.workstation }}</b>{% endif %}</div>
+</div>

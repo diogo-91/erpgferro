@@ -97,7 +97,7 @@ GfAcompProducao.prototype.carregar = function (silencioso) {
       self.buscar("Work Order Operation", ["parent", "idx", "operation", "status", "sequence_id", "workstation", "workstation_type",
         "actual_start_time", "actual_end_time"], [["parent", "in", nomes]], { parent: "Work Order" }),
       self.buscar("Job Card", ["name", "work_order", "operation", "status", "workstation", "workstation_type", "actual_start_date",
-        "modified"], [["work_order", "in", nomes], ["docstatus", "<", 2]])
+        "modified", "operador", "is_paused"], [["work_order", "in", nomes], ["docstatus", "<", 2]])
     ]).then(function (x) { return [wos, x[0], x[1]]; });
   }).then(function (d) {
     return self.operadores(d[2]).then(function () { self.montarCards(d[0], d[1], d[2]); });
@@ -153,7 +153,7 @@ GfAcompProducao.prototype.montarCards = function (wos, ops, jcs) {
     if (!atual) atual = lista[lista.length - 1];
     var jc = jcPor[w.name + "|" + atual.operation];
     var emAndamento = (jc && jc.status === "Work In Progress") || atual.status === "Work in Progress";
-    var pausada = jc && jc.status === "On Hold";
+    var pausada = jc && (jc.status === "On Hold" || jc.is_paused);
     var iniciada = feitas > 0 || emAndamento || pausada || w.status === "In Process" || (jc && jc.actual_start_date);
     if (!iniciada) { self.kpi.primeiro++; return; }
     var estado = pausada ? "pausada" : emAndamento ? "prod" : "aguard";
@@ -167,7 +167,7 @@ GfAcompProducao.prototype.montarCards = function (wos, ops, jcs) {
       os: w.name, pd: w.sales_order || "", codigo: w.production_item, produto: w.item_name || w.production_item, operacao: atual.operation,
       etapa: atual.sequence_id || atual.idx, feitas: feitas, total: lista.length, estado: estado,
       coluna: self.coluna(atual.operation, atual.workstation_type || (jc && jc.workstation_type) || self.tipoPosto[atual.workstation]),
-      operador: jc ? self.operador[jc.name] || "" : "", seg: desde ? Math.max(0, (agora - new Date(String(desde).replace(" ", "T")).getTime()) / 1000) : null
+      operador: jc ? (jc.operador || self.operador[jc.name] || "") : "", seg: desde ? Math.max(0, (agora - new Date(String(desde).replace(" ", "T")).getTime()) / 1000) : null
     });
   });
   var k = { prod: 0, aguard: 0, pausada: 0 };

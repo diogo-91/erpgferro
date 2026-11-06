@@ -1,0 +1,92 @@
+<style>
+@page { size: A4; margin: 8mm; }
+.print-format { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+.gfo { font-family: Arial, Helvetica, sans-serif; color: #000; font-size: 9.5pt; width: 100%; }
+.gfo table { width: 100%; border-collapse: collapse; }
+.gfo td, .gfo th { vertical-align: middle; }
+.gfo-cab td { padding: 0; }
+.gfo-marca { font-size: 9pt; font-weight: 700; letter-spacing: .18em; }
+.gfo-titulo { font-size: 15pt; font-weight: 800; letter-spacing: .03em; margin-top: 1mm; }
+.gfo-os { font-family: "Courier New", monospace; font-size: 22pt; font-weight: 800; letter-spacing: .04em; margin-top: 1mm; }
+.gfo-cb-os { text-align: right; }
+.gfo-cb-os img { height: 18mm; max-width: 86mm; }
+.gfo-cb-os div { font-family: "Courier New", monospace; font-size: 10pt; font-weight: 700; letter-spacing: .12em; text-align: center; }
+.gfo-regua { border-top: 0.6mm solid #000; margin: 3mm 0 2.5mm; }
+.gfo-info td { border: 0.25mm solid #888; padding: 1.6mm 2.4mm; width: 25%; }
+.gfo-info small { display: block; font-size: 6.8pt; font-weight: 700; letter-spacing: .06em; color: #444; text-transform: uppercase; }
+.gfo-info b { font-size: 10pt; }
+.gfo-sec { font-size: 9pt; font-weight: 800; letter-spacing: .08em; margin: 4mm 0 1.4mm; text-transform: uppercase; }
+.gfo-proc th { background: #222; color: #fff; font-size: 7.5pt; text-align: left; padding: 1.4mm 2mm; text-transform: uppercase; letter-spacing: .05em; }
+.gfo-proc td { border-bottom: 0.25mm solid #999; padding: 1.1mm 2mm; }
+.gfo-proc .n { width: 8mm; text-align: center; font-weight: 800; font-size: 11pt; }
+.gfo-proc .op { font-weight: 800; font-size: 10pt; }
+.gfo-proc .rec { font-size: 8pt; color: #333; }
+.gfo-proc .cb { width: 62mm; text-align: center; }
+.gfo-proc .cb img { height: 10mm; max-width: 58mm; display: block; margin: 0 auto; }
+.gfo-proc .cb span { font-family: "Courier New", monospace; font-size: 8pt; font-weight: 700; letter-spacing: .1em; }
+.gfo-proc .vis { width: 24mm; }
+.gfo-mat { column-count: 2; column-gap: 6mm; font-size: 7.6pt; }
+.gfo-mat .m { display: flex; gap: 2mm; border-bottom: 0.2mm solid #bbb; padding: 0.7mm 0; break-inside: avoid; }
+.gfo-mat .c { flex: 0 0 15mm; font-weight: 700; }
+.gfo-mat .d { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.gfo-mat .q { flex: 0 0 auto; font-weight: 700; white-space: nowrap; }
+.gfo-rod { margin-top: 3.5mm; border: 0.25mm solid #888; padding: 1.8mm 3mm; font-size: 8pt; }
+</style>
+
+{%- set etapas = frappe.get_all("Job Card", filters={"work_order": doc.name, "docstatus": ["<", 2]},
+      fields=["name", "operation", "workstation", "workstation_type", "sequence_id", "for_quantity"], order_by="sequence_id asc, creation asc") -%}
+{%- set cliente = frappe.db.get_value("Sales Order", doc.sales_order, "customer_name") if doc.sales_order else "" -%}
+<div class="gfo">
+  <table class="gfo-cab"><tr>
+    <td>
+      <div class="gfo-marca">GFERRO</div>
+      <div class="gfo-titulo">ORDEM DE SERVIÇO</div>
+      <div class="gfo-os">{{ doc.name }}</div>
+    </td>
+    <td class="gfo-cb-os">
+      <img src="{{ gf_barcode(doc.name) }}" alt="">
+      <div>{{ doc.name }}</div>
+    </td>
+  </tr></table>
+  <div class="gfo-regua"></div>
+
+  <table class="gfo-info">
+    <tr>
+      <td colspan="2"><small>Produto</small><b>{{ doc.production_item }}</b> — {{ doc.item_name }}</td>
+      <td><small>Quantidade</small><b>{{ doc.qty }} {{ doc.stock_uom or "" }}</b></td>
+      <td><small>Pedido</small><b>{{ doc.sales_order or "-" }}</b></td>
+    </tr>
+    <tr>
+      <td colspan="2"><small>Cliente</small><b>{{ cliente or "-" }}</b></td>
+      <td><small>Início previsto</small><b>{{ doc.get_formatted("planned_start_date") if doc.planned_start_date else "-" }}</b></td>
+      <td><small>Entrega</small><b>{{ doc.get_formatted("expected_delivery_date") if doc.expected_delivery_date else "-" }}</b></td>
+    </tr>
+    {%- if doc.description %}
+    <tr><td colspan="4"><small>Observações</small>{{ doc.description }}</td></tr>
+    {%- endif %}
+  </table>
+
+  <div class="gfo-sec">Processos — leia o código de barras da etapa para apontar</div>
+  <table class="gfo-proc">
+    <tr><th>Etapa</th><th>Processo</th><th>Código de barras da etapa</th><th class="vis">Visto</th></tr>
+    {%- for e in etapas %}
+    <tr>
+      <td class="n">{{ loop.index }}</td>
+      <td><div class="op">{{ e.operation }}</div><div class="rec">{{ e.workstation_type or "" }}{% if e.workstation %} · {{ e.workstation }}{% endif %} · Qtd.: {{ e.for_quantity }} {{ doc.stock_uom or "" }}</div></td>
+      <td class="cb"><img src="{{ gf_barcode(e.name) }}" alt=""><span>{{ e.name }}</span></td>
+      <td class="vis"></td>
+    </tr>
+    {%- endfor %}
+  </table>
+
+  {%- if doc.required_items %}
+  <div class="gfo-sec">Materiais</div>
+  <div class="gfo-mat">
+    {%- for m in doc.required_items %}
+    <div class="m"><span class="c">{{ m.item_code }}</span><span class="d">{{ m.item_name or "" }}</span><span class="q">{{ m.required_qty }} {{ m.get("stock_uom") or m.get("uom") or "" }}</span></div>
+    {%- endfor %}
+  </div>
+  {%- endif %}
+
+  <div class="gfo-rod"><b>Como apontar:</b> 1) bipe o seu crachá &nbsp;›&nbsp; 2) bipe o código desta ordem &nbsp;›&nbsp; 3) bipe a etapa do processo &nbsp;›&nbsp; toque em Iniciar, Pausar ou Finalizar.</div>
+</div>
