@@ -65,7 +65,8 @@ RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
 # Traducoes pt-BR: preenche as frases ainda sem traducao (o bench build compila os .po)
 COPY --chown=frappe:frappe i18n /tmp/i18n
 RUN ./env/bin/pip install --quiet polib && \
-  ./env/bin/python /tmp/i18n/apply_translations.py /tmp/i18n/translations.json apps
+  ./env/bin/python /tmp/i18n/apply_translations.py /tmp/i18n/translations.json apps && \
+  ./env/bin/python /tmp/i18n/glossario_nomus.py apps
 
 RUN bench build && \
   echo "{}" > sites/common_site_config.json && \
