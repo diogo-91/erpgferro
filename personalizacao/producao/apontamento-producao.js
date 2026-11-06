@@ -168,6 +168,9 @@ GfApontamento.prototype.acao = function (nome, qtd) {
     var rot = { iniciar: "iniciado", pausar: "pausado", finalizar: "finalizado", cancelar: "cancelado (apontamento desfeito)" }[nome];
     var texto = "Processo " + rot + ": " + novo.operacao + " (" + novo.os + ") — " + self.op.nome;
     var tipo = "ok", est = novo.estoque;
+    if (nome === "finalizar" && novo.proxima) {  // a ordem segue para a próxima etapa, aguardando
+      texto += ". Próxima etapa: " + novo.proxima.operation + (novo.proxima.workstation_type ? " (" + novo.proxima.workstation_type + ")" : "") + " — aguardando.";
+    }
     if (est) {  // última etapa da ordem: resultado da baixa de estoque
       if (est.status === "lancado") texto += ". Ordem concluída e estoque baixado (" + est.documento + ").";
       else if (est.status === "existente" || est.status === "nenhum") texto += ". Ordem concluída.";

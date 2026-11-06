@@ -11,6 +11,12 @@ import os
 import shutil
 
 import frappe
+from frappe.custom.doctype.custom_field.custom_field import create_custom_field
+
+# campo para tirar uma ordem do quadro da TV (botao "Ocultar pedido" no detalhe do card); vale em ordem ja liberada (allow_on_submit)
+if not frappe.db.exists("Custom Field", "Work Order-ocultar_no_quadro"):
+    create_custom_field("Work Order", {"fieldname": "ocultar_no_quadro", "label": "Ocultar no quadro de produção", "fieldtype": "Check",
+                                       "insert_after": "status", "allow_on_submit": 1, "no_copy": 1, "default": "0"})
 
 ROTA, PASTA, TITULO, ORIGEM = "acompanhamento-producao", "acompanhamento_producao", "Acompanhamento da Produção", "/tmp/acompanhamento-producao"
 ROLES = ["System Manager", "Manufacturing Manager", "Manufacturing User", "Gestor Comercial", "Gerente de Loja"]

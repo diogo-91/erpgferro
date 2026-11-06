@@ -263,4 +263,8 @@ def apontamento_acao(job_card, acao, matricula=None, qtd=None, os=None):
     cartao = _cartao(frappe.get_doc("Job Card", resultado))
     if estoque:
         cartao["estoque"] = estoque
+    if acao == "finalizar":  # a OS segue para a proxima etapa, que fica aguardando
+        prox = frappe.get_all("Job Card", filters={"work_order": cartao["os"], "docstatus": 0, "sequence_id": [">", cartao["sequencia"]]},
+                              fields=["name", "operation", "workstation", "workstation_type", "sequence_id"], order_by="sequence_id asc", limit=1)
+        cartao["proxima"] = prox[0] if prox else None
     return cartao
