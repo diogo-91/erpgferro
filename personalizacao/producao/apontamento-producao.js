@@ -46,7 +46,7 @@ GfApontamento.prototype.linha = function (campo, icone, titulo, dica) {
 GfApontamento.prototype.montar = function () {
   var self = this;
   $(this.page.main).html(
-    '<div class="gfa2"><div class="gfa2-nav"><button type="button" class="gfa2-b gfa2-nav-b" data-ir="acomp">&#9638;&nbsp; Acompanhamento da Produção</button></div><h1>APONTAMENTO DE PRODUÇÃO</h1><p class="gfa2-sub">Utilize o leitor de código de barras para identificar os dados abaixo.</p>' +
+    '<div class="gfa2"><h1>APONTAMENTO DE PRODUÇÃO</h1><p class="gfa2-sub">Utilize o leitor de código de barras para identificar os dados abaixo.</p>' +
     '<div class="gfa2-linhas">' +
     this.linha("matricula", "cracha", "MATRÍCULA DO COLABORADOR", "Bipe o crachá antes de iniciar um processo") +
     this.linha("os", "barras", "1 - ORDEM DE SERVIÇO", "Escaneie o código de barras da ordem de serviço") +
@@ -56,7 +56,8 @@ GfApontamento.prototype.montar = function () {
     '<button type="button" class="gfa2-b gfa2-verde" data-acao="iniciar">' + this.icone("play") + "INICIAR PROCESSO</button>" +
     '<button type="button" class="gfa2-b gfa2-marrom" data-acao="pausar">' + this.icone("pause") + "PAUSAR PROCESSO</button>" +
     '<button type="button" class="gfa2-b gfa2-vermelho" data-acao="finalizar">' + this.icone("stop") + "FINALIZAR PROCESSO</button></div>" +
-    '<div class="gfa2-cancelar"><button type="button" class="gfa2-b gfa2-borda" data-acao="cancelar">' + this.icone("cancelar") + "CANCELAR APONTAMENTO</button></div>" +
+    '<div class="gfa2-cancelar"><button type="button" class="gfa2-b gfa2-borda" data-acao="cancelar">' + this.icone("cancelar") + "CANCELAR APONTAMENTO</button>" +
+    '<button type="button" class="gfa2-b gfa2-nav-b" data-ir="acomp">&#9638;&nbsp; ACOMPANHAMENTO DA PRODUÇÃO</button></div>' +
     '<p class="gfa2-rodape">Apontou errado (quantidade ou operação)? Leia a ordem e a etapa e toque aqui.</p>' +
     '<div class="gfa2-modal" hidden><div class="gfa2-caixa"><h3>Finalizar processo</h3><label>Quantidade produzida<input class="gfa2-qtd" type="number" step="any" min="0"></label>' +
     '<div class="gfa2-caixa-b"><button type="button" class="gfa2-b gfa2-vermelho gfa2-conf">CONFIRMAR</button>' +

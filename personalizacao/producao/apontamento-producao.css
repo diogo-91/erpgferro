@@ -4,9 +4,7 @@
 .gf-apt { min-height: 100vh; }
 .gf-apt .page-body { padding: 0; }
 .gfa2 { max-width: 830px; margin: 0 auto; padding: 22px 8px 40px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #141414; text-align: center; }
-.gfa2-nav { display: flex; justify-content: flex-end; }
-.gfa2 .gfa2-nav-b { height: 40px; padding: 0 18px; font-size: 13px; background: #fff; color: #141414; border: 1px solid #d5d7db; }
-.gfa2 .gfa2-nav-b:hover { background: #fafafa; }
+
 .gfa2 h1 { margin: 6px 0 6px; font-size: 22px; font-weight: 800; letter-spacing: .02em; }
 .gfa2-sub { margin: 0 0 22px; font-size: 13.5px; color: #5b616e; }
 
@@ -36,7 +34,9 @@
 .gfa2-b:hover { filter: brightness(.95); } .gfa2-b:focus { outline: 3px solid #ffe566; }
 .gfa2-verde { background: #16a34a; } .gfa2-marrom { background: #b45309; } .gfa2-vermelho { background: #dc2626; }
 .gfa2-borda { background: #fff; color: #b91c1c; border: 1px solid #dc2626; }
-.gfa2-cancelar { margin-top: 22px; }
+.gfa2-cancelar { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-top: 22px; }
+.gfa2-b.gfa2-nav-b { background: #fff; color: #141414; border: 1px solid #141414; }
+.gfa2-b.gfa2-nav-b:hover { background: #f6f6f4; }
 .gfa2-cancelar .gfa2-b { min-width: 266px; }
 .gfa2-rodape { margin: 10px 0 0; font-size: 11px; color: #6b7280; }
 
