@@ -110,10 +110,63 @@ def apontamento_buscar(codigo):
     frappe.throw(_("Código {0} não encontrado. Confira a etiqueta.").format(codigo))
 
 
+def _baixar_estoque(os_nome):
+    """Ao fechar a ULTIMA etapa da OS lanca a Fabricacao (Stock Entry): consome a materia-prima e da entrada no produto acabado.
+    Se faltar saldo ou custo, o lancamento fica como rascunho e o aviso volta para a tela (a producao nunca trava por causa do estoque)."""
+    from erpnext.manufacturing.doctype.work_order.work_order import make_stock_entry
+    from frappe.utils import strip_html
+
+    wo = frappe.get_doc("Work Order", os_nome)
+    ops = frappe.get_all("Work Order Operation", filters={"parent": os_nome}, fields=["status", "completed_qty"])
+    if not ops or any(o.status != "Completed" for o in ops):
+        return None  # ainda ha etapas por fazer
+    ja = frappe.db.exists("Stock Entry", {"work_order": os_nome, "purpose": "Manufacture", "docstatus": ["<", 2]})
+    qtd = min(flt(o.completed_qty) for o in ops) - flt(wo.produced_qty)
+    if ja and not flt(wo.produced_qty):
+        return {"status": "existente", "documento": ja, "mensagem": _("A OS já tem lançamento de estoque ({0}).").format(ja)}
+    if qtd <= 0:
+        return {"status": "nenhum", "mensagem": _("Nada a lançar no estoque.")}
+    se = None
+    try:
+        se = frappe.get_doc(make_stock_entry(os_nome, "Manufacture", qtd))
+        se.flags.ignore_permissions = True
+        se.insert()
+        frappe.db.commit()
+    except Exception as e:  # noqa: BLE001 - nao pode travar o apontamento
+        frappe.db.rollback()
+        return {"status": "erro", "mensagem": strip_html(str(e))[:300]}
+    erro = None
+    for tentativa in (1, 2):
+        try:
+            se.flags.ignore_permissions = True
+            se.submit()
+            frappe.db.commit()
+            return {"status": "lancado", "documento": se.name, "quantidade": qtd, "mensagem": _("Estoque baixado: {0}.").format(se.name)}
+        except Exception as e:  # noqa: BLE001
+            frappe.db.rollback()
+            erro = strip_html(str(e))[:300]
+            if tentativa == 2:
+                break
+            # 2a tentativa: so os itens SEM custo cadastrado passam a aceitar custo zero (os demais mantem o custo real)
+            se = frappe.get_doc("Stock Entry", se.name)
+            sem_custo = [i for i in se.items if not flt(i.basic_rate)]
+            if not sem_custo:
+                break
+            for i in sem_custo:
+                i.allow_zero_valuation_rate = 1
+            se.flags.ignore_permissions = True
+            se.save()
+            frappe.db.commit()
+    return {"status": "rascunho", "documento": se.name, "quantidade": qtd, "mensagem": erro}
+
+
 def _desfazer(jc):
     """Cancelar apontamento: desfaz o ultimo registro da etapa. Devolve o nome do Job Card vigente."""
     aberto = next((r for r in jc.time_logs if r.from_time and not r.to_time), None)
     if jc.docstatus == 1:  # etapa finalizada: cancela e recria limpa (versao corrigida do mesmo codigo)
+        baixa = frappe.db.exists("Stock Entry", {"work_order": jc.work_order, "purpose": "Manufacture", "docstatus": 1})
+        if baixa:
+            frappe.throw(_("A ordem {0} já teve o estoque baixado ({1}). Cancele esse lançamento de estoque antes de desfazer a etapa.").format(jc.work_order, baixa))
         jc.cancel()
         novo = frappe.copy_doc(jc)
         novo.amended_from = jc.name
@@ -156,6 +209,7 @@ def apontamento_acao(job_card, acao, matricula=None, qtd=None, os=None):
     nome, mat = op["nome"], op["matricula"]
     agora = now_datetime()
     resultado = jc.name
+    estoque = None
 
     if acao == "cancelar":
         resultado = _desfazer(jc)
@@ -201,7 +255,12 @@ def apontamento_acao(job_card, acao, matricula=None, qtd=None, os=None):
             jc.operador = nome
             jc.save()
             jc.submit()
+            frappe.db.commit()
+            estoque = _baixar_estoque(jc.work_order)
         else:
             frappe.throw(_("Ação inválida."))
     frappe.db.commit()
-    return _cartao(frappe.get_doc("Job Card", resultado))
+    cartao = _cartao(frappe.get_doc("Job Card", resultado))
+    if estoque:
+        cartao["estoque"] = estoque
+    return cartao

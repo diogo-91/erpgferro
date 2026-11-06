@@ -89,11 +89,11 @@
     // Producao: Kanban de acompanhamento das OS (pagina propria) no topo do modulo
     if (mod === "Manufacturing") {
       top = '<a class="gf-link" href="/desk/acompanhamento-producao" data-href="/desk/acompanhamento-producao">' + icon("layout-grid") +
-        '<span class="gf-label">Acompanhamento da Produção</span></a>' +
+        '<span class="gf-label">Acompanhamento</span></a>' +
         '<a class="gf-link" href="/desk/apontamento-producao" data-href="/desk/apontamento-producao">' + icon("scan") +
-        '<span class="gf-label">Apontamento da Produção</span></a>' +
+        '<span class="gf-label">Apontamento</span></a>' +
         '<a class="gf-link" href="/desk/operador" data-href="/desk/operador">' + icon("users") +
-        '<span class="gf-label">Operadores (crachás)</span></a>' + top;
+        '<span class="gf-label">Operadores</span></a>' + top;
     }
     var secs = sections.filter(function (s) { return s.html; }).map(function (s) {
       var k = mod + "/" + s.label;

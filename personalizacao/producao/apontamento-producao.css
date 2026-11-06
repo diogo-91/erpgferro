@@ -1,6 +1,8 @@
 /* Apontamento de Produção - Grupo Gferro */
 #page-apontamento-producao .page-head { display: none; }
-.gf-apt .layout-main-section, .gf-apt .page-body, .gf-apt .page-content { background: #f3f3f3; }
+.gf-apt, .gf-apt .page-body, .gf-apt .page-wrapper, .gf-apt .page-content, .gf-apt .layout-main, .gf-apt .layout-main-section-wrapper, .gf-apt .layout-main-section { background: #f3f3f3; }
+.gf-apt { min-height: 100vh; }
+.gf-apt .page-body { padding: 0; }
 .gfa2 { max-width: 830px; margin: 0 auto; padding: 22px 8px 40px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #141414; text-align: center; }
 .gfa2 h1 { margin: 6px 0 6px; font-size: 22px; font-weight: 800; letter-spacing: .02em; }
 .gfa2-sub { margin: 0 0 22px; font-size: 13.5px; color: #5b616e; }

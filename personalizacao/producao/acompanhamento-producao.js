@@ -41,14 +41,18 @@ GfAcompProducao.prototype.montar = function () {
   var self = this;
   var html =
     '<div class="gfk">' +
+    '<div class="gfk-hero">' +
     '<div class="gfk-top">' +
-    '<div class="gfk-titulo"><h1>ACOMPANHAMENTO DA PRODUÇÃO</h1><p>Acompanhe o status das ordens em cada etapa do processo.</p></div>' +
+    '<div class="gfk-titulo"><span class="gfk-crumb">FABRICAÇÃO</span><h1>ACOMPANHAMENTO DA PRODUÇÃO</h1><p>Acompanhe o status das ordens em cada etapa do processo.</p></div>' +
+    '<div class="gfk-acoes">' +
+    '<button class="gfk-btn-am" type="button" data-ir="apontamento">&#9638;&nbsp; Apontamento</button>' +
+    '<button class="gfk-btn-cl" type="button" data-ir="nova">+ Nova Ordem de Serviço</button></div></div>' +
     '<div class="gfk-kpis">' +
     '<div class="gfk-kpi gfk-verde"><b data-k="prod">0</b><span>EM PRODUÇÃO</span></div>' +
     '<div class="gfk-kpi gfk-amarelo"><b data-k="aguard">0</b><span>AGUARDANDO</span></div>' +
     '<div class="gfk-kpi gfk-vermelho"><b data-k="pausada">0</b><span>PAUSADA</span></div>' +
     '<div class="gfk-kpi"><b data-k="primeiro">0</b><span>AGUARDANDO 1º PROCESSO</span></div>' +
-    '<div class="gfk-kpi"><b data-k="semOS">0</b><span>LIBERADOS SEM PRODUÇÃO</span></div>' +
+    '<div class="gfk-kpi gfk-link" data-ir="pedidos" title="Abrir os pedidos de venda"><b data-k="semOS">0</b><span>LIBERADOS SEM PRODUÇÃO</span></div>' +
     "</div></div>" +
     '<div class="gfk-barra">' +
     '<input class="gfk-busca" type="search" placeholder="Buscar OS, pedido ou produto...">' +
@@ -57,6 +61,8 @@ GfAcompProducao.prototype.montar = function () {
     '<button class="gfk-btn" type="button">&#8635; Atualizar</button>' +
     '<span class="gfk-auto"><i></i>Atualização automática</span>' +
     '<span class="gfk-msg"></span></div>' +
+    '<div class="gfk-vazio-geral" hidden><div class="gfk-vg-ic">&#9783;</div><div><b>Nenhuma ordem em produção no momento</b>' +
+    '<p>Quando uma etapa for iniciada no Apontamento, a ordem aparece aqui, na coluna da etapa em que estiver.</p></div></div>' +
     '<div class="gfk-quadro"></div></div>';
   $(this.page.main).html(html);
   var $m = $(this.page.main);
@@ -64,6 +70,12 @@ GfAcompProducao.prototype.montar = function () {
   $m.find(".gfk-filtro").on("change", function () { self.filtro = $(this).val(); self.desenhar(); });
   $m.find(".gfk-btn").on("click", function () { self.carregar(); });
   $m.on("click", ".gfk-card", function () { frappe.set_route("Form", "Work Order", $(this).attr("data-os")); });
+  $m.on("click", "[data-ir]", function () {
+    var ir = $(this).attr("data-ir");
+    if (ir === "apontamento") frappe.set_route("apontamento-producao");
+    else if (ir === "nova") frappe.new_doc("Work Order");
+    else if (ir === "pedidos") frappe.set_route("List", "Sales Order");
+  });
 };
 
 GfAcompProducao.prototype.buscar = function (doctype, fields, filters, extra) {
@@ -204,8 +216,10 @@ GfAcompProducao.prototype.desenhar = function () {
         (c.operador ? '<div class="gfk-oper">' + self.esc(c.operador) + "</div>" : "") +
         '<div class="gfk-rodape"><span class="gfk-st gfk-st-' + c.estado + '">' + rotulo[c.estado] + "</span>" +
         '<span class="gfk-tempo">&#9719; ' + self.tempo(c.seg) + "</span></div></div>";
-    }).join("") : '<div class="gfk-vazio">—</div>';
+    }).join("") : '<div class="gfk-vazio">Sem ordens nesta etapa</div>';
     return '<div class="gfk-col"><div class="gfk-col-cab"><span>' + self.esc(nome) + "</span><b>" + cs.length + '</b></div><div class="gfk-col-corpo">' + corpo + "</div></div>";
   }).join("");
   $m.find(".gfk-quadro").html(html);
+  // sem nenhuma ordem em andamento (e sem filtro): explica o que fazer em vez de mostrar so colunas vazias
+  $m.find(".gfk-vazio-geral").prop("hidden", this.cards.length > 0 || this.carregando || this.filtro !== "todas" || !!this.busca);
 };

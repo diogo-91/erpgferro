@@ -167,8 +167,14 @@ GfApontamento.prototype.acao = function (nome, qtd) {
   this.chamar("apontamento_acao", { job_card: this.etapa.job_card, acao: nome, matricula: this.op.matricula, qtd: qtd, os: this.ordem.os }).then(function (novo) {
     var rot = { iniciar: "iniciado", pausar: "pausado", finalizar: "finalizado", cancelar: "cancelado (apontamento desfeito)" }[nome];
     var texto = "Processo " + rot + ": " + novo.operacao + " (" + novo.os + ") — " + self.op.nome;
+    var tipo = "ok", est = novo.estoque;
+    if (est) {  // última etapa da ordem: resultado da baixa de estoque
+      if (est.status === "lancado") texto += ". Ordem concluída e estoque baixado (" + est.documento + ").";
+      else if (est.status === "existente" || est.status === "nenhum") texto += ". Ordem concluída.";
+      else { texto += ". Ordem concluída, mas o ESTOQUE NÃO FOI LANÇADO" + (est.documento ? " (rascunho " + est.documento + ")" : "") + ": " + est.mensagem + " Avise o estoque."; tipo = "erro"; }
+    }
     self.zerar();
-    self.aviso(texto, "ok");
+    self.aviso(texto, tipo);
   }).catch(function () {
     self.aviso("Não foi possível registrar. Veja a mensagem do sistema.", "erro");
     $(self.page.main).find(".gfa2-modal").attr("hidden", true);
