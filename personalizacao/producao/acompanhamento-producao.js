@@ -80,8 +80,7 @@ GfAcompProducao.prototype.montar = function () {
     '<button class="gfk-btn gfk-btn-menu" type="button" data-tv="menu"></button>' +
     '<button class="gfk-btn" type="button" data-tv="tela">Tela cheia</button></div>' +
     '<div class="gfk-quadro"></div>' +
-    '<div class="gfk-rodape"><span class="gfk-ult">Última atualização: —</span><span class="gfk-conectado"><i></i><em>sistema conectado</em></span></div>' +
-    '<div class="gfk-modal" hidden></div></div>';
+    '<div class="gfk-rodape"><span class="gfk-ult">Última atualização: —</span><span class="gfk-conectado"><i></i><em>sistema conectado</em></span></div></div>';
   $(this.page.main).html(html);
   var $m = $(this.page.main);
   $m.find(".gfk-busca").on("input", function () { self.busca = $(this).val().toLowerCase(); self.desenhar(); });
@@ -91,11 +90,13 @@ GfAcompProducao.prototype.montar = function () {
   $m.on("click", "[data-ir='pedidos']", function () { frappe.set_route("List", "Sales Order"); });
   $m.on("click", "[data-tv='menu']", function () { self.recolherMenu(!$("body").hasClass("gf-menu-recolhido"), true); });
   $m.on("click", "[data-tv='tela']", function () { self.telaCheia(); });
-  // detalhe do card
-  $m.on("click", ".gfk-modal", function (e) { if ($(e.target).is(".gfk-modal")) self.fecharDetalhe(); });
-  $m.on("click", ".gfk-m-fechar", function () { self.fecharDetalhe(); });
-  $m.on("click", ".gfk-m-ocultar", function () { self.ocultar($(this).attr("data-os"), $(this).attr("data-valor") === "1"); });
-  $m.on("click", ".gfk-m-abrir", function () { frappe.set_route("Form", "Work Order", $(this).attr("data-os")); });
+  // detalhe do card: janela (modal) criada no <body>, por cima de tudo, em vez de abrir outra tela
+  $(".gfk-modal").remove();
+  this.$modal = $('<div class="gfk-modal" hidden></div>').appendTo(document.body);
+  this.$modal.on("click", function (e) { if ($(e.target).is(".gfk-modal")) self.fecharDetalhe(); });
+  this.$modal.on("click", ".gfk-m-fechar", function () { self.fecharDetalhe(); });
+  this.$modal.on("click", ".gfk-m-ocultar", function () { self.ocultar($(this).attr("data-os"), $(this).attr("data-valor") === "1"); });
+  this.$modal.on("click", ".gfk-m-abrir", function () { self.fecharDetalhe(); frappe.set_route("Form", "Work Order", $(this).attr("data-os")); });
   $(document).on("keydown.gfk", function (e) { if (e.which === 27) self.fecharDetalhe(); });
   this.rotuloMenu();
 };
@@ -113,6 +114,7 @@ GfAcompProducao.prototype.rotuloMenu = function () {
   $(this.page.main).find("[data-tv='menu']").text($("body").hasClass("gf-menu-recolhido") ? "Mostrar menu" : "Recolher menu");
 };
 GfAcompProducao.prototype.sincronizarMenu = function () {
+  if (!(frappe.get_route && frappe.get_route()[0] === "acompanhamento-producao")) this.fecharDetalhe();
   var nestaPagina = (frappe.get_route && frappe.get_route()[0] === "acompanhamento-producao");
   $("body").toggleClass("gf-menu-recolhido", nestaPagina && this.guardado());
   this.rotuloMenu();
@@ -308,11 +310,11 @@ GfAcompProducao.prototype.desenhar = function () {
 
 // ---- detalhe do card: informações da ordem + apontamentos já realizados ----
 GfAcompProducao.prototype.fecharDetalhe = function () {
-  $(this.page.main).find(".gfk-modal").attr("hidden", true).empty();
+  if (this.$modal) this.$modal.attr("hidden", true).empty();
 };
 
 GfAcompProducao.prototype.detalhe = function (os) {
-  var self = this, $mo = $(this.page.main).find(".gfk-modal");
+  var self = this, $mo = this.$modal;
   var c = this.cards.filter(function (x) { return x.os === os; })[0];
   if (!c) return;
   $mo.html('<div class="gfk-m-caixa"><div class="gfk-m-carregando">Carregando...</div></div>').removeAttr("hidden");
@@ -372,10 +374,10 @@ GfAcompProducao.prototype.htmlDetalhe = function (c, doc, jcs, logs) {
     linha("TEMPO", '<span class="gfk-m-tempo">' + self.tempo(c.seg) + "</span>") +
     linha("ID INTERNO (ORDEM / ETAPA)", e(c.os) + (jcAtual ? " / " + e(jcAtual) : "")) +
     '<div class="gfk-m-sec">ETAPAS E APONTAMENTOS REALIZADOS</div>' + etapas +
-    '<div class="gfk-m-acoes">' +
+    '<div class="gfk-m-rodape"><div class="gfk-m-acoes">' +
     '<button class="gfk-m-btn gfk-m-ocultar" type="button" data-os="' + e(c.os) + '" data-valor="' + (c.oculta ? "0" : "1") + '">' + (c.oculta ? "Mostrar no quadro" : "Ocultar pedido do quadro") + "</button>" +
     '<button class="gfk-m-btn gfk-m-sec2 gfk-m-fechar" type="button">Fechar</button></div>' +
-    '<a class="gfk-m-abrir" data-os="' + e(c.os) + '">Abrir a ordem no sistema</a></div>';
+    '<a class="gfk-m-abrir" data-os="' + e(c.os) + '">Abrir a ordem no sistema</a></div></div>';
 };
 
 GfAcompProducao.prototype.ocultar = function (os, ocultar) {
