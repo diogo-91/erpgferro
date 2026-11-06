@@ -4,6 +4,9 @@
 .gf-apt { min-height: 100vh; }
 .gf-apt .page-body { padding: 0; }
 .gfa2 { max-width: 830px; margin: 0 auto; padding: 22px 8px 40px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #141414; text-align: center; }
+.gfa2-nav { display: flex; justify-content: flex-end; }
+.gfa2 .gfa2-nav-b { height: 40px; padding: 0 18px; font-size: 13px; background: #fff; color: #141414; border: 1px solid #d5d7db; }
+.gfa2 .gfa2-nav-b:hover { background: #fafafa; }
 .gfa2 h1 { margin: 6px 0 6px; font-size: 22px; font-weight: 800; letter-spacing: .02em; }
 .gfa2-sub { margin: 0 0 22px; font-size: 13.5px; color: #5b616e; }
 

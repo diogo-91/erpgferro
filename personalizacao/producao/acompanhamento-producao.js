@@ -77,6 +77,7 @@ GfAcompProducao.prototype.montar = function () {
     '<span class="gfk-auto"><i></i>Atualização automática</span>' +
     '<span class="gfk-vazio-geral" hidden>Nenhuma ordem em produção no momento.</span>' +
     '<span class="gfk-esp"></span>' +
+    '<button class="gfk-btn" type="button" data-tv="apontamento">&#9638;&nbsp; Apontamento</button>' +
     '<button class="gfk-btn gfk-btn-menu" type="button" data-tv="menu"></button>' +
     '<button class="gfk-btn" type="button" data-tv="tela">Tela cheia</button></div>' +
     '<div class="gfk-quadro"></div>' +
@@ -90,6 +91,7 @@ GfAcompProducao.prototype.montar = function () {
   $m.on("click", "[data-ir='pedidos']", function () { frappe.set_route("List", "Sales Order"); });
   $m.on("click", "[data-tv='menu']", function () { self.recolherMenu(!$("body").hasClass("gf-menu-recolhido"), true); });
   $m.on("click", "[data-tv='tela']", function () { self.telaCheia(); });
+  $m.on("click", "[data-tv='apontamento']", function () { frappe.set_route("apontamento-producao"); });
   // detalhe do card: janela (modal) criada no <body>, por cima de tudo, em vez de abrir outra tela
   $(".gfk-modal").remove();
   this.$modal = $('<div class="gfk-modal" hidden></div>').appendTo(document.body);

@@ -46,7 +46,7 @@ GfApontamento.prototype.linha = function (campo, icone, titulo, dica) {
 GfApontamento.prototype.montar = function () {
   var self = this;
   $(this.page.main).html(
-    '<div class="gfa2"><h1>APONTAMENTO DE PRODUÇÃO</h1><p class="gfa2-sub">Utilize o leitor de código de barras para identificar os dados abaixo.</p>' +
+    '<div class="gfa2"><div class="gfa2-nav"><button type="button" class="gfa2-b gfa2-nav-b" data-ir="acomp">&#9638;&nbsp; Acompanhamento da Produção</button></div><h1>APONTAMENTO DE PRODUÇÃO</h1><p class="gfa2-sub">Utilize o leitor de código de barras para identificar os dados abaixo.</p>' +
     '<div class="gfa2-linhas">' +
     this.linha("matricula", "cracha", "MATRÍCULA DO COLABORADOR", "Bipe o crachá antes de iniciar um processo") +
     this.linha("os", "barras", "1 - ORDEM DE SERVIÇO", "Escaneie o código de barras da ordem de serviço") +
@@ -68,6 +68,7 @@ GfApontamento.prototype.montar = function () {
   $m.find(".gfa2-in").on("focus", function () { $(this).closest(".gfa2-linha").addClass("gfa2-ativa"); })
     .on("blur", function () { $(this).closest(".gfa2-linha").removeClass("gfa2-ativa"); });
   $m.find(".gfa2-b[data-acao]").on("click", function () { self.acao($(this).attr("data-acao")); });
+  $m.find("[data-ir='acomp']").on("click", function () { frappe.set_route("acompanhamento-producao"); });
   $m.find(".gfa2-conf").on("click", function () { self.confirmarFinal(); });
   $m.find(".gfa2-canc").on("click", function () { $m.find(".gfa2-modal").attr("hidden", true); self.foco("etapa"); });
   $m.find(".gfa2-qtd").on("keydown", function (e) { if (e.which === 13) { e.preventDefault(); self.confirmarFinal(); } });
