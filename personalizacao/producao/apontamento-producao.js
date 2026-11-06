@@ -57,7 +57,8 @@ GfApontamento.prototype.montar = function () {
     '<button type="button" class="gfa2-b gfa2-marrom" data-acao="pausar">' + this.icone("pause") + "PAUSAR PROCESSO</button>" +
     '<button type="button" class="gfa2-b gfa2-vermelho" data-acao="finalizar">' + this.icone("stop") + "FINALIZAR PROCESSO</button></div>" +
     '<div class="gfa2-cancelar"><button type="button" class="gfa2-b gfa2-borda" data-acao="cancelar">' + this.icone("cancelar") + "CANCELAR APONTAMENTO</button>" +
-    '<button type="button" class="gfa2-b gfa2-nav-b" data-ir="acomp">&#9638;&nbsp; ACOMPANHAMENTO DA PRODUÇÃO</button></div>' +
+    '<button type="button" class="gfa2-b gfa2-nav-b" data-ir="acomp">&#9638;&nbsp; ACOMPANHAMENTO DA PRODUÇÃO</button>' +
+    '<button type="button" class="gfa2-b gfa2-nav-b" data-ir="entrega">&#9638;&nbsp; APONTAMENTO DE ENTREGA</button></div>' +
     '<p class="gfa2-rodape">Apontou errado (quantidade ou operação)? Leia a ordem e a etapa e toque aqui.</p>' +
     '<div class="gfa2-modal" hidden><div class="gfa2-caixa"><h3>Finalizar processo</h3><label>Quantidade produzida<input class="gfa2-qtd" type="number" step="any" min="0"></label>' +
     '<div class="gfa2-caixa-b"><button type="button" class="gfa2-b gfa2-vermelho gfa2-conf">CONFIRMAR</button>' +
@@ -70,6 +71,7 @@ GfApontamento.prototype.montar = function () {
     .on("blur", function () { $(this).closest(".gfa2-linha").removeClass("gfa2-ativa"); });
   $m.find(".gfa2-b[data-acao]").on("click", function () { self.acao($(this).attr("data-acao")); });
   $m.find("[data-ir='acomp']").on("click", function () { frappe.set_route("acompanhamento-producao"); });
+  $m.find("[data-ir='entrega']").on("click", function () { frappe.set_route("apontamento-entrega"); });
   $m.find(".gfa2-conf").on("click", function () { self.confirmarFinal(); });
   $m.find(".gfa2-canc").on("click", function () { $m.find(".gfa2-modal").attr("hidden", true); self.foco("etapa"); });
   $m.find(".gfa2-qtd").on("keydown", function (e) { if (e.which === 13) { e.preventDefault(); self.confirmarFinal(); } });

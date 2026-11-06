@@ -27,17 +27,18 @@
 .gfa2-msg { min-height: 22px; margin: 8px 0 6px; font-size: 14px; font-weight: 700; color: #5b616e; }
 .gfa2-msg-ok { color: #1f7a35; } .gfa2-msg-erro { color: #b3261e; }
 
-.gfa2-botoes { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-top: 10px; }
 .gfa2-b { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 52px; padding: 0 26px; border: 0; border-radius: 8px; color: #fff;
   font-size: 14px; font-weight: 800; letter-spacing: .02em; cursor: pointer; text-transform: uppercase; }
 .gfa2-b svg { width: 20px; height: 20px; }
 .gfa2-b:hover { filter: brightness(.95); } .gfa2-b:focus { outline: 3px solid #ffe566; }
 .gfa2-verde { background: #16a34a; } .gfa2-marrom { background: #b45309; } .gfa2-vermelho { background: #dc2626; }
 .gfa2-borda { background: #fff; color: #b91c1c; border: 1px solid #dc2626; }
-.gfa2-cancelar { display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; margin-top: 22px; }
+/* 6 botões em 2 linhas de 3, todos com a mesma largura */
+.gfa2-botoes, .gfa2-cancelar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 830px; margin: 10px auto 0; }
 .gfa2-b.gfa2-nav-b { background: #fff; color: #141414; border: 1px solid #141414; }
 .gfa2-b.gfa2-nav-b:hover { background: #f6f6f4; }
-.gfa2-cancelar .gfa2-b { min-width: 266px; }
+.gfa2-botoes .gfa2-b, .gfa2-cancelar .gfa2-b { width: 100%; min-width: 0; padding: 0 10px; gap: 8px; font-size: 12.5px; letter-spacing: 0; white-space: nowrap; }
+.gfa2-botoes .gfa2-b svg, .gfa2-cancelar .gfa2-b svg { width: 18px; height: 18px; flex: 0 0 auto; }
 .gfa2-rodape { margin: 10px 0 0; font-size: 11px; color: #6b7280; }
 
 .gfa2-modal { position: fixed; inset: 0; background: rgba(20,20,20,.45); display: flex; align-items: center; justify-content: center; z-index: 1050; }
@@ -49,4 +50,4 @@
 .gfa2-caixa-b { display: flex; gap: 12px; margin-top: 18px; }
 .gfa2-caixa-b .gfa2-b { flex: 1; padding: 0 12px; }
 
-@media (max-width: 720px) { .gfa2-linha { flex-direction: column; } .gfa2-esq { flex: none; border-right: 0; border-bottom: 1px solid #ececec; } }
+@media (max-width: 720px) { .gfa2-botoes, .gfa2-cancelar { grid-template-columns: 1fr; } .gfa2-linha { flex-direction: column; } .gfa2-esq { flex: none; border-right: 0; border-bottom: 1px solid #ececec; } }
