@@ -17,6 +17,16 @@ Mapeamento:
 import json
 
 import frappe
+from frappe.utils.nestedset import get_root_of
+
+frappe.local.lang = "pt-BR"
+
+
+def nome(doctype, ingles):
+    """Nome do cadastro de fabrica: a traducao pt-BR se ela existir (depois de traduzir-cadastros.py), senao o original em ingles."""
+    traduzido = frappe._(ingles)
+    return traduzido if frappe.db.exists(doctype, traduzido) else ingles
+
 
 dados = json.load(open("/tmp/pcp-import.json", encoding="utf-8"))
 EMPRESA = frappe.get_all("Company", pluck="name")[0]
@@ -58,9 +68,9 @@ for p in dados["produtos"]:
         continue
 
     def novo_item(p=p):
-        udm = UDM.get(p["udm"], p["udm"].title())
+        udm = nome("UOM", UDM.get(p["udm"], p["udm"].title()))
         criar("UOM", udm, uom_name=udm, enabled=1)
-        criar("Item Group", p["tipo"], item_group_name=p["tipo"], parent_item_group="All Item Groups", is_group=0)
+        criar("Item Group", p["tipo"], item_group_name=p["tipo"], parent_item_group=get_root_of("Item Group"), is_group=0)
         fabricado = p["ressuprimento"] == 2
         frappe.get_doc({
             "doctype": "Item", "item_code": p["codigo"], "item_name": p["descricao"][:140], "description": p["descricao"],

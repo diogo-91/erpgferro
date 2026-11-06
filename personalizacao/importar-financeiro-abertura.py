@@ -15,6 +15,16 @@ Idempotente: fatura com o mesmo numero (NOMUS-R-<id> / NOMUS-P-<id>) e ignorada.
 import json
 
 import frappe
+from frappe.utils.nestedset import get_root_of
+
+frappe.local.lang = "pt-BR"
+
+
+def nome(doctype, ingles):
+    """Nome do cadastro de fabrica: a traducao pt-BR se ela existir (depois de traduzir-cadastros.py), senao o original em ingles."""
+    traduzido = frappe._(ingles)
+    return traduzido if frappe.db.exists(doctype, traduzido) else ingles
+
 
 LIMITE = globals().get("LIMITE")
 dados = json.load(open("/tmp/financeiro-abertura.json", encoding="utf-8"))
@@ -55,9 +65,9 @@ def achar_ou_criar(tipo, p):
     doc = {"doctype": tipo, campo: nome, "tax_id": p["doc"] or None,
            ("customer_type" if tipo == "Customer" else "supplier_type"): "Individual" if p["pf"] else "Company"}
     if tipo == "Customer":
-        doc.update({"customer_group": "Individual" if p["pf"] else "Commercial", "territory": "Brazil"})
+        doc.update({"customer_group": nome("Customer Group", "Individual" if p["pf"] else "Commercial"), "territory": nome("Territory", "Brazil")})
     else:
-        doc.update({"supplier_group": "All Supplier Groups"})
+        doc.update({"supplier_group": get_root_of("Supplier Group")})
     frappe.get_doc(doc).insert(ignore_permissions=True)
     return nome
 

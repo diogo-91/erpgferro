@@ -17,6 +17,16 @@ Regras:
 import json
 
 import frappe
+from frappe.utils.nestedset import get_root_of
+
+frappe.local.lang = "pt-BR"
+
+
+def nome(doctype, ingles):
+    """Nome do cadastro de fabrica: a traducao pt-BR se ela existir (depois de traduzir-cadastros.py), senao o original em ingles."""
+    traduzido = frappe._(ingles)
+    return traduzido if frappe.db.exists(doctype, traduzido) else ingles
+
 
 dados = json.load(open("/tmp/produtos.json", encoding="utf-8"))
 produtos = dados["produtos"] if isinstance(dados, dict) else dados
@@ -47,7 +57,7 @@ def garantir_udm(nome):
 def garantir_grupo(nome):
     if not frappe.db.exists("Item Group", nome):
         frappe.get_doc({"doctype": "Item Group", "item_group_name": nome,
-                        "parent_item_group": "All Item Groups", "is_group": 0}).insert(ignore_permissions=True)
+                        "parent_item_group": get_root_of("Item Group"), "is_group": 0}).insert(ignore_permissions=True)
 
 
 criados, existentes, erros = 0, 0, []
@@ -64,6 +74,7 @@ for p in produtos:
         udm = UDM.get((p.get("U.M.") or "").strip().upper())
         if not udm:
             udm = (p.get("U.M.") or "Unit").strip().title()
+        udm = nome("UOM", udm)
         garantir_udm(udm)
         garantir_grupo(tipo)
         ress = (p.get("Ressuprimento") or "").lower()

@@ -7,9 +7,19 @@ Espera /tmp/fornecedores.json: lista de {nome, doc (CNPJ/CPF), pf (pessoa fisica
 import json
 
 import frappe
+from frappe.utils.nestedset import get_root_of
+
+frappe.local.lang = "pt-BR"
+
+
+def nome(doctype, ingles):
+    """Nome do cadastro de fabrica: a traducao pt-BR se ela existir (depois de traduzir-cadastros.py), senao o original em ingles."""
+    traduzido = frappe._(ingles)
+    return traduzido if frappe.db.exists(doctype, traduzido) else ingles
+
 
 fornecedores = json.load(open("/tmp/fornecedores.json", encoding="utf-8"))
-grupo = "All Supplier Groups"
+grupo = get_root_of("Supplier Group")
 criados = existentes = 0
 for f in fornecedores:
     nome = f["nome"][:140]
