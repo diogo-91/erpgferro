@@ -1,0 +1,30 @@
+/* Programação (Financeiro) - Grupo Gferro */
+#page-programacao-contas .page-head { display: none; }
+.gf-prog, .gf-prog .page-body, .gf-prog .page-wrapper, .gf-prog .page-content, .gf-prog .layout-main, .gf-prog .layout-main-section-wrapper, .gf-prog .layout-main-section { background: #f3f3f3; }
+.gf-prog { min-height: 100vh; } .gf-prog .page-body { padding: 0; }
+.gfq { max-width: 1300px; margin: 0 auto; padding: 22px 18px 44px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #141414; }
+.gfq-topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.gfq-trilha { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #ca8a04; }
+.gfq-topo h1 { margin: 4px 0 0; font-size: 24px; font-weight: 900; } .gfq-topo p { margin: 4px 0 0; font-size: 12.5px; color: #6b7280; }
+.gfq-acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+.gfq-busca { width: 288px; height: 40px; border: 1px solid #d5d8de; border-radius: 12px; padding: 0 14px; font-size: 13px; background: #fff; }
+.gfq-nova { height: 40px; padding: 0 18px; border: 0; border-radius: 12px; background: #facc15; font-size: 13px; font-weight: 800; cursor: pointer; } .gfq-nova:hover { background: #fde047; }
+.gfq-barra { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 14px; }
+.gfq-mes { display: flex; align-items: center; gap: 6px; padding: 4px; border: 1px solid #e0e0e0; border-radius: 999px; background: #fafafa; } .gfq-mes strong { min-width: 130px; text-align: center; font-size: 12px; }
+.gfq-ic { width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; font-size: 17px; cursor: pointer; } .gfq-ic:hover { color: #ca8a04; }
+.gfq-b { height: 34px; padding: 0 14px; border: 1px solid #d5d8de; border-radius: 999px; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; } .gfq-b:hover:not(:disabled) { border-color: #F5C518; } .gfq-b:disabled { opacity: .5; }
+.gfq-intv { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border: 1px solid #e0e0e0; border-radius: 999px; background: #fff; font-size: 12px; font-weight: 700; color: #4b5260; } .gfq-on { border-color: #F5C518; background: #fefce8; }
+.gfq-intv input { border: 1px solid #d5d8de; border-radius: 8px; padding: 2px 6px; font-size: 12px; } .gfq-lk { border: 0; background: none; font-size: 11px; font-weight: 800; color: #854d0e; cursor: pointer; }
+.gfq-res { margin: 0 0 0 auto; font-size: 12px; color: #6b7280; } .gfq-res b { color: #dc2626; }
+.gfq-aviso { padding: 10px 14px; border-radius: 10px; background: #fdecea; color: #b3261e; font-size: 13px; font-weight: 700; }
+.gfq-vazio { padding: 26px 8px; text-align: center; color: #9aa0a9; font-size: 13px; }
+.gfq-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.gfq-kpi { border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; border: 1px solid; } .gfq-kpi span { font-size: 12px; font-weight: 600; } .gfq-kpi strong { font-size: 22px; font-weight: 900; } .gfq-kpi small { font-size: 11px; opacity: .75; }
+.gfq-vd { background: #ecfdf5; border-color: #d1fae5; color: #064e3b; } .gfq-vm { background: #fef2f2; border-color: #fee2e2; color: #7f1d1d; }
+.gfq-tw { overflow-x: auto; background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; }
+.gfq-t { width: 100%; min-width: 900px; border-collapse: collapse; font-size: 13px; }
+.gfq-t th { padding: 14px 18px; text-align: left; background: #fafafa; border-bottom: 1px solid #e6e6e6; font-weight: 800; white-space: nowrap; } .gfq-t th button { border: 0; background: none; font-weight: 800; font-size: 13px; cursor: pointer; padding: 0; }
+.gfq-t td { padding: 12px 18px; border-bottom: 1px solid #f0f0f0; } .gfq-t .n { text-align: right; font-variant-numeric: tabular-nums; }
+.gfq-sel { height: 32px; border-radius: 999px; padding: 0 10px; font-size: 12px; font-weight: 700; border: 1px solid; } .gfq-ok { background: #ecfdf5; border-color: #6ee7b7; color: #047857; } .gfq-no { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+.gfq-lk2 { border: 0; background: none; font-size: 12px; font-weight: 700; color: #4b5260; cursor: pointer; } .gfq-lk2:hover { color: #ca8a04; } .gfq-del:hover { color: #dc2626; }
+@media (max-width: 700px) { .gfq-kpis { grid-template-columns: 1fr; } .gfq-busca { width: 100%; } }

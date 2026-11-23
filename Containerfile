@@ -80,6 +80,15 @@ RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
   cp /tmp/producao/mapa-pedidos.js apps/erpnext/erpnext/selling/page/mapa_pedidos/mapa_pedidos.js && \
   cp /tmp/producao/mapa-pedidos.css apps/erpnext/erpnext/selling/page/mapa_pedidos/mapa_pedidos.css && \
   mkdir -p apps/erpnext/erpnext/public/gferro/mapa && cp /tmp/desk/mapa/*.json apps/erpnext/erpnext/public/gferro/mapa/ && \
+  mkdir -p apps/erpnext/erpnext/accounts/page/saidas_financeiras && touch apps/erpnext/erpnext/accounts/page/saidas_financeiras/__init__.py && \
+  cp /tmp/producao/saidas-financeiras.js apps/erpnext/erpnext/accounts/page/saidas_financeiras/saidas_financeiras.js && \
+  cp /tmp/producao/saidas-financeiras.css apps/erpnext/erpnext/accounts/page/saidas_financeiras/saidas_financeiras.css && \
+  mkdir -p apps/erpnext/erpnext/accounts/page/programacao_contas && touch apps/erpnext/erpnext/accounts/page/programacao_contas/__init__.py && \
+  cp /tmp/producao/programacao-contas.js apps/erpnext/erpnext/accounts/page/programacao_contas/programacao_contas.js && \
+  cp /tmp/producao/programacao-contas.css apps/erpnext/erpnext/accounts/page/programacao_contas/programacao_contas.css && \
+  mkdir -p apps/erpnext/erpnext/accounts/page/placas_eps && touch apps/erpnext/erpnext/accounts/page/placas_eps/__init__.py && \
+  cp /tmp/producao/placas-eps.js apps/erpnext/erpnext/accounts/page/placas_eps/placas_eps.js && \
+  cp /tmp/producao/placas-eps.css apps/erpnext/erpnext/accounts/page/placas_eps/placas_eps.css && \
   python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
   grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py && \
   grep -q gf_qr apps/erpnext/erpnext/hooks.py && ./env/bin/python -c "import pyqrcode"

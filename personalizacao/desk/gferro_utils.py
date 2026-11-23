@@ -702,3 +702,45 @@ def mapa_geo(tipo):
         frappe.throw(_("Tipo inválido."))
     with open(os.path.join(frappe.get_app_path("erpnext", "public", "gferro", "mapa"), tipo + ".json"), encoding="utf-8") as f:
         return json.load(f)
+
+
+# ---------------------------------------------------------------- Dashboard > Financeiro > Saidas
+@frappe.whitelist()
+def saidas_financeiras(inicio, fim):
+    """O que foi pago no periodo (Lancamentos de Pagamento 'Pagar'), por titulo da DRE, classificacao e fornecedor. A classificacao vem do lancamento ou da fatura que ele baixa."""
+    frappe.only_for(["System Manager", "Accounts Manager", "Accounts User", "Gestor Comercial"])
+    if not (re.fullmatch(r"\d{4}-\d{2}-\d{2}", inicio or "") and re.fullmatch(r"\d{4}-\d{2}-\d{2}", fim or "")):
+        frappe.throw(_("Período inválido."))
+    rows = frappe.db.sql(
+        """
+        select pe.name, pe.paid_amount valor, pe.party_name fornecedor,
+               coalesce(nullif(pe.classificacao_financeira, ''),
+                        (select min(pi.classificacao_financeira) from `tabPayment Entry Reference` per join `tabPurchase Invoice` pi on pi.name = per.reference_name
+                         where per.parent = pe.name and per.reference_doctype = 'Purchase Invoice' and ifnull(pi.classificacao_financeira, '') <> '')) cod
+        from `tabPayment Entry` pe where pe.docstatus = 1 and pe.payment_type = 'Pay' and pe.posting_date between %(i)s and %(f)s""", {"i": inicio, "f": fim}, as_dict=True)
+    cls = {c.name: c for c in frappe.get_all("Classificacao Financeira", fields=["name", "nome", "grupo"])}
+    SEM = "Sem classificação"
+    grupos, total, qtd = {}, 0.0, 0
+    for r in rows:
+        v = abs(flt(r.valor))
+        if not v:
+            continue
+        c = cls.get(r.cod)
+        g = grupos.setdefault((c.grupo if c and c.grupo else SEM), {"total": 0.0, "n": 0, "cat": {}, "forn": {}})
+        g["total"] += v
+        g["n"] += 1
+        for mapa, nome in ((g["cat"], c.nome if c else SEM), (g["forn"], r.fornecedor or "Sem fornecedor")):
+            x = mapa.setdefault(nome, {"nome": nome, "total": 0.0, "quantidade": 0})
+            x["total"] += v
+            x["quantidade"] += 1
+        total += v
+        qtd += 1
+
+    def lista(mapa, limite=None):
+        itens = sorted(({**x, "total": round(x["total"], 2)} for x in mapa.values()), key=lambda x: (-x["total"], x["nome"]))
+        return itens[:limite] if limite else itens
+
+    saida = [{"nome": n, "total": round(g["total"], 2), "quantidade": g["n"], "percentual": round(g["total"] / total * 100, 1) if total else 0,
+              "categorias": lista(g["cat"]), "fornecedores": lista(g["forn"], 10)} for n, g in grupos.items()]
+    saida.sort(key=lambda g: (-g["total"], g["nome"]))
+    return {"inicio": inicio, "fim": fim, "total": round(total, 2), "quantidade": qtd, "atualizadoEm": frappe.utils.now(), "grupos": saida}
