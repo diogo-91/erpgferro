@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [apps.json, Containerfile, i18n/**, personalizacao/desk/**, personalizacao/painel/**, .github/workflows/build.yml]
+    paths: [apps.json, Containerfile, i18n/**, personalizacao/desk/**, personalizacao/painel/**, personalizacao/producao/**, .github/workflows/build.yml]
 
 permissions:
   contents: read
@@ -53,6 +53,10 @@ jobs:
           cp mine/Containerfile builder/Containerfile.erpgferro
           cp mine/apps.json builder/apps.json
           cp -r mine/i18n builder/i18n
+          # o Containerfile faz COPY de personalizacao/desk, painel e producao (telas, menu e utilitarios do ERP GFerro)
+          mkdir -p builder/personalizacao
+          cp -r mine/personalizacao/desk mine/personalizacao/painel mine/personalizacao/producao builder/personalizacao/
+          ls builder/personalizacao builder/personalizacao/producao | head -60
 
       - name: Show apps.json
         run: |
