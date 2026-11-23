@@ -979,3 +979,60 @@ def producao_agendar(os, data):
     frappe.db.set_value("Work Order", os, "planned_start_date", data + " 07:00:00", update_modified=False)
     frappe.db.commit()
     return {"ok": 1}
+
+
+# ---------------------------------------------------------------- Dashboard > Gestao (metas mensais)
+_GESTAO_PAPEIS = ["System Manager", "Gestor Comercial", "Sales Manager", "Accounts Manager"]
+_META_PADRAO = {"Loja 1": 650000, "Loja 2": 700000, "Loja 3": 750000, "Loja 4": 250000, "Loja 5": 250000}  # metas da Intranet (Unidades 1 a 5)
+
+
+def _meta_da_loja(mes, loja):
+    v = frappe.db.get_value("Meta Mensal de Loja", {"mes": mes, "loja": loja}, "valor")
+    return flt(v) if v is not None else flt(_META_PADRAO.get(loja, 0))
+
+
+@frappe.whitelist()
+def gestao_metas(mes):
+    """Meta de cada loja no mes e o realizado (Pedidos de Venda confirmados do mes) por dia, pela loja do vendedor."""
+    frappe.only_for(_GESTAO_PAPEIS)
+    ini, fim = _mes_limites(mes)
+    lojas = [b.name for b in frappe.get_all("Branch", fields=["name"], order_by="name asc")]
+    loja_de = _loja_do_vendedor()
+    saida = {l: {"id": l, "nome": l, "meta": _meta_da_loja(mes, l), "totalRealizado": 0.0, "realizadoPorDia": {}} for l in lojas}
+    for p in frappe.get_list("Sales Order", filters={"docstatus": 1, "status": ["!=", "Cancelled"], "etapa_pedido": ["!=", "Cancelado"], "transaction_date": ["between", [ini, fim]]},
+                             fields=["vendedor", "loja", "transaction_date", "grand_total"], limit_page_length=0):
+        loja = loja_de.get(_nome_canonico((p.vendedor or "").strip())) or p.loja
+        if loja not in saida:
+            continue
+        dia = str(p.transaction_date)
+        saida[loja]["totalRealizado"] += flt(p.grand_total)
+        saida[loja]["realizadoPorDia"][dia] = saida[loja]["realizadoPorDia"].get(dia, 0) + flt(p.grand_total)
+    return {"mes": mes, "atualizadoEm": frappe.utils.now(), "lojas": list(saida.values())}
+
+
+@frappe.whitelist()
+def gestao_metas_salvar(mes, metas):
+    """Salva a meta mensal de cada loja ({loja: valor})."""
+    import json
+
+    frappe.only_for(["System Manager", "Gestor Comercial", "Accounts Manager"])
+    _mes_limites(mes)
+    metas = json.loads(metas) if isinstance(metas, str) else (metas or {})
+    resultado = {}
+    for loja, valor in metas.items():
+        if not frappe.db.exists("Branch", loja):
+            continue
+        v = flt(valor)
+        if v < 0:
+            frappe.throw(_("Meta inválida para {0}.").format(loja))
+        v = round(v, 2)
+        nome = frappe.db.get_value("Meta Mensal de Loja", {"mes": mes, "loja": loja}, "name")
+        if nome:
+            frappe.db.set_value("Meta Mensal de Loja", nome, "valor", v)
+        else:
+            frappe.get_doc({"doctype": "Meta Mensal de Loja", "mes": mes, "loja": loja, "valor": v}).insert(ignore_permissions=True)
+        resultado[loja] = v
+    if not resultado:
+        frappe.throw(_("Informe ao menos uma meta mensal."))
+    frappe.db.commit()
+    return {"metas": {l: _meta_da_loja(mes, l) for l in [b.name for b in frappe.get_all("Branch")]}}

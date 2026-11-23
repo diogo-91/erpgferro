@@ -138,6 +138,8 @@
         '<span class="gf-label">Pedidos convertidos</span></a>' +
         '<a class="gf-link" href="/desk/comissoes-fabrica" data-href="/desk/comissoes-fabrica">' + icon("list") +
         '<span class="gf-label">Comissões</span></a>' +
+        '<a class="gf-link" href="/desk/gestao-metas" data-href="/desk/gestao-metas">' + icon("list") +
+        '<span class="gf-label">Gestão (metas)</span></a>' +
         '<a class="gf-link" href="/desk/entregas-dashboard" data-href="/desk/entregas-dashboard">' + icon("list") +
         '<span class="gf-label">Entregas (painel)</span></a>' +
         '<a class="gf-link" href="/desk/mapa-pedidos" data-href="/desk/mapa-pedidos">' + icon("list") +
