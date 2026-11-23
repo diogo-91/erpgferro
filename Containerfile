@@ -89,6 +89,9 @@ RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
   mkdir -p apps/erpnext/erpnext/accounts/page/placas_eps && touch apps/erpnext/erpnext/accounts/page/placas_eps/__init__.py && \
   cp /tmp/producao/placas-eps.js apps/erpnext/erpnext/accounts/page/placas_eps/placas_eps.js && \
   cp /tmp/producao/placas-eps.css apps/erpnext/erpnext/accounts/page/placas_eps/placas_eps.css && \
+  mkdir -p apps/erpnext/erpnext/accounts/page/planejamento_financeiro && touch apps/erpnext/erpnext/accounts/page/planejamento_financeiro/__init__.py && \
+  cp /tmp/producao/planejamento-financeiro.js apps/erpnext/erpnext/accounts/page/planejamento_financeiro/planejamento_financeiro.js && \
+  cp /tmp/producao/planejamento-financeiro.css apps/erpnext/erpnext/accounts/page/planejamento_financeiro/planejamento_financeiro.css && \
   python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
   grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py && \
   grep -q gf_qr apps/erpnext/erpnext/hooks.py && ./env/bin/python -c "import pyqrcode"

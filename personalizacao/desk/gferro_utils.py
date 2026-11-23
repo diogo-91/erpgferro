@@ -744,3 +744,112 @@ def saidas_financeiras(inicio, fim):
               "categorias": lista(g["cat"]), "fornecedores": lista(g["forn"], 10)} for n, g in grupos.items()]
     saida.sort(key=lambda g: (-g["total"], g["nome"]))
     return {"inicio": inicio, "fim": fim, "total": round(total, 2), "quantidade": qtd, "atualizadoEm": frappe.utils.now(), "grupos": saida}
+
+
+# ---------------------------------------------------------------- Dashboard > Financeiro > Planejamento financeiro
+_FIN_PAPEIS = ["System Manager", "Accounts Manager", "Accounts User", "Gestor Comercial"]
+
+
+def _mes_limites(mes):
+    import calendar
+
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", mes or ""):
+        frappe.throw(_("Mês inválido."))
+    a, m = int(mes[:4]), int(mes[5:])
+    return "%s-01" % mes, "%s-%02d" % (mes, calendar.monthrange(a, m)[1])
+
+
+def _classif_mapa():
+    return {c.name: c for c in frappe.get_all("Classificacao Financeira", fields=["name", "nome", "grupo"])}
+
+
+@frappe.whitelist()
+def planejamento_financeiro(mes):
+    """Contas em aberto (a receber/a pagar) com a data replanejada, o que foi baixado no mes e os totais do planejamento financeiro."""
+    frappe.only_for(_FIN_PAPEIS)
+    ini, fim = _mes_limites(mes)
+    hoje = frappe.utils.today()
+    em7 = str(frappe.utils.add_days(hoje, 7))
+    cls = _classif_mapa()
+
+    def cat(cod):
+        c = cls.get(cod)
+        return (c.nome if c else "Sem classificação"), (c.grupo if c and c.grupo else "Sem classificação")
+
+    receber, pagar = [], []
+    for r in frappe.db.sql("""select name, customer_name pessoa, outstanding_amount aberto, due_date, data_replanejada, classificacao_financeira cod from `tabSales Invoice`
+                              where docstatus = 1 and outstanding_amount > 0.005 and is_return = 0""", as_dict=True):
+        orig = str(r.due_date or hoje)
+        venc = str(r.data_replanejada or orig)
+        c, g = cat(r.cod or "1.6")
+        receber.append({"id": r.name, "tipo": "receber", "pessoa": r.pessoa or "", "categoria": c, "grupo": g, "valor": flt(r.aberto), "vencimento": venc,
+                        "status": "Vencida" if venc < hoje else "A Vencer" if venc <= em7 else "Em Dia", "vencimentoOriginal": orig if r.data_replanejada else None})
+    for r in frappe.db.sql("""select name, supplier_name pessoa, outstanding_amount aberto, due_date, bill_date, data_replanejada, classificacao_financeira cod from `tabPurchase Invoice`
+                              where docstatus = 1 and outstanding_amount > 0.005 and is_return = 0""", as_dict=True):
+        orig = str(r.due_date or r.bill_date or hoje)
+        venc = str(r.data_replanejada or orig)
+        c, g = cat(r.cod)
+        pagar.append({"id": r.name, "tipo": "pagar", "pessoa": r.pessoa or "", "categoria": c, "grupo": g, "valor": flt(r.aberto), "vencimento": venc,
+                      "status": "Vencida" if venc < hoje else "A Vencer" if venc <= em7 else "Agendada", "vencimentoOriginal": orig if r.data_replanejada else None})
+    concl = []
+    for r in frappe.db.sql("""
+        select pe.name, pe.payment_type tp, pe.party_name pessoa, pe.paid_amount pago, pe.received_amount recebido, pe.posting_date,
+               coalesce(nullif(pe.classificacao_financeira, ''),
+                 (select min(coalesce(nullif(pi.classificacao_financeira, ''), 'x')) from `tabPayment Entry Reference` per join `tabPurchase Invoice` pi on pi.name = per.reference_name where per.parent = pe.name and per.reference_doctype = 'Purchase Invoice'),
+                 (select min('1.6') from `tabPayment Entry Reference` per where per.parent = pe.name and per.reference_doctype in ('Sales Invoice', 'Sales Order'))) cod
+        from `tabPayment Entry` pe where pe.docstatus = 1 and pe.payment_type in ('Pay', 'Receive') and pe.posting_date between %(i)s and %(f)s order by pe.posting_date""", {"i": ini, "f": fim}, as_dict=True):
+        c, g = cat(r.cod if r.cod and r.cod != "x" else "")
+        concl.append({"id": r.name, "tipo": "receber" if r.tp == "Receive" else "pagar", "pessoa": r.pessoa or "", "categoria": c, "grupo": g,
+                      "valor": abs(flt(r.recebido if r.tp == "Receive" else r.pago)), "dataBaixa": str(r.posting_date)})
+    fat = frappe.db.sql("select ifnull(sum(grand_total), 0) from `tabSales Invoice` where docstatus = 1 and is_return = 0 and posting_date between %s and %s", (ini, fim))[0][0]
+    ent = sum(c["valor"] for c in concl if c["tipo"] == "receber")
+    sai = sum(c["valor"] for c in concl if c["tipo"] == "pagar")
+    return {"mesReferencia": mes, "hoje": hoje, "atualizadoEm": frappe.utils.now(), "faturamentoMes": flt(fat), "totalReceber": sum(c["valor"] for c in receber), "totalPagar": sum(c["valor"] for c in pagar),
+            "saldoMes": round(ent - sai, 2), "valorVencidoReceber": sum(c["valor"] for c in receber if c["status"] == "Vencida"), "contasReceber": receber, "contasPagar": pagar, "contasConcluidas": concl}
+
+
+@frappe.whitelist()
+def financeiro_reprogramar(tipo, id, nova_data=None):
+    """Move a conta para outro dia no calendario (nao muda o vencimento da fatura). nova_data vazia desfaz."""
+    frappe.only_for(_FIN_PAPEIS)
+    dt = {"receber": "Sales Invoice", "pagar": "Purchase Invoice"}.get(tipo)
+    if not dt or not frappe.db.exists(dt, id):
+        frappe.throw(_("Conta não encontrada."))
+    if nova_data and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", nova_data):
+        frappe.throw(_("Data inválida."))
+    frappe.db.set_value(dt, id, "data_replanejada", nova_data or None, update_modified=False)
+    frappe.db.commit()
+    return {"ok": 1}
+
+
+@frappe.whitelist()
+def financeiro_dre(mes):
+    """DRE do mes por titulo (grupo da classificacao): programado = faturas com vencimento no mes; realizado = baixas (pagamentos/recebimentos) no mes."""
+    frappe.only_for(_FIN_PAPEIS)
+    ini, fim = _mes_limites(mes)
+    cls = _classif_mapa()
+    grupos = {}
+    ordem = sorted({c.grupo for c in cls.values() if c.grupo}, key=lambda g: int((min((x.name for x in cls.values() if x.grupo == g), key=lambda n: int(n.split(".")[0]))).split(".")[0]))
+
+    def somar(cod, campo, valor):
+        c = cls.get(cod)
+        g = c.grupo if c and c.grupo else "Sem classificação"
+        linha = grupos.setdefault(g, {"grupo": g, "programado": 0.0, "realizado": 0.0, "contas": {}})
+        linha[campo] += valor
+        sub = linha["contas"].setdefault(c.nome if c else "Sem classificação", {"categoria": c.nome if c else "Sem classificação", "programado": 0.0, "realizado": 0.0})
+        sub[campo] += valor
+
+    for r in frappe.db.sql("select ifnull(nullif(classificacao_financeira, ''), '1.6') cod, grand_total v from `tabSales Invoice` where docstatus = 1 and is_return = 0 and coalesce(due_date, posting_date) between %s and %s", (ini, fim), as_dict=True):
+        somar(r.cod, "programado", flt(r.v))
+    for r in frappe.db.sql("select classificacao_financeira cod, grand_total v from `tabPurchase Invoice` where docstatus = 1 and is_return = 0 and coalesce(due_date, bill_date, posting_date) between %s and %s", (ini, fim), as_dict=True):
+        somar(r.cod, "programado", flt(r.v))
+    for c in planejamento_financeiro(mes)["contasConcluidas"]:
+        cod = next((k for k, v in cls.items() if v.nome == c["categoria"]), "")
+        somar(cod, "realizado", c["valor"])
+    linhas = []
+    for g in ordem + [x for x in grupos if x not in ordem]:
+        if g in grupos:
+            l = grupos[g]
+            linhas.append({"grupo": g, "programado": round(l["programado"], 2), "realizado": round(l["realizado"], 2),
+                           "contas": sorted(({**v, "programado": round(v["programado"], 2), "realizado": round(v["realizado"], 2)} for v in l["contas"].values()), key=lambda x: -(x["programado"] + x["realizado"]))})
+    return {"mesReferencia": mes, "atualizadoEm": frappe.utils.now(), "linhas": linhas}

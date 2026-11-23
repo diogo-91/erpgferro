@@ -108,7 +108,9 @@
         '<span class="gf-label">Necessidade de compra</span></a>' + top;
     }
     if (mod === "Accounts") {
-      top = '<a class="gf-link" href="/desk/programacao-contas" data-href="/desk/programacao-contas">' + icon("list") +
+      top = '<a class="gf-link" href="/desk/planejamento-financeiro" data-href="/desk/planejamento-financeiro">' + icon("list") +
+        '<span class="gf-label">Planejamento financeiro</span></a>' +
+        '<a class="gf-link" href="/desk/programacao-contas" data-href="/desk/programacao-contas">' + icon("list") +
         '<span class="gf-label">Programação</span></a>' +
         '<a class="gf-link" href="/desk/saidas-financeiras" data-href="/desk/saidas-financeiras">' + icon("list") +
         '<span class="gf-label">Saídas</span></a>' +
