@@ -155,9 +155,15 @@ GfApontamento.prototype.pronto = function (acao) {
   return true;
 };
 
-GfApontamento.prototype.acao = function (nome, qtd) {
+GfApontamento.prototype.acao = function (nome, qtd, causa) {
   var self = this;
   if (!this.pronto(nome)) return;
+  if (nome === "pausar" && causa === undefined) {  // pergunta o motivo da pausa (opcional)
+    frappe.prompt([{ fieldname: "causa", label: "Motivo da pausa", fieldtype: "Link", options: "Causa de Parada",
+      get_query: function () { return { filters: { categoria: "Análise de apontamento", tipo: "Analítico", ativo: 1 } }; } }],
+      function (v) { self.acao("pausar", undefined, v.causa || ""); }, "Pausar processo", "Pausar");
+    return;
+  }
   if (nome === "finalizar" && qtd === undefined) {
     var resta = Math.max(0, +(this.etapa.qtd - this.etapa.feito).toFixed(4));
     var $m = $(this.page.main).find(".gfa2-modal");
@@ -168,7 +174,7 @@ GfApontamento.prototype.acao = function (nome, qtd) {
   }
   if (nome === "cancelar" && !window.confirm("Cancelar o último apontamento desta etapa?")) return;
   this.aviso("Registrando...");
-  this.chamar("apontamento_acao", { job_card: this.etapa.job_card, acao: nome, matricula: this.op.matricula, qtd: qtd, os: this.ordem.os }).then(function (novo) {
+  this.chamar("apontamento_acao", { job_card: this.etapa.job_card, acao: nome, matricula: this.op.matricula, qtd: qtd, os: this.ordem.os, causa: causa || null }).then(function (novo) {
     var rot = { iniciar: "iniciado", pausar: "pausado", finalizar: "finalizado", cancelar: "cancelado (apontamento desfeito)" }[nome];
     var texto = "Processo " + rot + ": " + novo.operacao + " (" + novo.os + ") — " + self.op.nome;
     var tipo = "ok", est = novo.estoque;

@@ -93,7 +93,23 @@
         '<a class="gf-link" href="/desk/apontamento-producao" data-href="/desk/apontamento-producao">' + icon("scan") +
         '<span class="gf-label">Apontamento</span></a>' +
         '<a class="gf-link" href="/desk/operador" data-href="/desk/operador">' + icon("users") +
-        '<span class="gf-label">Operadores</span></a>' + top;
+        '<span class="gf-label">Operadores</span></a>' +
+        '<a class="gf-link" href="/desk/apontamento-entrega" data-href="/desk/apontamento-entrega">' + icon("list") +
+        '<span class="gf-label">Entregas</span></a>' +
+        '<a class="gf-link" href="/desk/query-report/Empenhos de Material" data-href="/desk/query-report/Empenhos de Material">' + icon("list") +
+        '<span class="gf-label">Empenhos de material</span></a>' +
+        '<a class="gf-link" href="/desk/causa-de-parada" data-href="/desk/causa-de-parada">' + icon("list") +
+        '<span class="gf-label">Causas de parada</span></a>' + top;
+    }
+    if (mod === "Buying") {
+      top = '<a class="gf-link" href="/desk/importar-nfe-compra" data-href="/desk/importar-nfe-compra">' + icon("upload") +
+        '<span class="gf-label">Entrada de NF (XML)</span></a>' +
+        '<a class="gf-link" href="/desk/query-report/Necessidade de Compra" data-href="/desk/query-report/Necessidade de Compra">' + icon("list") +
+        '<span class="gf-label">Necessidade de compra</span></a>' + top;
+    }
+    if (mod === "Selling") {
+      top = '<a class="gf-link" href="/desk/query-report/Comissão de Vendedores" data-href="/desk/query-report/Comissão de Vendedores">' + icon("list") +
+        '<span class="gf-label">Comissão de vendedores</span></a>' + top;
     }
     var secs = sections.filter(function (s) { return s.html; }).map(function (s) {
       var k = mod + "/" + s.label;

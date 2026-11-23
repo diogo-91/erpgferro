@@ -1,0 +1,13 @@
+.gfn { max-width: 1100px; margin: 0 auto; padding: 20px 12px 40px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; }
+.gfn-ajuda { color: #5b616e; margin-bottom: 14px; }
+.gfn-cab { display: grid; grid-template-columns: repeat(4, auto); gap: 18px; background: #fff; border: 1px solid #e6e6e6; border-radius: 10px; padding: 14px 18px; margin: 16px 0; }
+.gfn-cab small { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6b7280; }
+.gfn-erro { color: #b3261e; font-weight: 700; }
+.gfn-chk { display: flex; gap: 8px; align-items: center; margin: 8px 0 12px; font-weight: 600; }
+.gfn-t { width: 100%; border-collapse: collapse; background: #fff; font-size: 13px; }
+.gfn-t th { background: #F5C518; text-align: left; padding: 8px 10px; font-size: 12px; text-transform: uppercase; }
+.gfn-t td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+.gfn-t .frappe-control { margin: 0; }
+.gfn-rod { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-top: 16px; }
+.gfn-arm { width: 320px; }
+@media (max-width: 760px) { .gfn-cab { grid-template-columns: 1fr 1fr; } }

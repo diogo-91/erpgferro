@@ -196,7 +196,7 @@ def _desfazer(jc):
 
 
 @frappe.whitelist()
-def apontamento_acao(job_card, acao, matricula=None, qtd=None, os=None):
+def apontamento_acao(job_card, acao, matricula=None, qtd=None, os=None, causa=None):
     """iniciar | pausar | finalizar | cancelar uma etapa. Devolve o cartao atualizado."""
     etapa = _etapa_ativa((job_card or "").strip())
     if not etapa:
@@ -233,6 +233,8 @@ def apontamento_acao(job_card, acao, matricula=None, qtd=None, os=None):
                 frappe.throw(_("Esta etapa não está em andamento."))
             aberto.to_time = agora
             aberto.time_in_mins = time_diff_in_hours(agora, aberto.from_time) * 60
+            if causa and frappe.db.exists("Causa de Parada", causa):
+                aberto.causa_parada = causa  # motivo da pausa (causas do Nomus)
             jc.is_paused = 1
             jc.save()
         elif acao == "finalizar":
@@ -268,3 +270,120 @@ def apontamento_acao(job_card, acao, matricula=None, qtd=None, os=None):
                               fields=["name", "operation", "workstation", "workstation_type", "sequence_id"], order_by="sequence_id asc", limit=1)
         cartao["proxima"] = prox[0] if prox else None
     return cartao
+
+
+# ---------------------------------------------------------------- entrada de NF de compra por XML (NF-e)
+def _nfe_parse(xml):
+    import xml.etree.ElementTree as ET
+
+    ns = {"n": "http://www.portalfiscal.inf.br/nfe"}
+    try:
+        raiz = ET.fromstring((xml or "").strip().encode("utf-8"))
+    except ET.ParseError:
+        frappe.throw(_("Arquivo inválido: não é um XML de NF-e."))
+    inf = raiz.find(".//n:infNFe", ns)
+    if inf is None:
+        frappe.throw(_("Arquivo inválido: não é um XML de NF-e."))
+
+    def t(no, caminho):
+        r = no.find(caminho, ns) if no is not None else None
+        return (r.text or "").strip() if r is not None and r.text else ""
+
+    emit = inf.find("n:emit", ns)
+    itens = []
+    for det in inf.findall("n:det", ns):
+        p = det.find("n:prod", ns)
+        itens.append({"codigo": t(p, "n:cProd"), "ean": t(p, "n:cEAN"), "nome": t(p, "n:xProd"), "ncm": t(p, "n:NCM"), "unidade": t(p, "n:uCom"),
+                      "qtd": flt(t(p, "n:qCom")), "valor_unit": flt(t(p, "n:vUnCom")), "valor": flt(t(p, "n:vProd")), "desconto": flt(t(p, "n:vDesc"))})
+    return {
+        "chave": (inf.get("Id") or "").replace("NFe", ""), "numero": t(inf, "n:ide/n:nNF"), "serie": t(inf, "n:ide/n:serie"),
+        "emissao": (t(inf, "n:ide/n:dhEmi") or t(inf, "n:ide/n:dEmi"))[:10], "fornecedor_cnpj": t(emit, "n:CNPJ"), "fornecedor_nome": t(emit, "n:xNome"),
+        "valor_nf": flt(t(inf, "n:total/n:ICMSTot/n:vNF")), "frete": flt(t(inf, "n:total/n:ICMSTot/n:vFrete")),
+        "itens": itens,
+        "duplicatas": [{"numero": t(d, "n:nDup"), "vencimento": t(d, "n:dVenc"), "valor": flt(t(d, "n:vDup"))} for d in inf.findall(".//n:cobr/n:dup", ns)],
+    }
+
+
+def _fmt_cnpj(d):
+    d = re.sub(r"\D", "", d or "")
+    return "%s.%s.%s/%s-%s" % (d[:2], d[2:5], d[5:8], d[8:12], d[12:]) if len(d) == 14 else d
+
+
+def _nfe_fornecedor(cnpj):
+    for v in (_fmt_cnpj(cnpj), re.sub(r"\D", "", cnpj or "")):
+        r = frappe.db.get_value("Supplier", {"tax_id": v}, "name")
+        if r:
+            return r
+    return None
+
+
+def _nfe_item_sugerido(it, fornecedor):
+    if fornecedor and it["codigo"]:
+        r = frappe.db.sql("select parent from `tabItem Supplier` where supplier=%s and supplier_part_no=%s limit 1", (fornecedor, it["codigo"]))
+        if r:
+            return r[0][0]
+    if it["ean"] and it["ean"].upper() != "SEM GTIN":
+        r = frappe.db.get_value("Item Barcode", {"barcode": it["ean"]}, "parent")
+        if r:
+            return r
+    if it["codigo"] and frappe.db.exists("Item", it["codigo"]):
+        return it["codigo"]
+    return frappe.db.get_value("Item", {"item_name": it["nome"]}, "name")
+
+
+@frappe.whitelist()
+def nfe_compra_ler(xml):
+    """Le o XML da NF-e de compra e sugere o fornecedor e o item do ERP de cada linha."""
+    nf = _nfe_parse(xml)
+    forn = _nfe_fornecedor(nf["fornecedor_cnpj"])
+    nf["fornecedor"] = forn
+    nf["fornecedor_cnpj_fmt"] = _fmt_cnpj(nf["fornecedor_cnpj"])
+    nf["ja_importada"] = frappe.db.get_value("Purchase Receipt", {"gf_chave_nfe": nf["chave"], "docstatus": ["<", 2]}, "name") if nf["chave"] else None
+    for it in nf["itens"]:
+        it["item"] = _nfe_item_sugerido(it, forn)
+        it["item_nome"] = frappe.db.get_value("Item", it["item"], "item_name") if it["item"] else None
+    return nf
+
+
+@frappe.whitelist()
+def nfe_compra_criar(xml, mapa, armazem=None, criar_fornecedor=0):
+    """Cria o Recebimento de Compra (rascunho) a partir do XML. mapa = {indice_da_linha: codigo_do_item}. Guarda o codigo do fornecedor para as proximas notas."""
+    import json
+
+    frappe.only_for(["System Manager", "Purchase Manager", "Purchase User", "Stock Manager", "Stock User"])
+    nf = _nfe_parse(xml)
+    mapa = json.loads(mapa) if isinstance(mapa, str) else (mapa or {})
+    if nf["chave"] and frappe.db.get_value("Purchase Receipt", {"gf_chave_nfe": nf["chave"], "docstatus": ["<", 2]}, "name"):
+        frappe.throw(_("Esta NF-e já foi importada."))
+    forn = _nfe_fornecedor(nf["fornecedor_cnpj"])
+    if not forn:
+        if not int(criar_fornecedor or 0):
+            frappe.throw(_("Fornecedor {0} ({1}) não cadastrado.").format(nf["fornecedor_nome"], _fmt_cnpj(nf["fornecedor_cnpj"])))
+        s = frappe.get_doc({"doctype": "Supplier", "supplier_name": nf["fornecedor_nome"][:140], "supplier_group": frappe.db.get_value("Supplier Group", {"is_group": 0}, "name"),
+                            "supplier_type": "Company", "tax_id": _fmt_cnpj(nf["fornecedor_cnpj"])})
+        s.insert(ignore_permissions=True)
+        forn = s.name
+    empresa = frappe.defaults.get_global_default("company") or frappe.db.get_value("Company", {}, "name")
+    armazem = armazem or frappe.db.get_value("Warehouse", {"warehouse_name": "Almoxarifado", "company": empresa}, "name")
+    linhas = []
+    for i, it in enumerate(nf["itens"]):
+        cod = mapa.get(str(i)) or mapa.get(i)
+        if not cod or not frappe.db.exists("Item", cod):
+            frappe.throw(_("Escolha o item do ERP para a linha {0}: {1}.").format(i + 1, it["nome"]))
+        stock_uom = frappe.db.get_value("Item", cod, "stock_uom")
+        if not frappe.db.get_value("Item", cod, "is_purchase_item"):
+            frappe.db.set_value("Item", cod, "is_purchase_item", 1)  # item que entra por NF de compra passa a ser comprável
+        valor = it["valor"] - it["desconto"]
+        linhas.append({"item_code": cod, "qty": it["qtd"], "uom": stock_uom, "stock_uom": stock_uom, "conversion_factor": 1,
+                       "rate": (valor / it["qtd"]) if it["qtd"] else it["valor_unit"], "warehouse": armazem, "description": it["nome"]})
+        if it["codigo"] and not frappe.db.exists("Item Supplier", {"parent": cod, "supplier": forn, "supplier_part_no": it["codigo"]}):
+            item = frappe.get_doc("Item", cod)
+            item.append("supplier_items", {"supplier": forn, "supplier_part_no": it["codigo"]})
+            item.flags.ignore_permissions = True
+            item.save()
+    pr = frappe.get_doc({"doctype": "Purchase Receipt", "supplier": forn, "company": empresa, "posting_date": nf["emissao"] or frappe.utils.today(),
+                         "supplier_delivery_note": ("NF %s-%s" % (nf["numero"], nf["serie"]))[:140], "gf_chave_nfe": nf["chave"], "items": linhas,
+                         "remarks": "Entrada pela NF-e %s (chave %s)" % (nf["numero"], nf["chave"])})
+    pr.insert(ignore_permissions=True)
+    frappe.db.commit()
+    return {"nome": pr.name, "total": pr.grand_total, "valor_nf": nf["valor_nf"]}
