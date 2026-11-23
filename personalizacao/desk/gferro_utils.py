@@ -387,3 +387,95 @@ def nfe_compra_criar(xml, mapa, armazem=None, criar_fornecedor=0):
     pr.insert(ignore_permissions=True)
     frappe.db.commit()
     return {"nome": pr.name, "total": pr.grand_total, "valor_nf": nf["valor_nf"]}
+
+
+# ---------------------------------------------------------------- Comissoes (fechamento mensal dos vendedores)
+_COMISSAO_PAPEIS = ["System Manager", "Gestor Comercial", "Accounts Manager", "Sales Manager"]
+_NOME_CANONICO = {"LUIZ MARCOS MONTEIRO": "Luiz Monteiro", "EDSON RODRIGUES CAVALCANTE": "Edson Cavalcante"}  # mesma pessoa com 2 cadastros
+
+
+def _norm_nome(t):
+    import unicodedata
+
+    return re.sub(r"\s+", " ", "".join(c for c in unicodedata.normalize("NFD", t or "") if unicodedata.category(c) != "Mn")).strip().upper()
+
+
+def _nome_canonico(nome):
+    return _NOME_CANONICO.get(_norm_nome(nome), nome)
+
+
+@frappe.whitelist()
+def comissoes_fabrica(mes):
+    """Pedidos do mes com o que o fechamento usa (vendas, recebido, parafusos, frete), vendedores por loja, termos e ajustes. O calculo e feito na tela."""
+    import calendar
+
+    frappe.only_for(_COMISSAO_PAPEIS)
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", mes or ""):
+        frappe.throw(_("Mês inválido."))
+    ano, m = int(mes[:4]), int(mes[5:])
+    ini, fim = "%s-01" % mes, "%s-%02d" % (mes, calendar.monthrange(ano, m)[1])
+    cfg = frappe.get_single("Configuracao Comissao")
+    pessoas = frappe.get_all("Sales Person", filters={"is_group": 0}, fields=["name", "loja", "commission_rate", "enabled"])
+    loja_de = {}
+    taxa_de = {}
+    for p in pessoas:
+        nome = _nome_canonico(p.name)
+        if p.loja and nome == p.name:
+            loja_de[nome] = p.loja
+        if flt(p.commission_rate) > 0:
+            taxa_de[nome] = flt(p.commission_rate) / 100
+    rows = frappe.db.sql(
+        """
+        select so.name codigo, so.transaction_date data, so.vendedor, so.loja, so.grand_total total, ifnull(so.frete_valor, 0) frete, ifnull(so.advance_paid, 0) adv, so.termo_aceite termo,
+          (select ifnull(sum(si.grand_total - si.outstanding_amount), 0) from `tabSales Invoice` si where si.docstatus = 1
+             and si.name in (select distinct sii.parent from `tabSales Invoice Item` sii where sii.sales_order = so.name)) pago_nf,
+          (select ifnull(sum(i.qty), 0) from `tabSales Order Item` i where i.parent = so.name and i.item_name like %(par)s) par_qtd,
+          (select ifnull(sum(i.amount), 0) from `tabSales Order Item` i where i.parent = so.name and i.item_name like %(par)s) par_valor
+        from `tabSales Order` so
+        where so.docstatus = 1 and so.status <> 'Cancelled' and ifnull(so.etapa_pedido, '') <> 'Cancelado' and so.transaction_date between %(ini)s and %(fim)s
+        order by so.transaction_date, so.name""", {"ini": ini, "fim": fim, "par": "%parafuso%"}, as_dict=True)
+    pedidos, termos = [], {}
+    for r in rows:
+        vend = _nome_canonico((r.vendedor or "").strip()) or "(sem vendedor)"
+        pedidos.append({"id": r.codigo, "codigo": r.codigo, "dataEmissao": str(r.data), "vendedor": vend, "loja": loja_de.get(vend) or r.loja or "",
+                        "valorTotal": flt(r.total), "valorRecebido": max(flt(r.adv), flt(r.pago_nf)), "quantidadeParafusos": flt(r.par_qtd),
+                        "valorParafusos": flt(r.par_valor), "valorFrete": flt(r.frete)})
+        if r.termo:
+            termos[r.codigo] = "sim" if r.termo == "Sim" else "nao"
+    ajustes = {a.vendedor: {"valor": flt(a.valor), "observacao": a.observacao or ""}
+               for a in frappe.get_all("Ajuste de Comissao", filters={"mes": mes}, fields=["vendedor", "valor", "observacao"])}
+    return {"mes": mes, "atualizadoEm": frappe.utils.now(), "pedidos": pedidos, "vendedores": [{"nome": n, "loja": l} for n, l in loja_de.items()],
+            "termos": termos, "ajustes": ajustes, "taxaPadrao": flt(cfg.taxa_padrao or 2) / 100, "taxas": taxa_de,
+            "faixas": sorted([{"minimo": flt(f.minimo), "comissao": flt(f.comissao)} for f in cfg.faixas], key=lambda f: -f["minimo"]),
+            "lojas": [{"id": b.name, "nome": b.name} for b in frappe.get_all("Branch", fields=["name"], order_by="name asc")]}
+
+
+@frappe.whitelist()
+def comissoes_termo(pedido, valor=None):
+    """Termo de aceite do pedido: 'sim', 'nao' ou vazio."""
+    frappe.only_for(_COMISSAO_PAPEIS)
+    v = {"sim": "Sim", "nao": "Não"}.get((valor or "").lower(), "")
+    if not frappe.db.exists("Sales Order", pedido):
+        frappe.throw(_("Pedido {0} não encontrado.").format(pedido))
+    frappe.db.set_value("Sales Order", pedido, "termo_aceite", v, update_modified=False)
+    frappe.db.commit()
+    return v
+
+
+@frappe.whitelist()
+def comissoes_ajuste(mes, vendedor, valor=0, observacao=""):
+    """Ajuste do vendedor no mes (positivo soma, negativo desconta). Valor zero sem observacao apaga o ajuste."""
+    frappe.only_for(_COMISSAO_PAPEIS)
+    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", mes or "") or not vendedor:
+        frappe.throw(_("Informe o mês e o vendedor."))
+    valor, observacao = flt(valor), (observacao or "").strip()[:200]
+    atual = frappe.db.get_value("Ajuste de Comissao", {"mes": mes, "vendedor": vendedor}, "name")
+    if valor == 0 and not observacao:
+        if atual:
+            frappe.delete_doc("Ajuste de Comissao", atual, ignore_permissions=True)
+    elif atual:
+        frappe.db.set_value("Ajuste de Comissao", atual, {"valor": valor, "observacao": observacao})
+    else:
+        frappe.get_doc({"doctype": "Ajuste de Comissao", "mes": mes, "vendedor": vendedor, "valor": valor, "observacao": observacao}).insert(ignore_permissions=True)
+    frappe.db.commit()
+    return {"valor": valor, "observacao": observacao}

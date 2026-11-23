@@ -4,7 +4,7 @@
 2) Empenho: relatorio "Empenhos de Material" (o que cada OS aberta ainda vai consumir, com saldo e falta).
 3) Paradas: DocType "Causa de Parada" com as 71 causas do Nomus + motivo na pausa do apontamento (Job Card Time Log).
 4) Qualidade: parametros e modelos de inspecao (telha e bobina) ligados aos itens.
-5) Comissao: relatorio "Comissão de Vendedores" com a regra da Intranet (2% do recebido + faixas de frete) e taxa nos vendedores.
+5) Comissao: taxa de 2% nos vendedores (a tela "Comissões" esta em aplicar-comissoes.py).
 6) Perfis: Role Profiles "Gferro - ..." mapeando os 43 grupos de usuarios do Nomus.
 (A entrada de NF de compra por XML esta em importar-nfe-compra.* / gferro_utils.py.)
 
@@ -103,24 +103,6 @@ ORDER BY (t.empenhado - t.estoque - t.em_compra) DESC
 """, [{"label": "Somente com falta", "fieldname": "so_falta", "fieldtype": "Check", "default": "1"}],
     ["System Manager", "Purchase Manager", "Purchase User", "Stock Manager", "Manufacturing Manager", "Gestor Comercial"])
 
-relatorio("Comissão de Vendedores", "Sales Order", "Selling", """
-SELECT t.vendedor AS "Vendedor::220", COUNT(*) AS "Pedidos:Int:80", SUM(t.total) AS "Total vendido:Currency:130", SUM(t.recebido) AS "Total recebido:Currency:130",
-       SUM(t.frete) AS "Frete cobrado:Currency:120", SUM(t.com_frete) AS "Comissão de frete:Currency:130", MAX(t.taxa) AS "Taxa (%%):Float:80",
-       ROUND(SUM(t.recebido) * MAX(t.taxa) / 100, 2) AS "Comissão de vendas:Currency:140",
-       ROUND(SUM(t.recebido) * MAX(t.taxa) / 100 + SUM(t.com_frete), 2) AS "Total da comissão:Currency:140"
-FROM (
-  SELECT IFNULL(NULLIF(so.vendedor, ''), '(sem vendedor)') AS vendedor, so.grand_total AS total,
-         GREATEST(IFNULL(so.advance_paid, 0), IFNULL((SELECT SUM(si.grand_total - si.outstanding_amount) FROM `tabSales Invoice` si
-                  WHERE si.docstatus = 1 AND si.name IN (SELECT DISTINCT sii.parent FROM `tabSales Invoice Item` sii WHERE sii.sales_order = so.name)), 0)) AS recebido,
-         IFNULL(so.frete_valor, 0) AS frete,
-         CASE WHEN IFNULL(so.frete_valor, 0) >= 250 THEN 22 WHEN so.frete_valor >= 200 THEN 16 WHEN so.frete_valor >= 150 THEN 13.5 WHEN so.frete_valor >= 110 THEN 10 ELSE 0 END AS com_frete,
-         IFNULL(NULLIF((SELECT sp.commission_rate FROM `tabSales Person` sp WHERE sp.name = so.vendedor), 0), 2) AS taxa
-  FROM `tabSales Order` so
-  WHERE so.docstatus = 1 AND so.status <> 'Cancelled' AND so.transaction_date BETWEEN %(from_date)s AND %(to_date)s
-) t
-GROUP BY t.vendedor ORDER BY SUM(t.total) DESC
-""", [{"label": "De", "fieldname": "from_date", "fieldtype": "Date", "mandatory": 1}, {"label": "Até", "fieldname": "to_date", "fieldtype": "Date", "mandatory": 1}],
-    ["System Manager", "Sales Manager", "Gestor Comercial", "Accounts Manager"])
 frappe.db.sql("update `tabSales Person` set commission_rate = 2 where ifnull(commission_rate, 0) = 0 and is_group = 0")
 frappe.db.commit()
 print("RELATORIOS_OK")

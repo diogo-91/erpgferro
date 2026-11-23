@@ -67,6 +67,9 @@ RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
   mkdir -p apps/erpnext/erpnext/buying/page/importar_nfe_compra && touch apps/erpnext/erpnext/buying/page/importar_nfe_compra/__init__.py && \
   cp /tmp/producao/importar-nfe-compra.js apps/erpnext/erpnext/buying/page/importar_nfe_compra/importar_nfe_compra.js && \
   cp /tmp/producao/importar-nfe-compra.css apps/erpnext/erpnext/buying/page/importar_nfe_compra/importar_nfe_compra.css && \
+  mkdir -p apps/erpnext/erpnext/selling/page/comissoes_fabrica && touch apps/erpnext/erpnext/selling/page/comissoes_fabrica/__init__.py && \
+  cp /tmp/producao/comissoes-fabrica.js apps/erpnext/erpnext/selling/page/comissoes_fabrica/comissoes_fabrica.js && \
+  cp /tmp/producao/comissoes-fabrica.css apps/erpnext/erpnext/selling/page/comissoes_fabrica/comissoes_fabrica.css && \
   python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
   grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py && \
   grep -q gf_qr apps/erpnext/erpnext/hooks.py && ./env/bin/python -c "import pyqrcode"

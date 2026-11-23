@@ -108,8 +108,8 @@
         '<span class="gf-label">Necessidade de compra</span></a>' + top;
     }
     if (mod === "Selling") {
-      top = '<a class="gf-link" href="/desk/query-report/Comissão de Vendedores" data-href="/desk/query-report/Comissão de Vendedores">' + icon("list") +
-        '<span class="gf-label">Comissão de vendedores</span></a>' + top;
+      top = '<a class="gf-link" href="/desk/comissoes-fabrica" data-href="/desk/comissoes-fabrica">' + icon("list") +
+        '<span class="gf-label">Comissões</span></a>' + top;
     }
     var secs = sections.filter(function (s) { return s.html; }).map(function (s) {
       var k = mod + "/" + s.label;

@@ -1,0 +1,57 @@
+{
+ "vendedor_loja": {
+  "JAYMES JANOLLA": "petter",
+  "MARCELO BUGANZA JUNIOR": "petter",
+  "RAFAEL LUIZ AURO": "petter",
+  "Laís da Silva Gomes": "petter",
+  "Myrene Aparecida da Silva": "lucas",
+  "REBECA GONÇALVES": "lucas",
+  "Andreza Soares Ribeiro de Andrade": "lucas",
+  "Ana Caroline Paz Basseto": "lucas",
+  "Gilberto Del Poço": "lucas",
+  "Luiz Monteiro": "lucas",
+  "LUIZ MARCOS MONTEIRO": "lucas",
+  "Edson Cavalcante": "lucas",
+  "EDSON RODRIGUES CAVALCANTE": "lucas",
+  "LUCAS AMARAL COSTA": "lucas",
+  "SAMUEL WOLFGAN SILVA": "paulo",
+  "Elson Marcelo Braga da Silva": "paulo",
+  "SUMAIA LUCENA": "paulo",
+  "Tatiane Cristina de Moraes": "paulo",
+  "EDER PULLHEIS": "paulo",
+  "MARIA DE FATIMA DE SOUZA CAMPOS": "correa",
+  "Telma Carlos Gomes de Camargo": "correa",
+  "Vanessa Pereira Bezerra": "correa",
+  "Virgínia": "correa",
+  "Daniele Cardoso Vargas": "correa",
+  "Bruno Felipe Santos Bezerra": "tatui",
+  "Jeferson Antonio Corrêa": "tatui",
+  "Ana Claudia Bastos Vieira": "tatui",
+  "Rodrigo Carriel Ferreira Reigota": "tatui",
+  "Sabrina Fernanda Rodrigues dos Santos": "tatui",
+  "Alisson": "tatui",
+  "Rosemeire Lopes Eleutério": "tatui",
+  "Hamilton Ricardo Gonçalves": "tatui",
+  "Samuel Rodrigues da silva": "tatui",
+  "Luiz Felipe Cury Hilal": "tatui"
+ },
+ "por_primeiro_nome": {
+  "JEFERSON": "tatui",
+  "JEFFERSON": "tatui",
+  "RODRIGO": "tatui",
+  "SABRINA": "tatui",
+  "ALISSON": "tatui",
+  "ROSEMEIRE": "tatui"
+ },
+ "canonico": {
+  "LUIZ MARCOS MONTEIRO": "Luiz Monteiro",
+  "EDSON RODRIGUES CAVALCANTE": "Edson Cavalcante"
+ },
+ "lojas": {
+  "petter": "Loja 1",
+  "lucas": "Loja 2",
+  "paulo": "Loja 3",
+  "correa": "Loja 4",
+  "tatui": "Loja 5"
+ }
+}

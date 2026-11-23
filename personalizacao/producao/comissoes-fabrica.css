@@ -1,0 +1,68 @@
+/* Comissões - Grupo Gferro */
+#page-comissoes-fabrica .page-head { display: none; }
+.gf-com, .gf-com .page-body, .gf-com .page-wrapper, .gf-com .page-content, .gf-com .layout-main, .gf-com .layout-main-section-wrapper, .gf-com .layout-main-section { background: #f3f3f3; }
+.gf-com { min-height: 100vh; }
+.gf-com .page-body { padding: 0; }
+.gfc { max-width: 1400px; margin: 0 auto; padding: 22px 18px 44px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #141414; }
+.gfc-topo { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.gfc-trilha { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #6b7280; }
+.gfc-topo h1 { margin: 2px 0 0; font-size: 24px; font-weight: 900; }
+.gfc-topo p { margin: 4px 0 0; max-width: 780px; font-size: 12.5px; color: #6b7280; }
+.gfc-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.gfc-b { height: 36px; padding: 0 14px; border: 1px solid #d5d8de; border-radius: 10px; background: #fff; font-size: 12.5px; font-weight: 700; cursor: pointer; color: #141414; }
+.gfc-b:hover:not(:disabled) { border-color: #F5C518; background: #fffbe6; }
+.gfc-b:disabled { opacity: .45; cursor: default; }
+.gfc-ic { width: 40px; padding: 0; font-size: 18px; }
+.gfc-mes { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.gfc-mes strong { min-width: 170px; text-align: center; padding: 9px 18px; border: 1px solid #F5C518; border-radius: 10px; background: #ffd84d; font-size: 14px; }
+.gfc-aviso { padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+.gfc-erro { background: #fdecea; color: #b3261e; }
+.gfc-vazio { padding: 22px 8px; text-align: center; color: #9aa0a9; font-size: 13px; }
+
+.gfc-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 14px; }
+.gfc-card { background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; }
+.gfc-card span { font-size: 10.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #6b7280; }
+.gfc-card strong { font-size: 22px; font-weight: 900; }
+.gfc-card small { font-size: 11px; color: #9aa0a9; }
+.gfc-dest { border-color: #F5C518; background: #fffbe6; }
+
+.gfc-painel { background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+.gfc-painel h2 { margin: 0 0 8px; font-size: 14px; font-weight: 800; }
+.gfc-lojacab { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 8px; }
+.gfc-lojacab h2 { margin: 0; }
+.gfc-lojacab span { font-size: 11.5px; color: #6b7280; }
+.gfc-tw { overflow-x: auto; }
+.gfc-t { width: 100%; border-collapse: collapse; }
+.gfc-t th { padding: 8px; border-bottom: 1px solid #e3e5e8; text-align: left; vertical-align: bottom; font-size: 10px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #6b7280; white-space: nowrap; }
+.gfc-t td { padding: 8px; border-bottom: 1px solid #f0f0f0; font-size: 11.5px; white-space: nowrap; }
+.gfc-t .n { text-align: right; font-variant-numeric: tabular-nums; }
+.gfc-t .c { text-align: center; }
+.gfc-lin { cursor: pointer; } .gfc-lin:hover { background: #fffbe6; }
+.gfc-apagado { color: #c0c4cb; }
+.gfc-tot td { background: #fafafa; font-weight: 800; }
+.gfc-grp { background: #fffbe6; font-size: 10.5px !important; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #8a6d00; }
+.gfc-pos { color: #1f7a35; } .gfc-neg { color: #b3261e; }
+.gfc-duas { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.gfc-det-cab { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.gfc-det-cab h2 { margin: 0; } .gfc-det-cab span { font-size: 12px; color: #6b7280; }
+.gfc-pills { display: grid; gap: 6px; margin-bottom: 12px; }
+.gfc-pl { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.gfc-pl > span { width: 170px; flex: none; font-size: 10.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #6b7280; }
+.gfc-pill { padding: 4px 12px; border: 1px solid #d5d8de; border-radius: 10px; background: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
+.gfc-pill:hover { border-color: #F5C518; }
+.gfc-pill-on { background: #ffd84d; border-color: #F5C518; }
+.gfc-resumo { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px 24px; padding: 10px 12px; margin-bottom: 12px; border: 1px solid #e6e6e6; border-radius: 12px; background: #fafafa; font-size: 12px; }
+.gfc-resumo > div:first-child { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.gfc-ajuste { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.gfc-ajuste label { margin: 0; font-size: 10.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: #6b7280; }
+.gfc-ajuste input { height: 32px; border: 1px solid #d5d8de; border-radius: 8px; padding: 0 8px; font-size: 12px; }
+.gfc-aj-valor { width: 176px; text-align: right; } .gfc-aj-obs { width: 256px; }
+.gfc-inv { border-color: #e0584f !important; }
+.gfc-termo { height: 30px; width: 88px; border: 1px solid #d5d8de; border-radius: 8px; font-size: 12px; background: #fff; }
+.gfc-sim { border-color: #6fcf97; background: #e7f6ec; color: #1f7a35; } .gfc-nao { border-color: #eb8b84; background: #fdecea; color: #b3261e; }
+.gfc-como summary { cursor: pointer; font-size: 14px; font-weight: 800; }
+.gfc-como ul { margin: 8px 0 0; padding-left: 20px; font-size: 12px; color: #4b5260; line-height: 1.6; }
+
+@media (max-width: 1100px) { .gfc-cards { grid-template-columns: repeat(2, 1fr); } .gfc-duas { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .gfc-cards { grid-template-columns: 1fr; } .gfc-pl > span { width: 100%; } }
