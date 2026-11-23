@@ -90,6 +90,10 @@
     if (mod === "Manufacturing") {
       top = '<a class="gf-link" href="/desk/acompanhamento-producao" data-href="/desk/acompanhamento-producao">' + icon("layout-grid") +
         '<span class="gf-label">Acompanhamento</span></a>' +
+        '<a class="gf-link" href="/desk/producao-dashboard/painel" data-href="/desk/producao-dashboard/painel">' + icon("list") +
+        '<span class="gf-label">Painel de produção</span></a>' +
+        '<a class="gf-link" href="/desk/producao-dashboard/planejamento" data-href="/desk/producao-dashboard/planejamento">' + icon("list") +
+        '<span class="gf-label">Planejamento da produção</span></a>' +
         '<a class="gf-link" href="/desk/apontamento-producao" data-href="/desk/apontamento-producao">' + icon("scan") +
         '<span class="gf-label">Apontamento</span></a>' +
         '<a class="gf-link" href="/desk/operador" data-href="/desk/operador">' + icon("users") +

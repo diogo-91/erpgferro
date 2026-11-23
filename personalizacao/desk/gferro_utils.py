@@ -853,3 +853,129 @@ def financeiro_dre(mes):
             linhas.append({"grupo": g, "programado": round(l["programado"], 2), "realizado": round(l["realizado"], 2),
                            "contas": sorted(({**v, "programado": round(v["programado"], 2), "realizado": round(v["realizado"], 2)} for v in l["contas"].values()), key=lambda x: -(x["programado"] + x["realizado"]))})
     return {"mesReferencia": mes, "atualizadoEm": frappe.utils.now(), "linhas": linhas}
+
+
+# ---------------------------------------------------------------- Dashboard > Producao
+_PROD_PAPEIS = ["System Manager", "Manufacturing Manager", "Manufacturing User", "Gestor Comercial", "Sales Manager"]
+
+
+@frappe.whitelist()
+def producao_kanban():
+    """Foto de agora da producao: ordens abertas por centro de trabalho (etapa atual), com status, operador, tempo e etapas concluidas."""
+    frappe.only_for(_PROD_PAPEIS)
+    ordens = frappe.get_all("Work Order", filters={"docstatus": 1, "status": ["in", ["Not Started", "In Process", "Stopped"]]},
+                            fields=["name", "production_item", "item_name", "qty", "stock_uom", "sales_order", "description", "status", "actual_start_date", "planned_start_date"], order_by="planned_start_date asc, name asc")
+    nomes = [o.name for o in ordens]
+    cartoes = {}
+    if nomes:
+        for jc in frappe.get_all("Job Card", filters={"work_order": ["in", nomes], "docstatus": ["<", 2]}, order_by="sequence_id asc, creation asc",
+                                 fields=["name", "work_order", "operation", "workstation_type", "sequence_id", "status", "docstatus", "is_paused", "operador"]):
+            cartoes.setdefault(jc.work_order, []).append(jc)
+    logs = {}
+    if nomes:
+        for r in frappe.db.sql("""select jc.name jc, tl.from_time, tl.to_time, tl.time_in_mins, tl.operador, tl.causa_parada from `tabJob Card Time Log` tl join `tabJob Card` jc on jc.name = tl.parent
+                                  where jc.work_order in %(n)s order by tl.from_time""", {"n": nomes}, as_dict=True):
+            logs.setdefault(r.jc, []).append(r)
+    pedidos = {s.name: s.get("customer_name") for s in frappe.get_all("Sales Order", filters={"name": ["in", [o.sales_order for o in ordens if o.sales_order] or [""]]}, fields=["name", "customer_name"])}
+    colunas, fila = {}, []
+    ag, em_prod, parados, aguard = now_datetime(), 0, 0, 0
+    for o in ordens:
+        etapas = cartoes.get(o.name, [])
+        feitas = sum(1 for e in etapas if e.docstatus == 1)
+        atual = next((e for e in etapas if e.docstatus == 0), None)
+        if not atual:
+            continue
+        ls = logs.get(atual.name, [])
+        aberto = next((l for l in ls if l.from_time and not l.to_time), None)
+        tempo_ms = int(sum(flt(l.time_in_mins) for l in ls if l.to_time) * 60000 + ((ag - aberto.from_time).total_seconds() * 1000 if aberto else 0))
+        if aberto:
+            st = "em-producao"
+            em_prod += 1
+        elif atual.is_paused or (ls and not aberto):
+            st = "parado"
+            parados += 1
+        else:
+            st = "aguardando"
+            aguard += 1
+        motivo = next((l.causa_parada for l in reversed(ls) if l.causa_parada), None) if st == "parado" else None
+        motivo_txt = frappe.db.get_value("Causa de Parada", motivo, "causa") if motivo else None
+        card = {"os": o.name, "pedido": o.sales_order or "", "cliente": pedidos.get(o.sales_order) or "", "produto": o.item_name, "codigoProduto": o.production_item, "quantidade": flt(o.qty), "unidade": o.stock_uom or "",
+                "descricao": o.description or "", "operacao": atual.operation, "coluna": atual.workstation_type or "Sem centro", "status": st, "operadorAtual": (aberto.operador if aberto else atual.operador) or None,
+                "motivoParada": motivo_txt, "tempoGravadoMs": tempo_ms, "etapasConcluidas": feitas, "totalEtapas": len(etapas), "inicio": str(aberto.from_time) if aberto else None, "jobCard": atual.name}
+        colunas.setdefault(card["coluna"], []).append(card)
+    hoje = frappe.utils.today()
+    concl = frappe.get_all("Work Order", filters={"docstatus": 1, "status": "Completed", "modified": [">=", hoje]}, fields=["name", "item_name", "qty", "stock_uom"], limit_page_length=200)
+    return {"atualizadoEm": frappe.utils.now(), "colunas": [{"nome": n, "cards": c} for n, c in sorted(colunas.items())], "totais": {"emProducao": em_prod, "parados": parados, "aguardando": aguard, "concluidasHoje": len(concl)},
+            "concluidas": [{"os": c.name, "produto": c.item_name, "quantidade": flt(c.qty), "unidade": c.stock_uom or ""} for c in concl]}
+
+
+@frappe.whitelist()
+def producao_relatorio(inicio, fim):
+    """Historico apontado (etapas finalizadas) no periodo, por centro de trabalho e detalhado. O valor produzido e uma estimativa (valor do pedido rateado pela quantidade)."""
+    frappe.only_for(_PROD_PAPEIS)
+    if not (re.fullmatch(r"\d{4}-\d{2}-\d{2}", inicio or "") and re.fullmatch(r"\d{4}-\d{2}-\d{2}", fim or "")):
+        frappe.throw(_("Período inválido."))
+    rows = frappe.db.sql("""
+        select tl.name id, jc.name jc, jc.work_order os, jc.operation operacao, jc.workstation_type centro, jc.sequence_id seq, tl.operador, tl.from_time, tl.to_time, tl.time_in_mins, tl.completed_qty qtd,
+               wo.stock_uom unidade, wo.qty wqty, wo.sales_order, wo.sales_order_item
+        from `tabJob Card Time Log` tl join `tabJob Card` jc on jc.name = tl.parent join `tabWork Order` wo on wo.name = jc.work_order
+        where jc.docstatus = 1 and tl.to_time is not null and date(tl.to_time) between %(i)s and %(f)s order by tl.to_time desc""", {"i": inicio, "f": fim}, as_dict=True)
+    valor_so = {}
+    for r in rows:
+        if r.sales_order and r.sales_order not in valor_so:
+            valor_so[r.sales_order] = flt(frappe.db.get_value("Sales Order", r.sales_order, "grand_total"))
+    centros, det = {}, []
+    for r in rows:
+        centro = r.centro or "Sem centro"
+        dur = int(flt(r.time_in_mins) * 60000)
+        valor = round(valor_so.get(r.sales_order, 0) * flt(r.qtd) / flt(r.wqty), 2) if r.sales_order and flt(r.wqty) and flt(r.qtd) else None
+        c = centros.setdefault(centro, {"centro": centro, "apontamentos": 0, "ordens": set(), "tempoMs": 0, "quantidades": {}, "valorProduzido": 0.0, "temValor": False})
+        c["apontamentos"] += 1
+        c["ordens"].add(r.os)
+        c["tempoMs"] += dur
+        if flt(r.qtd):
+            c["quantidades"][r.unidade or ""] = c["quantidades"].get(r.unidade or "", 0) + flt(r.qtd)
+        if valor is not None:
+            c["valorProduzido"] += valor
+            c["temValor"] = True
+        det.append({"id": r.id, "centro": centro, "os": r.os, "operacao": r.operacao, "descricaoEtapa": r.operacao, "quantidade": flt(r.qtd), "unidade": r.unidade or "", "funcionario": r.operador or "—",
+                    "inicio": str(r.from_time), "fim": str(r.to_time), "duracaoMs": dur, "valorProduzido": valor})
+    por_centro = [{"centro": c["centro"], "apontamentos": c["apontamentos"], "ordens": len(c["ordens"]), "tempoMs": c["tempoMs"], "quantidades": [{"unidade": u, "quantidade": q} for u, q in c["quantidades"].items()],
+                   "valorProduzido": round(c["valorProduzido"], 2) if c["temValor"] else None} for c in centros.values()]
+    por_centro.sort(key=lambda x: -x["apontamentos"])
+    return {"inicio": inicio, "fim": fim, "atualizadoEm": frappe.utils.now(), "porCentro": por_centro, "detalhado": det, "totalApontamentos": len(det)}
+
+
+@frappe.whitelist()
+def producao_planejamento(mes):
+    """Ordens ainda nao concluidas com o dia agendado para iniciar (data de inicio planejada) e os materiais necessarios."""
+    frappe.only_for(_PROD_PAPEIS)
+    ini, fim = _mes_limites(mes)
+    hoje = frappe.utils.today()
+    ordens = frappe.get_all("Work Order", filters={"docstatus": 1, "status": ["in", ["Not Started", "In Process", "Stopped"]]},
+                            fields=["name", "production_item", "item_name", "qty", "stock_uom", "sales_order", "planned_start_date", "status"], order_by="planned_start_date asc")
+    mats = {}
+    nomes = [o.name for o in ordens]
+    for i in range(0, len(nomes), 500):
+        for m in frappe.get_all("Work Order Item", filters={"parent": ["in", nomes[i:i + 500]]}, fields=["parent", "item_code", "item_name", "required_qty", "stock_uom"], order_by="idx asc"):
+            mats.setdefault(m.parent, []).append({"codigo": m.item_code, "descricao": m.item_name or "", "unidade": m.stock_uom or "", "quantidade": flt(m.required_qty)})
+    valores = {s.name: flt(s.grand_total) for s in frappe.get_all("Sales Order", filters={"name": ["in", [o.sales_order for o in ordens if o.sales_order] or [""]]}, fields=["name", "grand_total"])}
+    itens = []
+    for o in ordens:
+        d = str(o.planned_start_date)[:10] if o.planned_start_date else ""
+        itens.append({"id": o.name, "os": o.name, "pedido": o.sales_order or "", "produto": o.item_name, "codigoProduto": o.production_item, "quantidade": flt(o.qty), "unidade": o.stock_uom or "", "valorTotal": valores.get(o.sales_order),
+                      "data": d, "atrasado": bool(d and d < hoje and o.status == "Not Started"), "emAndamento": o.status != "Not Started", "materiais": mats.get(o.name, [])})
+    return {"mes": mes, "hoje": hoje, "atualizadoEm": frappe.utils.now(), "itens": itens}
+
+
+@frappe.whitelist()
+def producao_agendar(os, data):
+    """Muda o dia agendado para iniciar a ordem de servico."""
+    frappe.only_for(["System Manager", "Manufacturing Manager", "Manufacturing User"])
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", data or ""):
+        frappe.throw(_("Data inválida."))
+    if not frappe.db.exists("Work Order", os):
+        frappe.throw(_("Ordem {0} não encontrada.").format(os))
+    frappe.db.set_value("Work Order", os, "planned_start_date", data + " 07:00:00", update_modified=False)
+    frappe.db.commit()
+    return {"ok": 1}
