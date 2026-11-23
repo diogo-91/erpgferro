@@ -479,3 +479,226 @@ def comissoes_ajuste(mes, vendedor, valor=0, observacao=""):
         frappe.get_doc({"doctype": "Ajuste de Comissao", "mes": mes, "vendedor": vendedor, "valor": valor, "observacao": observacao}).insert(ignore_permissions=True)
     frappe.db.commit()
     return {"valor": valor, "observacao": observacao}
+
+
+# ---------------------------------------------------------------- Dashboard > Pedidos (liberados, combinados, formato 2)
+_PEDIDOS_PAPEIS = ["System Manager", "Gestor Comercial", "Sales Manager", "Gerente de Loja", "Accounts Manager", "Manufacturing Manager"]
+
+
+@frappe.whitelist()
+def pedidos_dashboard():
+    """Pedidos de Venda confirmados (menos cancelados) com cliente, vendedor, loja, prazo, recebido e parcelas em aberto. A classificacao (prazo, regra do formato 2) e feita na tela."""
+    frappe.only_for(_PEDIDOS_PAPEIS)
+    cab = frappe.get_list("Sales Order", filters={"docstatus": 1, "status": ["!=", "Cancelled"]}, limit_page_length=0, order_by="transaction_date desc, name desc",
+                          fields=["name", "customer_name", "vendedor", "loja", "transaction_date", "delivery_date", "grand_total", "advance_paid", "etapa_pedido", "obs_pedido",
+                                  "lucro_transferido", "lucro_transferido_valor", "lucro_transferido_por", "lucro_transferido_em"])
+    nomes = [c.name for c in cab]
+    loja_de = {_nome_canonico(p.name): p.loja for p in frappe.get_all("Sales Person", filters={"is_group": 0}, fields=["name", "loja"]) if p.loja}
+    pago, titulos, prazo_item = {}, {}, {}
+    hoje = frappe.utils.today()
+    for i in range(0, len(nomes), 500):
+        lote = nomes[i:i + 500]
+        for r in frappe.db.sql("""select sii.sales_order so, si.name nf, si.grand_total, si.outstanding_amount aberto, si.due_date from `tabSales Invoice Item` sii
+                                  join `tabSales Invoice` si on si.name = sii.parent where si.docstatus = 1 and sii.sales_order in %(l)s group by sii.sales_order, si.name""", {"l": lote}, as_dict=True):
+            pago[r.so] = pago.get(r.so, 0) + flt(r.grand_total) - flt(r.aberto)
+            if flt(r.aberto) > 0.004:
+                t = titulos.setdefault(r.so, {"n": 0, "saldo": 0, "vencido": 0, "prox": None})
+                t["n"] += 1
+                t["saldo"] += flt(r.aberto)
+                if r.due_date:
+                    d = str(r.due_date)
+                    if d < hoje:
+                        t["vencido"] += flt(r.aberto)
+                    if t["prox"] is None or d < t["prox"]:
+                        t["prox"] = d
+        for r in frappe.db.sql("select parent, min(delivery_date) d from `tabSales Order Item` where parent in %(l)s and delivery_date is not null group by parent", {"l": lote}, as_dict=True):
+            prazo_item[r.parent] = str(r.d)
+    saida = []
+    for c in cab:
+        vend = _nome_canonico((c.vendedor or "").strip()) or "(sem vendedor)"
+        recebido = max(flt(c.advance_paid), pago.get(c.name, 0))
+        a_receber = max(flt(c.grand_total) - recebido, 0)
+        t = titulos.get(c.name) or {"n": 0, "saldo": 0, "vencido": 0, "prox": None}
+        obs = (c.obs_pedido or "").strip()
+        saida.append({"codigo": c.name, "cliente": c.customer_name or "", "vendedor": vend, "loja": loja_de.get(vend) or c.loja or "Sem loja", "dataEmissao": str(c.transaction_date),
+                      "valorTotal": flt(c.grand_total), "etapa": c.etapa_pedido or "", "prazo": str(c.delivery_date) if c.delivery_date else prazo_item.get(c.name), "recebido": recebido,
+                      "aReceber": a_receber, "titulosAbertos": t["n"], "saldoEmTitulos": t["saldo"], "vencidoReceber": t["vencido"], "proximoVencimento": t["prox"],
+                      "observacao": obs, "contrato": "contrato" in obs.lower(), "dirceu": "dirceu" in obs.lower(),
+                      "lucroTransferido": ({"valor": flt(c.lucro_transferido_valor), "por": c.lucro_transferido_por or "", "em": str(c.lucro_transferido_em or "")} if c.lucro_transferido else None)})
+    return {"atualizadoEm": frappe.utils.now(), "hoje": hoje, "pedidos": saida}
+
+
+@frappe.whitelist()
+def pedidos_lucro_transferido(pedido, transferido, valor=0):
+    """Confirma (ou desfaz) que o lucro do pedido (formato 2) foi transferido."""
+    frappe.only_for(["System Manager", "Gestor Comercial", "Accounts Manager"])
+    if not frappe.db.exists("Sales Order", pedido):
+        frappe.throw(_("Pedido {0} não encontrado.").format(pedido))
+    on = int(transferido) == 1
+    frappe.db.set_value("Sales Order", pedido, {"lucro_transferido": 1 if on else 0, "lucro_transferido_valor": flt(valor) if on else 0,
+                                                 "lucro_transferido_por": frappe.session.user if on else "", "lucro_transferido_em": now_datetime() if on else None}, update_modified=False)
+    frappe.db.commit()
+    return {"lucroTransferido": {"valor": flt(valor), "por": frappe.session.user, "em": str(now_datetime())} if on else None}
+
+
+# ---------------------------------------------------------------- Dashboard > Entregas e Mapa
+_UF_NOMES = {"ACRE": "AC", "ALAGOAS": "AL", "AMAPA": "AP", "AMAZONAS": "AM", "BAHIA": "BA", "CEARA": "CE", "DISTRITO FEDERAL": "DF", "ESPIRITO SANTO": "ES", "GOIAS": "GO", "MARANHAO": "MA",
+             "MATO GROSSO": "MT", "MATO GROSSO DO SUL": "MS", "MINAS GERAIS": "MG", "PARA": "PA", "PARAIBA": "PB", "PARANA": "PR", "PERNAMBUCO": "PE", "PIAUI": "PI", "RIO DE JANEIRO": "RJ",
+             "RIO GRANDE DO NORTE": "RN", "RIO GRANDE DO SUL": "RS", "RONDONIA": "RO", "RORAIMA": "RR", "SANTA CATARINA": "SC", "SAO PAULO": "SP", "SERGIPE": "SE", "TOCANTINS": "TO"}
+_SIGLAS = set(_UF_NOMES.values())
+
+
+def _uf_de(estado, cidade):
+    e = _norm_nome(estado)
+    if e in _SIGLAS:
+        return e, cidade
+    if e in _UF_NOMES:
+        return _UF_NOMES[e], cidade
+    m = re.match(r"^(.*?)\s*[-/]\s*([A-Za-z]{2})$", cidade or "")
+    if m and m.group(2).upper() in _SIGLAS:
+        return m.group(2).upper(), m.group(1).strip()
+    return "", cidade
+
+
+def _loja_do_vendedor():
+    return {_nome_canonico(p.name): p.loja for p in frappe.get_all("Sales Person", filters={"is_group": 0}, fields=["name", "loja"]) if p.loja}
+
+
+def _numero_pedido(texto):
+    d = re.sub(r"\D", "", str(texto or ""))
+    return "PD %05d" % int(d) if d and len(d) <= 9 and int(d) > 0 else None
+
+
+@frappe.whitelist()
+def entregas_dashboard(inicio, fim):
+    """Entregas lancadas (tela Entregas) ligadas ao Pedido de Venda: vendedor, loja, valor, recebimento na entrega e prazo."""
+    frappe.only_for(_PEDIDOS_PAPEIS)
+    if not (re.fullmatch(r"\d{4}-\d{2}-\d{2}", inicio or "") and re.fullmatch(r"\d{4}-\d{2}-\d{2}", fim or "")):
+        frappe.throw(_("Período inválido."))
+    ents = frappe.get_all("Entrega de Pedido", filters={"data": ["between", [inicio, fim]]}, order_by="data asc, creation asc",
+                          fields=["name", "data", "motorista", "caminhao", "pedido", "cliente", "metragem", "valor", "creation"])
+    mot = {m.name: m.nome for m in frappe.get_all("Motorista de Entrega", fields=["name", "nome"])}
+    cam = {c.name: c.placa for c in frappe.get_all("Caminhao", fields=["name", "placa"])}
+    codigos = {e.name: (_numero_pedido(e.pedido) or "") for e in ents}
+    pedidos = sorted({c for c in codigos.values() if c and frappe.db.exists("Sales Order", c)})
+    # todas as entregas desses pedidos (a pontualidade conta so a primeira lancada)
+    todas = {}
+    if pedidos:
+        for e in frappe.get_all("Entrega de Pedido", fields=["name", "data", "pedido", "creation"], order_by="data asc, creation asc", limit_page_length=0):
+            c = _numero_pedido(e.pedido)
+            if c in pedidos:
+                todas.setdefault(c, []).append(e.name)
+    so, sched, pagtos, prazo_item = {}, {}, {}, {}
+    loja_de = _loja_do_vendedor()
+    if pedidos:
+        for s in frappe.get_all("Sales Order", filters={"name": ["in", pedidos]}, fields=["name", "customer_name", "vendedor", "loja", "grand_total", "advance_paid", "delivery_date", "etapa_pedido"]):
+            so[s.name] = s
+        for r in frappe.db.sql("select parent, max(delivery_date) d from `tabSales Order Item` where parent in %(l)s and delivery_date is not null group by parent", {"l": pedidos}, as_dict=True):
+            prazo_item[r.parent] = str(r.d)
+        for r in frappe.get_all("Payment Schedule", filters={"parent": ["in", pedidos], "parenttype": "Sales Order"}, fields=["parent", "payment_term", "description", "payment_amount", "idx"], order_by="idx asc"):
+            sched.setdefault(r.parent, []).append(r)
+        for r in frappe.db.sql("""
+            select x.so, per.allocated_amount valor, per.payment_term term, pe.posting_date data, pe.mode_of_payment forma
+            from `tabPayment Entry Reference` per join `tabPayment Entry` pe on pe.name = per.parent and pe.docstatus = 1
+            join (select name so, name ref from `tabSales Order` where name in %(l)s
+                  union select sii.sales_order so, sii.parent ref from `tabSales Invoice Item` sii where sii.sales_order in %(l)s) x on x.ref = per.reference_name""", {"l": pedidos}, as_dict=True):
+            pagtos.setdefault(r.so, []).append(r)
+    linhas = []
+    for e in ents:
+        c = codigos[e.name]
+        s = so.get(c)
+        l = {"id": e.name, "data": str(e.data), "pedido": c or (e.pedido or ""), "cliente": (s.customer_name if s else None) or e.cliente or None, "metragem": e.metragem, "motorista": mot.get(e.motorista, "—"),
+             "caminhao": cam.get(e.caminhao, "—"), "vendedor": None, "loja": "Sem loja", "pedidoEncontrado": bool(s), "valorPedido": None, "recebimento": None, "prazo": None,
+             "liberado": False, "lancamentosDoPedido": len(todas.get(c, [])) or 1, "primeiraDoPedido": (todas.get(c) or [e.name])[0] == e.name}
+        if s:
+            vend = _nome_canonico((s.vendedor or "").strip())
+            l.update({"vendedor": vend or None, "loja": loja_de.get(vend) or s.loja or "Sem loja", "valorPedido": flt(s.grand_total),
+                      "prazo": str(s.delivery_date) if s.delivery_date else prazo_item.get(c), "liberado": (s.etapa_pedido or "") not in ("Entregue", "Cancelado")})
+            lin = pagtos.get(c, [])
+            total = max(sum(flt(p.valor) for p in lin), flt(s.advance_paid))
+            da_entrega = [p for p in sched.get(c, []) if re.search("entrega", "%s %s" % (p.payment_term or "", p.description or ""), re.I) and not re.search("retira", "%s %s" % (p.payment_term or "", p.description or ""), re.I)]
+            formas = set()
+            if da_entrega:
+                criterio, cobranca = "parcela", sum(flt(p.payment_amount) for p in da_entrega)
+                termos = {p.payment_term for p in da_entrega if p.payment_term}
+                na_entrega = sum(flt(p.valor) for p in lin if p.term in termos)
+                formas = {p.forma for p in lin if p.term in termos and p.forma}
+            else:
+                criterio = "dia"
+                dia = [p for p in lin if str(p.data) == str(e.data)]
+                na_entrega = sum(flt(p.valor) for p in dia)
+                cobranca = na_entrega
+                formas = {p.forma for p in dia if p.forma}
+            antes = max(0, total - na_entrega)
+            em_aberto = max(0, flt(s.grand_total) - total)
+            if cobranca > 0 and na_entrega >= cobranca - 0.01:
+                sit = "RECEBIDO"
+            elif na_entrega > 0:
+                sit = "PARCIAL"
+            elif cobranca > 0:
+                sit = "A_RECEBER"
+            elif antes > 0 and em_aberto <= 0.01:
+                sit = "PAGO_ANTES"
+            else:
+                sit = "NAO"
+            l["recebimento"] = {"cobranca": round(cobranca, 2), "naEntrega": round(na_entrega, 2), "antes": round(antes, 2), "total": round(total, 2), "emAberto": round(em_aberto, 2),
+                                "formas": sorted(formas), "situacao": sit, "criterio": criterio}
+        linhas.append(l)
+    return {"inicio": inicio, "fim": fim, "atualizadoEm": frappe.utils.now(), "hoje": frappe.utils.today(), "entregas": linhas}
+
+
+@frappe.whitelist()
+def mapa_pedidos(modo="periodo", inicio=None, fim=None):
+    """Pedidos por cidade e estado (cidade do endereco do cliente). modo 'a-entregar' = pedidos ainda nao entregues; 'periodo' = emitidos entre inicio e fim."""
+    frappe.only_for(_PEDIDOS_PAPEIS)
+    filtros = {"docstatus": 1, "status": ["!=", "Cancelled"]}
+    if modo == "a-entregar":
+        filtros["etapa_pedido"] = ["not in", ["Entregue", "Cancelado"]]
+    else:
+        if not (re.fullmatch(r"\d{4}-\d{2}-\d{2}", inicio or "") and re.fullmatch(r"\d{4}-\d{2}-\d{2}", fim or "")):
+            frappe.throw(_("Período inválido."))
+        filtros["transaction_date"] = ["between", [inicio, fim]]
+        filtros["etapa_pedido"] = ["!=", "Cancelado"]
+    cab = frappe.get_list("Sales Order", filters=filtros, limit_page_length=0, order_by="grand_total desc",
+                          fields=["name", "customer", "customer_name", "vendedor", "loja", "transaction_date", "delivery_date", "grand_total", "shipping_address_name", "customer_address"])
+    enderecos = {}
+    nomes_end = {c.shipping_address_name or c.customer_address for c in cab if (c.shipping_address_name or c.customer_address)}
+    if nomes_end:
+        for a in frappe.get_all("Address", filters={"name": ["in", list(nomes_end)]}, fields=["name", "address_line1", "address_line2", "city", "state"]):
+            enderecos[a.name] = a
+    clientes = {c.customer for c in cab if not (c.shipping_address_name or c.customer_address)}
+    por_cliente = {}
+    if clientes:
+        for a in frappe.db.sql("""select dl.link_name cliente, a.address_line1, a.address_line2, a.city, a.state from `tabAddress` a join `tabDynamic Link` dl on dl.parent = a.name and dl.parenttype = 'Address'
+                                  and dl.link_doctype = 'Customer' where dl.link_name in %(c)s order by a.is_primary_address desc, a.creation asc""", {"c": list(clientes)}, as_dict=True):
+            por_cliente.setdefault(a.cliente, a)
+    loja_de = _loja_do_vendedor()
+    pedidos, sem, lojas = [], {"pedidos": 0, "valor": 0}, set()
+    for c in cab:
+        vend = _nome_canonico((c.vendedor or "").strip()) or "(sem vendedor)"
+        loja = loja_de.get(vend) or c.loja or "Sem loja"
+        a = enderecos.get(c.shipping_address_name or c.customer_address) or por_cliente.get(c.customer)
+        cidade, uf = ((a.city or "").strip(), "") if a else ("", "")
+        if a:
+            uf, cidade = _uf_de(a.state, cidade)
+        if not (cidade and uf):
+            sem["pedidos"] += 1
+            sem["valor"] += flt(c.grand_total)
+            continue
+        lojas.add(loja)
+        pedidos.append({"codigo": c.name, "cliente": c.customer_name or "", "cidade": cidade, "uf": uf, "endereco": ", ".join(x for x in (a.address_line1, a.address_line2) if x), "enderecoEntrega": bool(c.shipping_address_name),
+                        "vendedor": vend, "loja": loja, "dataEmissao": str(c.transaction_date), "prazo": str(c.delivery_date) if c.delivery_date else None, "valor": flt(c.grand_total)})
+    return {"modo": modo, "inicio": inicio, "fim": fim, "atualizadoEm": frappe.utils.now(), "totalPedidos": len(pedidos) + sem["pedidos"], "semLocalizacao": sem,
+            "lojas": sorted(lojas), "pedidos": pedidos}
+
+
+@frappe.whitelist()
+def mapa_geo(tipo):
+    """Desenho dos estados e coordenadas dos municipios (arquivos em public/gferro/mapa)."""
+    import json
+    import os
+
+    if tipo not in ("estados", "municipios"):
+        frappe.throw(_("Tipo inválido."))
+    with open(os.path.join(frappe.get_app_path("erpnext", "public", "gferro", "mapa"), tipo + ".json"), encoding="utf-8") as f:
+        return json.load(f)

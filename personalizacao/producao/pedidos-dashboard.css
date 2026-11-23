@@ -1,0 +1,56 @@
+/* Pedidos (Dashboard) - Grupo Gferro */
+#page-pedidos-dashboard .page-head { display: none; }
+.gf-ped, .gf-ped .page-body, .gf-ped .page-wrapper, .gf-ped .page-content, .gf-ped .layout-main, .gf-ped .layout-main-section-wrapper, .gf-ped .layout-main-section { background: #f3f3f3; }
+.gf-ped { min-height: 100vh; }
+.gf-ped .page-body { padding: 0; }
+.gfp { max-width: 1400px; margin: 0 auto; padding: 22px 18px 44px; font-family: "Plus Jakarta Sans", "Inter", system-ui, sans-serif; color: #141414; }
+.gfp-topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+.gfp-trilha { font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #ca8a04; }
+.gfp-topo h1 { margin: 4px 0 0; font-size: 24px; font-weight: 900; }
+.gfp-topo p { margin: 4px 0 0; max-width: 820px; font-size: 12.5px; color: #6b7280; }
+.gfp-acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.gfp-busca { width: 288px; height: 38px; border: 1px solid #d5d8de; border-radius: 12px; padding: 0 14px; font-size: 13px; background: #fff; }
+.gfp-busca:focus { outline: none; border-color: #F5C518; }
+.gfp-b { height: 38px; padding: 0 16px; border: 1px solid #d5d8de; border-radius: 999px; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+.gfp-b:hover { border-color: #F5C518; }
+.gfp-aviso { padding: 10px 14px; border-radius: 10px; background: #fdecea; color: #b3261e; font-size: 13px; font-weight: 700; }
+.gfp-vazio { padding: 28px 8px; text-align: center; color: #9aa0a9; font-size: 13px; }
+.gfp-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+.gfp-k6 { grid-template-columns: repeat(6, 1fr); }
+.gfp-kpi { background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 3px; }
+.gfp-kpi span { font-size: 11px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #6b7280; }
+.gfp-kpi strong { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.gfp-kpi small { font-size: 11px; color: #6b7280; }
+.gfp-k-am { background: #fefce8; border-color: #fef08a; } .gfp-k-vm { background: #fef2f2; border-color: #fecaca; } .gfp-k-vd { background: #ecfdf5; border-color: #a7f3d0; } .gfp-k-lj { background: #fff7ed; border-color: #fed7aa; }
+.gfp-card { background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; }
+.gfp-card h2 { margin: 0 0 10px; font-size: 14px; font-weight: 800; }
+.gfp-comp { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 18px; }
+.gfp-comp div { display: flex; flex-direction: column; font-size: 12px; } .gfp-comp small { color: #9aa0a9; } .gfp-comp b { font-variant-numeric: tabular-nums; }
+.gfp-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 12px; }
+.gfp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.gfp-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border: 1px solid #d5d8de; border-radius: 999px; background: #fff; font-size: 12px; font-weight: 700; color: #4b5260; cursor: pointer; }
+.gfp-chip i, .gfp-selo i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.gfp-chip:hover { border-color: #141414; } .gfp-on { background: #141414; border-color: #141414; color: #fff; }
+.gfp-sel { height: 34px; border: 1px solid #d5d8de; border-radius: 12px; padding: 0 12px; font-size: 12px; font-weight: 700; background: #fff; }
+.gfp-cont { margin-left: auto; font-size: 11.5px; color: #6b7280; }
+.gfp-tw { overflow-x: auto; background: #fff; border: 1px solid #e6e6e6; border-radius: 16px; }
+.gfp-t { width: 100%; min-width: 860px; border-collapse: collapse; font-size: 13px; }
+.gfp-t th { padding: 12px; text-align: left; background: #fafafa; border-bottom: 1px solid #e6e6e6; font-weight: 800; white-space: nowrap; }
+.gfp-t th button { border: 0; background: none; font-weight: 800; font-size: 13px; cursor: pointer; padding: 0; }
+.gfp-t td { padding: 11px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+.gfp-t .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.gfp-t small { display: block; font-size: 11px; color: #6b7280; }
+.gfp-bl { border-left: 4px solid #ccc; white-space: nowrap; }
+.gfp-w { max-width: 190px; }
+.gfp-rec { background: #f3fbf6; }
+.gfp-venc { color: #dc2626 !important; font-weight: 800; }
+.gfp-pos { color: #047857; }
+.gfp-selo { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.gfp-obs { max-width: 360px; font-size: 12px; white-space: pre-wrap; }
+.gfp-seta { border: 0; background: none; cursor: pointer; font-size: 14px; }
+.gfp-det td { background: #fafafa; }
+.gfp-lucro { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid #d5d8de; border-radius: 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; margin: 0; }
+.gfp-lucro-on { border-color: #6ee7b7; background: #ecfdf5; color: #047857; }
+.gfp-nota { margin-top: 10px; font-size: 11px; color: #9aa0a9; line-height: 1.5; }
+@media (max-width: 1100px) { .gfp-kpis, .gfp-k6 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .gfp-kpis, .gfp-k6 { grid-template-columns: 1fr; } .gfp-busca { width: 100%; } }

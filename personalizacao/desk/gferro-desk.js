@@ -108,8 +108,26 @@
         '<span class="gf-label">Necessidade de compra</span></a>' + top;
     }
     if (mod === "Selling") {
-      top = '<a class="gf-link" href="/desk/comissoes-fabrica" data-href="/desk/comissoes-fabrica">' + icon("list") +
-        '<span class="gf-label">Comissões</span></a>' + top;
+      top = '<a class="gf-link" href="/desk/pedidos-dashboard/liberados" data-href="/desk/pedidos-dashboard/liberados">' + icon("list") +
+        '<span class="gf-label">Pedidos liberados</span></a>' +
+        '<a class="gf-link" href="/desk/pedidos-dashboard/combinados" data-href="/desk/pedidos-dashboard/combinados">' + icon("list") +
+        '<span class="gf-label">Pedidos combinados</span></a>' +
+        '<a class="gf-link" href="/desk/pedidos-dashboard/formato2" data-href="/desk/pedidos-dashboard/formato2">' + icon("list") +
+        '<span class="gf-label">Pedidos Formato 2</span></a>' +
+        '<a class="gf-link" href="/desk/pedido-problematico?tipo=Urgente&status=N%C3%A3o%20realizada" data-href="/desk/pedido-problematico?tipo=Urgente&status=N%C3%A3o%20realizada">' + icon("list") +
+        '<span class="gf-label">Pedidos urgentes</span></a>' +
+        '<a class="gf-link" href="/desk/pedido-problematico?tipo=Devolu%C3%A7%C3%A3o&status=N%C3%A3o%20realizada" data-href="/desk/pedido-problematico?tipo=Devolu%C3%A7%C3%A3o&status=N%C3%A3o%20realizada">' + icon("list") +
+        '<span class="gf-label">Pedidos de devolução</span></a>' +
+        '<a class="gf-link" href="/desk/pedido-problematico?tipo=Defeito&status=N%C3%A3o%20realizada" data-href="/desk/pedido-problematico?tipo=Defeito&status=N%C3%A3o%20realizada">' + icon("list") +
+        '<span class="gf-label">Clientes / defeitos</span></a>' +
+        '<a class="gf-link" href="/desk/pedido-problematico?tipo=Devolu%C3%A7%C3%A3o&status=Realizada" data-href="/desk/pedido-problematico?tipo=Devolu%C3%A7%C3%A3o&status=Realizada">' + icon("list") +
+        '<span class="gf-label">Pedidos convertidos</span></a>' +
+        '<a class="gf-link" href="/desk/comissoes-fabrica" data-href="/desk/comissoes-fabrica">' + icon("list") +
+        '<span class="gf-label">Comissões</span></a>' +
+        '<a class="gf-link" href="/desk/entregas-dashboard" data-href="/desk/entregas-dashboard">' + icon("list") +
+        '<span class="gf-label">Entregas (painel)</span></a>' +
+        '<a class="gf-link" href="/desk/mapa-pedidos" data-href="/desk/mapa-pedidos">' + icon("list") +
+        '<span class="gf-label">Mapa de pedidos</span></a>' + top;
     }
     var secs = sections.filter(function (s) { return s.html; }).map(function (s) {
       var k = mod + "/" + s.label;

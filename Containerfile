@@ -70,6 +70,16 @@ RUN mkdir -p apps/erpnext/erpnext/public/gferro && \
   mkdir -p apps/erpnext/erpnext/selling/page/comissoes_fabrica && touch apps/erpnext/erpnext/selling/page/comissoes_fabrica/__init__.py && \
   cp /tmp/producao/comissoes-fabrica.js apps/erpnext/erpnext/selling/page/comissoes_fabrica/comissoes_fabrica.js && \
   cp /tmp/producao/comissoes-fabrica.css apps/erpnext/erpnext/selling/page/comissoes_fabrica/comissoes_fabrica.css && \
+  mkdir -p apps/erpnext/erpnext/selling/page/pedidos_dashboard && touch apps/erpnext/erpnext/selling/page/pedidos_dashboard/__init__.py && \
+  cp /tmp/producao/pedidos-dashboard.js apps/erpnext/erpnext/selling/page/pedidos_dashboard/pedidos_dashboard.js && \
+  cp /tmp/producao/pedidos-dashboard.css apps/erpnext/erpnext/selling/page/pedidos_dashboard/pedidos_dashboard.css && \
+  mkdir -p apps/erpnext/erpnext/selling/page/entregas_dashboard && touch apps/erpnext/erpnext/selling/page/entregas_dashboard/__init__.py && \
+  cp /tmp/producao/entregas-dashboard.js apps/erpnext/erpnext/selling/page/entregas_dashboard/entregas_dashboard.js && \
+  cp /tmp/producao/entregas-dashboard.css apps/erpnext/erpnext/selling/page/entregas_dashboard/entregas_dashboard.css && \
+  mkdir -p apps/erpnext/erpnext/selling/page/mapa_pedidos && touch apps/erpnext/erpnext/selling/page/mapa_pedidos/__init__.py && \
+  cp /tmp/producao/mapa-pedidos.js apps/erpnext/erpnext/selling/page/mapa_pedidos/mapa_pedidos.js && \
+  cp /tmp/producao/mapa-pedidos.css apps/erpnext/erpnext/selling/page/mapa_pedidos/mapa_pedidos.css && \
+  mkdir -p apps/erpnext/erpnext/public/gferro/mapa && cp /tmp/desk/mapa/*.json apps/erpnext/erpnext/public/gferro/mapa/ && \
   python3 /tmp/desk/patch_hooks.py apps/erpnext/erpnext/hooks.py && \
   grep -q gferro-desk.js apps/erpnext/erpnext/hooks.py && \
   grep -q gf_qr apps/erpnext/erpnext/hooks.py && ./env/bin/python -c "import pyqrcode"
