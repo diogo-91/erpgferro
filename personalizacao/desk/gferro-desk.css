@@ -298,3 +298,7 @@ body .page-container { background: #f2f2ee; }
 #page-print .print-preview-wrapper { margin: 0 auto; }
 
 .gf-kpi-laranja::before { background: #f59e0b; }
+
+/* submenus do Dashboard (como na Intranet) */
+.gf-sec-n > .gf-sec-head { height: 36px; font-size: 13px; font-weight: 500; letter-spacing: 0; text-transform: none; color: inherit; }
+.gf-sec-n > .gf-sec-head svg { width: 15px; height: 15px; flex: 0 0 15px; }

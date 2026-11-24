@@ -111,40 +111,6 @@
         '<a class="gf-link" href="/desk/query-report/Necessidade de Compra" data-href="/desk/query-report/Necessidade de Compra">' + icon("list") +
         '<span class="gf-label">Necessidade de compra</span></a>' + top;
     }
-    if (mod === "Accounts") {
-      top = '<a class="gf-link" href="/desk/planejamento-financeiro" data-href="/desk/planejamento-financeiro">' + icon("list") +
-        '<span class="gf-label">Planejamento financeiro</span></a>' +
-        '<a class="gf-link" href="/desk/programacao-contas" data-href="/desk/programacao-contas">' + icon("list") +
-        '<span class="gf-label">Programação</span></a>' +
-        '<a class="gf-link" href="/desk/saidas-financeiras" data-href="/desk/saidas-financeiras">' + icon("list") +
-        '<span class="gf-label">Saídas</span></a>' +
-        '<a class="gf-link" href="/desk/placas-eps" data-href="/desk/placas-eps">' + icon("list") +
-        '<span class="gf-label">Placas de EPS</span></a>' + top;
-    }
-    if (mod === "Selling") {
-      top = '<a class="gf-link" href="/desk/pedidos-dashboard/liberados" data-href="/desk/pedidos-dashboard/liberados">' + icon("list") +
-        '<span class="gf-label">Pedidos liberados</span></a>' +
-        '<a class="gf-link" href="/desk/pedidos-dashboard/combinados" data-href="/desk/pedidos-dashboard/combinados">' + icon("list") +
-        '<span class="gf-label">Pedidos combinados</span></a>' +
-        '<a class="gf-link" href="/desk/pedidos-dashboard/formato2" data-href="/desk/pedidos-dashboard/formato2">' + icon("list") +
-        '<span class="gf-label">Pedidos Formato 2</span></a>' +
-        '<a class="gf-link" href="/desk/pedido-problematico?tipo=Urgente&status=N%C3%A3o%20realizada" data-href="/desk/pedido-problematico?tipo=Urgente&status=N%C3%A3o%20realizada">' + icon("list") +
-        '<span class="gf-label">Pedidos urgentes</span></a>' +
-        '<a class="gf-link" href="/desk/pedido-problematico?tipo=Devolu%C3%A7%C3%A3o&status=N%C3%A3o%20realizada" data-href="/desk/pedido-problematico?tipo=Devolu%C3%A7%C3%A3o&status=N%C3%A3o%20realizada">' + icon("list") +
-        '<span class="gf-label">Pedidos de devolução</span></a>' +
-        '<a class="gf-link" href="/desk/pedido-problematico?tipo=Defeito&status=N%C3%A3o%20realizada" data-href="/desk/pedido-problematico?tipo=Defeito&status=N%C3%A3o%20realizada">' + icon("list") +
-        '<span class="gf-label">Clientes / defeitos</span></a>' +
-        '<a class="gf-link" href="/desk/pedido-problematico?tipo=Devolu%C3%A7%C3%A3o&status=Realizada" data-href="/desk/pedido-problematico?tipo=Devolu%C3%A7%C3%A3o&status=Realizada">' + icon("list") +
-        '<span class="gf-label">Pedidos convertidos</span></a>' +
-        '<a class="gf-link" href="/desk/comissoes-fabrica" data-href="/desk/comissoes-fabrica">' + icon("list") +
-        '<span class="gf-label">Comissões</span></a>' +
-        '<a class="gf-link" href="/desk/gestao-metas" data-href="/desk/gestao-metas">' + icon("list") +
-        '<span class="gf-label">Gestão (metas)</span></a>' +
-        '<a class="gf-link" href="/desk/entregas-dashboard" data-href="/desk/entregas-dashboard">' + icon("list") +
-        '<span class="gf-label">Entregas (painel)</span></a>' +
-        '<a class="gf-link" href="/desk/mapa-pedidos" data-href="/desk/mapa-pedidos">' + icon("list") +
-        '<span class="gf-label">Mapa de pedidos</span></a>' + top;
-    }
     var secs = sections.filter(function (s) { return s.html; }).map(function (s) {
       var k = mod + "/" + s.label;
       return '<div class="gf-sec' + (opened()[k] ? " gf-open" : "") + '" data-k="' + esc(k) + '">' +
@@ -154,6 +120,34 @@
     return '<div class="gf-mod' + (opened()[mod] ? " gf-open" : "") + '" data-k="' + esc(mod) + '">' +
       '<button class="gf-mod-head" type="button">' + moduleIcon(mod) + '<span class="gf-label">' + esc(tr(ms.label || mod)) + "</span>" + CHEV + "</button>" +
       '<div class="gf-children">' + top + secs + "</div></div>";
+  }
+
+  // Modulo "Dashboard": mesmo menu da Intranet (itens com submenu)
+  var DASH = [
+    ["Vendas", "/desk/painel-vendas", "trending-up"],
+    ["Pedidos", [["Pedidos liberados", "/desk/pedidos-dashboard/liberados"], ["Pedidos problemáticos", "/desk/pedido-problematico"],
+      ["Pedidos combinados", "/desk/pedidos-dashboard/combinados"], ["Pedidos Formato 2", "/desk/pedidos-dashboard/formato2"]], "package"],
+    ["Entregas", "/desk/entregas-dashboard", "truck"],
+    ["Mapa", "/desk/mapa-pedidos", "map"],
+    ["Financeiro", [["Planejamento", "/desk/planejamento-financeiro"], ["Programação", "/desk/programacao-contas"],
+      ["Saídas", "/desk/saidas-financeiras"], ["Placas de EPS", "/desk/placas-eps"], ["Comissões", "/desk/comissoes-fabrica"]], "wallet"],
+    ["Produção", "/desk/producao-dashboard/painel", "tool"],
+    ["Gestão", "/desk/gestao-metas", "target"]
+  ];
+  function dashLink(l, ic) {
+    return '<a class="gf-link" href="' + esc(l[1]) + '" data-href="' + esc(l[1]) + '">' + icon(ic) + '<span class="gf-label">' + esc(l[0]) + "</span></a>";
+  }
+  function dashboardHtml() {
+    var h = DASH.map(function (d) {
+      if (typeof d[1] === "string") return dashLink(d, d[2]);
+      var k = "Dashboard/" + d[0];
+      return '<div class="gf-sec gf-sec-n' + (opened()[k] ? " gf-open" : "") + '" data-k="' + esc(k) + '">' +
+        '<button class="gf-sec-head" type="button">' + icon(d[2]) + '<span class="gf-label">' + esc(d[0]) + "</span>" + CHEV + "</button>" +
+        '<div class="gf-children">' + d[1].map(function (l) { return dashLink(l, "list"); }).join("") + "</div></div>";
+    }).join("");
+    return '<div class="gf-mod' + (opened()["Dashboard"] ? " gf-open" : "") + '" data-k="Dashboard">' +
+      '<button class="gf-mod-head" type="button">' + icon("layout-dashboard") + '<span class="gf-label">Dashboard</span>' + CHEV + "</button>" +
+      '<div class="gf-children">' + h + "</div></div>";
   }
 
   function markActive() {
@@ -198,7 +192,7 @@
 
     var nav = document.createElement("div");
     nav.className = "gf-nav";
-    nav.innerHTML = mods.map(moduleHtml).join("");
+    nav.innerHTML = dashboardHtml() + mods.map(moduleHtml).join("");
 
     var foot = document.createElement("div");
     foot.className = "gf-foot";
