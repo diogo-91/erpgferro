@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [apps.json, Containerfile, i18n/**, personalizacao/desk/**, personalizacao/painel/**, personalizacao/producao/**, .github/workflows/build.yml]
+    paths: [apps.json, Containerfile, i18n/**, personalizacao/desk/**, personalizacao/painel/**, personalizacao/producao/**, personalizacao/*.py, personalizacao/*.sh, personalizacao/*.json, personalizacao/orcamento/**, personalizacao/pedido/**, .github/workflows/build.yml]
 
 permissions:
   contents: read
@@ -56,6 +56,11 @@ jobs:
           # o Containerfile faz COPY de personalizacao/desk, painel e producao (telas, menu e utilitarios do ERP GFerro)
           mkdir -p builder/personalizacao
           cp -r mine/personalizacao/desk mine/personalizacao/painel mine/personalizacao/producao builder/personalizacao/
+          # pacote do instalador (scripts aplicar-*, dados, imagens e formatos de impressao)
+          mkdir -p builder/setup
+          for d in desk painel producao orcamento pedido; do cp -r mine/personalizacao/$d/. builder/setup/; done
+          cp mine/personalizacao/*.py mine/personalizacao/*.json mine/personalizacao/*.webp mine/personalizacao/*.js mine/personalizacao/*.sh builder/setup/ 2>/dev/null || true
+          rm -f builder/setup/_parte_*.py
           ls builder/personalizacao builder/personalizacao/producao | head -60
 
       - name: Show apps.json

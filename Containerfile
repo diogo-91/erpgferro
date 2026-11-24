@@ -118,6 +118,9 @@ USER frappe
 
 COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
 
+# Instalador: arquivos usados por /home/frappe/gferro-setup/instalar-tudo.sh
+COPY --chown=frappe:frappe setup /home/frappe/gferro-setup
+
 WORKDIR /home/frappe/frappe-bench
 
 # Move assets to image-layer storage
